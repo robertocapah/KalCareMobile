@@ -1,0 +1,18 @@
+[
+    {
+        "merged": "E:\\ANDROID\\KALCARE\\KalCareMobie\\zXingLib\\build\\intermediates\\res\\merged\\androidTest\\debug\\drawable_zxinglib_icon.png.flat",
+        "source": "E:\\ANDROID\\KALCARE\\KalCareMobie\\zXingLib\\build\\intermediates\\bundles\\debug\\res\\drawable\\zxinglib_icon.png"
+    },
+    {
+        "merged": "E:\\ANDROID\\KALCARE\\KalCareMobie\\zXingLib\\build\\intermediates\\res\\merged\\androidTest\\debug\\raw_zxinglib_beep.ogg.flat",
+        "source": "E:\\ANDROID\\KALCARE\\KalCareMobie\\zXingLib\\build\\intermediates\\bundles\\debug\\res\\raw\\zxinglib_beep.ogg"
+    },
+    {
+        "merged": "E:\\ANDROID\\KALCARE\\KalCareMobie\\zXingLib\\build\\intermediates\\res\\merged\\androidTest\\debug\\layout_zxinglib_capture.xml.flat",
+        "source": "E:\\ANDROID\\KALCARE\\KalCareMobie\\zXingLib\\build\\intermediates\\bundles\\debug\\res\\layout\\zxinglib_capture.xml"
+    },
+    {
+        "merged": "E:\\ANDROID\\KALCARE\\KalCareMobie\\zXingLib\\build\\intermediates\\res\\merged\\androidTest\\debug\\drawable-hdpi-v4_zxinglib_icon.png.flat",
+        "source": "E:\\ANDROID\\KALCARE\\KalCareMobie\\zXingLib\\build\\intermediates\\bundles\\debug\\res\\drawable-hdpi-v4\\zxinglib_icon.png"
+    }
+]

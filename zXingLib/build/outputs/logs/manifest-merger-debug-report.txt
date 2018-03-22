@@ -1,0 +1,85 @@
+-- Merging decision tree log ---
+manifest
+ADDED from E:\ANDROID\KALCARE\KalCareMobie\zXingLib\src\main\AndroidManifest.xml:2:1-24:12
+INJECTED from E:\ANDROID\KALCARE\KalCareMobie\zXingLib\src\main\AndroidManifest.xml:2:1-24:12
+INJECTED from E:\ANDROID\KALCARE\KalCareMobie\zXingLib\src\main\AndroidManifest.xml:2:1-24:12
+INJECTED from E:\ANDROID\KALCARE\KalCareMobie\zXingLib\src\main\AndroidManifest.xml:2:1-24:12
+INJECTED from E:\ANDROID\KALCARE\KalCareMobie\zXingLib\src\main\AndroidManifest.xml:2:1-24:12
+INJECTED from E:\ANDROID\KALCARE\KalCareMobie\zXingLib\src\main\AndroidManifest.xml:2:1-24:12
+INJECTED from E:\ANDROID\KALCARE\KalCareMobie\zXingLib\src\main\AndroidManifest.xml:2:1-24:12
+	package
+		ADDED from E:\ANDROID\KALCARE\KalCareMobie\zXingLib\src\main\AndroidManifest.xml:3:2-42
+		INJECTED from E:\ANDROID\KALCARE\KalCareMobie\zXingLib\src\main\AndroidManifest.xml
+		INJECTED from E:\ANDROID\KALCARE\KalCareMobie\zXingLib\src\main\AndroidManifest.xml
+	android:versionName
+		ADDED from E:\ANDROID\KALCARE\KalCareMobie\zXingLib\src\main\AndroidManifest.xml:4:2-27
+		INJECTED from E:\ANDROID\KALCARE\KalCareMobie\zXingLib\src\main\AndroidManifest.xml
+		INJECTED from E:\ANDROID\KALCARE\KalCareMobie\zXingLib\src\main\AndroidManifest.xml
+	xmlns:android
+		ADDED from E:\ANDROID\KALCARE\KalCareMobie\zXingLib\src\main\AndroidManifest.xml:2:11-69
+	android:versionCode
+		ADDED from E:\ANDROID\KALCARE\KalCareMobie\zXingLib\src\main\AndroidManifest.xml:3:43-66
+		INJECTED from E:\ANDROID\KALCARE\KalCareMobie\zXingLib\src\main\AndroidManifest.xml
+		INJECTED from E:\ANDROID\KALCARE\KalCareMobie\zXingLib\src\main\AndroidManifest.xml
+uses-sdk
+ADDED from E:\ANDROID\KALCARE\KalCareMobie\zXingLib\src\main\AndroidManifest.xml:5:2-40
+INJECTED from E:\ANDROID\KALCARE\KalCareMobie\zXingLib\src\main\AndroidManifest.xml:5:2-40
+INJECTED from E:\ANDROID\KALCARE\KalCareMobie\zXingLib\src\main\AndroidManifest.xml:5:2-40
+INJECTED from E:\ANDROID\KALCARE\KalCareMobie\zXingLib\src\main\AndroidManifest.xml:5:2-40
+INJECTED from E:\ANDROID\KALCARE\KalCareMobie\zXingLib\src\main\AndroidManifest.xml:5:2-40
+	android:targetSdkVersion
+		INJECTED from E:\ANDROID\KALCARE\KalCareMobie\zXingLib\src\main\AndroidManifest.xml
+		ADDED from E:\ANDROID\KALCARE\KalCareMobie\zXingLib\src\main\AndroidManifest.xml:5:2-40
+		INJECTED from E:\ANDROID\KALCARE\KalCareMobie\zXingLib\src\main\AndroidManifest.xml
+	android:minSdkVersion
+		ADDED from E:\ANDROID\KALCARE\KalCareMobie\zXingLib\src\main\AndroidManifest.xml:5:12-37
+		INJECTED from E:\ANDROID\KALCARE\KalCareMobie\zXingLib\src\main\AndroidManifest.xml
+		INJECTED from E:\ANDROID\KALCARE\KalCareMobie\zXingLib\src\main\AndroidManifest.xml
+supports-screens
+ADDED from E:\ANDROID\KALCARE\KalCareMobie\zXingLib\src\main\AndroidManifest.xml:6:2-8:31
+	android:largeScreens
+		ADDED from E:\ANDROID\KALCARE\KalCareMobie\zXingLib\src\main\AndroidManifest.xml:6:20-47
+	android:smallScreens
+		ADDED from E:\ANDROID\KALCARE\KalCareMobie\zXingLib\src\main\AndroidManifest.xml:7:32-59
+	android:normalScreens
+		ADDED from E:\ANDROID\KALCARE\KalCareMobie\zXingLib\src\main\AndroidManifest.xml:7:3-31
+	android:anyDensity
+		ADDED from E:\ANDROID\KALCARE\KalCareMobie\zXingLib\src\main\AndroidManifest.xml:8:3-28
+uses-feature#android.hardware.camera
+ADDED from E:\ANDROID\KALCARE\KalCareMobie\zXingLib\src\main\AndroidManifest.xml:9:2-57
+	android:name
+		ADDED from E:\ANDROID\KALCARE\KalCareMobie\zXingLib\src\main\AndroidManifest.xml:9:16-54
+application
+ADDED from E:\ANDROID\KALCARE\KalCareMobie\zXingLib\src\main\AndroidManifest.xml:11:2-16:16
+activity#jim.h.common.android.lib.zxing.CaptureActivity
+ADDED from E:\ANDROID\KALCARE\KalCareMobie\zXingLib\src\main\AndroidManifest.xml:12:3-15:54
+	android:screenOrientation
+		ADDED from E:\ANDROID\KALCARE\KalCareMobie\zXingLib\src\main\AndroidManifest.xml:13:4-41
+	android:windowSoftInputMode
+		ADDED from E:\ANDROID\KALCARE\KalCareMobie\zXingLib\src\main\AndroidManifest.xml:15:4-51
+	android:configChanges
+		ADDED from E:\ANDROID\KALCARE\KalCareMobie\zXingLib\src\main\AndroidManifest.xml:13:42-92
+	android:theme
+		ADDED from E:\ANDROID\KALCARE\KalCareMobie\zXingLib\src\main\AndroidManifest.xml:14:4-62
+	android:name
+		ADDED from E:\ANDROID\KALCARE\KalCareMobie\zXingLib\src\main\AndroidManifest.xml:12:13-43
+uses-permission#android.permission.CAMERA
+ADDED from E:\ANDROID\KALCARE\KalCareMobie\zXingLib\src\main\AndroidManifest.xml:18:2-62
+	android:name
+		ADDED from E:\ANDROID\KALCARE\KalCareMobie\zXingLib\src\main\AndroidManifest.xml:18:19-59
+uses-permission#android.permission.WRITE_EXTERNAL_STORAGE
+ADDED from E:\ANDROID\KALCARE\KalCareMobie\zXingLib\src\main\AndroidManifest.xml:19:2-78
+	android:name
+		ADDED from E:\ANDROID\KALCARE\KalCareMobie\zXingLib\src\main\AndroidManifest.xml:19:19-75
+uses-feature#android.hardware.camera.autofocus
+ADDED from E:\ANDROID\KALCARE\KalCareMobie\zXingLib\src\main\AndroidManifest.xml:21:2-67
+	android:name
+		ADDED from E:\ANDROID\KALCARE\KalCareMobie\zXingLib\src\main\AndroidManifest.xml:21:16-64
+uses-permission#android.permission.VIBRATE
+ADDED from E:\ANDROID\KALCARE\KalCareMobie\zXingLib\src\main\AndroidManifest.xml:22:2-63
+	android:name
+		ADDED from E:\ANDROID\KALCARE\KalCareMobie\zXingLib\src\main\AndroidManifest.xml:22:19-60
+uses-permission#android.permission.FLASHLIGHT
+ADDED from E:\ANDROID\KALCARE\KalCareMobie\zXingLib\src\main\AndroidManifest.xml:23:2-66
+	android:name
+		ADDED from E:\ANDROID\KALCARE\KalCareMobie\zXingLib\src\main\AndroidManifest.xml:23:19-63
