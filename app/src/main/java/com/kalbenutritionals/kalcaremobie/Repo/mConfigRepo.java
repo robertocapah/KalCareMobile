@@ -15,8 +15,8 @@ import java.util.List;
 
 public class mConfigRepo {
     DatabaseHelper helper;
-    public String API = "http://10.171.10.13/WebAPI/NHD/";
-    public String APIToken = "http://10.171.10.13/WebAPI/token";
+    public String API = "http://10.171.10.28/WebAPI/NHD/";
+    public String APIToken = "http://10.171.10.28/WebAPI/token";
 
     public mConfigRepo(Context context) {
         DatabaseManager.init(context);

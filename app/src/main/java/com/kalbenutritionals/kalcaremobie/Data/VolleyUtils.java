@@ -248,7 +248,7 @@ public class VolleyUtils {
 //                    popup();
                     ToastCustom.showToasty(activity.getApplicationContext(),"Token expired, please re-login",3);
                     finalDialog.dismiss();
-                    activity.startActivity(new Intent(activity, LoginActivity.class));
+//                    activity.startActivity(new Intent(activity, LoginActivity.class));
                 }
             }
 

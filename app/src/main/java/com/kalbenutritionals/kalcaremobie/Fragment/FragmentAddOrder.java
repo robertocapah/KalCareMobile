@@ -9,6 +9,7 @@ import android.os.Debug;
 import android.support.annotation.Nullable;
 import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -48,6 +49,7 @@ import com.kalbenutritionals.kalcaremobie.Data.adapter.CardAdapterOutet;
 import com.kalbenutritionals.kalcaremobie.Data.adapter.CardAdapterSearchResult;
 import com.kalbenutritionals.kalcaremobie.Data.adapter.CardAppAdapter;
 import com.kalbenutritionals.kalcaremobie.Data.adapter.CardAppAdapter2;
+import com.kalbenutritionals.kalcaremobie.Data.adapter.CardAppAdapterPreview;
 import com.kalbenutritionals.kalcaremobie.Data.adapter.ListViewCustom;
 import com.kalbenutritionals.kalcaremobie.Data.clsHardCode;
 import com.kalbenutritionals.kalcaremobie.R;
@@ -57,6 +59,7 @@ import com.kalbenutritionals.kalcaremobie.Repo.clsTokenRepo;
 import com.kalbenutritionals.kalcaremobie.Repo.clsUserLoginRepo;
 import com.kalbenutritionals.kalcaremobie.ViewModel.VMCustomers;
 import com.kalbenutritionals.kalcaremobie.ViewModel.VMItems;
+import com.kalbenutritionals.kalcaremobie.ViewModel.VMItemsPreview;
 import com.kalbenutritionals.kalcaremobie.ViewModel.VMOutlets;
 
 import org.json.JSONArray;
@@ -177,6 +180,7 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener {
     ListView lvItemAdd;
     List<VMItems> itemsadd = new ArrayList<VMItems>();
     List<VMItems> contentLibs = new ArrayList<VMItems>();
+    List<VMItemsPreview> contentLibsPreviewItem = new ArrayList<VMItemsPreview>();
     @BindView(R.id.cbWalkIn)
     CheckBox cbWalkIn;
     @BindView(R.id.cbAttach)
@@ -252,6 +256,57 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener {
         lvItemAdd.setAdapter(new CardAppAdapter(context, new ArrayList<VMItems>(), Color.WHITE));
         dataLogin = new clsUserLogin();
         dataLogin = new clsUserLoginRepo(context).getDataLogin(context);
+
+        final String strLinkAPI = new clsHardCode().linkGetDataDetailSalesOrderMobile;
+        final JSONObject resJsonRestore = new JSONObject();
+        SimpleDateFormat sdfRestore = new SimpleDateFormat("yyyy-MM-dd");
+        Date dtLoginData = dataLogin.getDtLogin();
+        String currentDateandTime = sdfRestore.format(dtLoginData);
+        try {
+            resJsonRestore.put("txtAgentName", dataLogin.getNmUser());
+            resJsonRestore.put("dtDate", currentDateandTime);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        final String mRequestBodyRestore = resJsonRestore.toString();
+        /*new VolleyUtils().makeJsonObjectRequestWithToken(getActivity(), strLinkAPI, mRequestBodyRestore, access_token, "Please Wait...", new VolleyResponseListener() {
+            @Override
+            public void onError(String response) {
+                ToastCustom.showToasty(context, response, 2);
+            }
+
+            @Override
+            public void onResponse(String response, Boolean status, String strErrorMsg) {
+                if (response != null) {
+                    JSONObject jsonObject = null;
+                    try {
+                        jsonObject = new JSONObject(response);
+                        int result = jsonObject.getInt("intResult");
+                        String warn = jsonObject.getString("txtMessage");
+                        if (result == 1) {
+                            if (!jsonObject.getString("ListData").equals("null")) {
+                                JSONArray jsn = jsonObject.getJSONArray("ListData");
+                                if(jsn.length()==0){
+                                    for (int n = 0; n < jsn.length(); n++) {
+
+                                    }
+                                }else{
+                                }
+
+                            }
+                        }else{
+                            ToastCustom.showToasty(context,warn, 2);
+
+                        }
+                    }catch (JSONException ex){
+                        String x = ex.getMessage();
+                    }
+                }
+
+            }
+        });*/
+
+
         try {
             List<clsToken> dataToken = new clsTokenRepo(context).findAll();
 
@@ -695,7 +750,6 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener {
             etSOSource.setText(data.getTxtSumberDataID());
             etOrderLocation.setText(data.getTxtNamaInstitusi());
             SimpleDateFormat sdf = new SimpleDateFormat("dd MMM yyyy");
-            String currentDateandTime = sdf.format(new Date());
             etDate.setText(currentDateandTime);
         }
         etOrderLocation.setOnClickListener(new View.OnClickListener() {
@@ -1851,6 +1905,11 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener {
 
             final String strLinkAPI = new clsHardCode().linkCekValidasiDispatchPartner;
             final JSONObject resJson = new JSONObject();
+            try {
+                draft = new clsDraftRepo(context).findByBitActive();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
             JSONArray jsonProduct = new Helper().writeJSONSaveData(context, draft, contentLibs);
             try {
                 String strNO = draft.getTxtNoSO();
@@ -1877,6 +1936,7 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener {
                     } catch (ParseException e) {
                         e.printStackTrace();
                     }
+                    newDate = dataLogin.getDtLogin();
                     dateSO = dateFormatStr.format(newDate);
                 }
                 resJson.put("dtKirim", dateSO);
@@ -1923,7 +1983,7 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener {
                                     JSONArray jsn = jsonObject.getJSONArray("ListData");
                                     for (int n = 0; n < jsn.length(); n++) {
                                         JSONObject object = jsn.getJSONObject(n);
-                                        int intQTY = object.getInt("intQTY");
+                                        String txtQTY = object.getString("intQTY");
                                         String decAmount = object.getString("decAmount");
                                         String bitAvailable = object.getString("bitAvailable");
                                         String intQtyAvailable = object.getString("intQtyAvailable");
@@ -1931,192 +1991,320 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener {
                                         String txtPartnerID = object.getString("txtPartnerID");
                                         String txtPartnerName = object.getString("txtPartnerName");
                                         String txtPartnerPhone = object.getString("txtPartnerPhone");
+                                        String txtProductCode = object.getString("txtProductCode");
                                         String txtProductDesc = object.getString("txtProductDesc");
                                         String intPriority = object.getString("intPriority");
                                         String intFlag = object.getString("intFlag");
-                                        LayoutInflater layoutInflater = LayoutInflater.from(context);
-                                        final View promptView = layoutInflater.inflate(R.layout.popup_preview, null);
-                                        //            final View promptViewCustomer = layoutInflater.inflate(R.layout.popup_preview, null);
-                                        ListView lvPreview = (ListView) promptView.findViewById(R.id.lvItemPrev);
-                                        Button btnCancelPrev = (Button) promptView.findViewById(R.id.btnCancelPrev);
-                                        Button btnCheckoutPrev = (Button) promptView.findViewById(R.id.btnCheckoutPrev);
+                                        VMItemsPreview item = new VMItemsPreview();
+                                        item.setPartnerAddress(txtPartnerAddress);
+                                        item.setPartnerName(txtPartnerName);
+                                        item.setProductCode(txtProductCode);
+                                        item.setProductName(txtProductDesc);;
+                                        item.setPartnerPhone(txtPartnerPhone);
+                                        item.setQtyAvailable(intQtyAvailable);
+                                        item.setQty(txtQTY);
+                                        item.setTxtIntFlag(intFlag);
 
-                                        TextView tvSOStatusPrev = (TextView) promptView.findViewById(R.id.tvSOStatusPrev);
-                                        TextView tvSoDatePrev = (TextView) promptView.findViewById(R.id.tvSoDatePrev);
-                                        TextView tvSOSourcePrev = (TextView) promptView.findViewById(R.id.tvSOSourcePrev);
-                                        TextView tvAgentNamePrev = (TextView) promptView.findViewById(R.id.tvAgentNamePrev);
-                                        TextView tvOrderLocationPrev = (TextView) promptView.findViewById(R.id.tvOrderLocationPrev);
-                                        TextView tvDeliveryByPrev = (TextView) promptView.findViewById(R.id.tvDeliveryByPrev);
-                                        TextView tvDeliverySchedulePrev = (TextView) promptView.findViewById(R.id.tvDeliverySchedulePrev);
-                                        TextView tvRemarksPreview = (TextView) promptView.findViewById(R.id.tvRemarksPreview);
-                                        final TextView tvPaymentMethod = (TextView) promptView.findViewById(R.id.tvPaymentMethod);
-
-                                        final TextView etCustomerNamePrev = (TextView) promptView.findViewById(R.id.etCustomerNamePrev);
-                                        final TextView etContactIDPrev = (TextView) promptView.findViewById(R.id.etContactIDPrev);
-                                        final TextView etMemberNoPrev = (TextView) promptView.findViewById(R.id.etMemberNoPrev);
-                                        final TextView tvPostCodeCustomerPrev = (TextView) promptView.findViewById(R.id.tvPostCodeCustomerPrev);
-                                        final TextView tvProvinceCustomerPrev = (TextView) promptView.findViewById(R.id.tvProvinceCustomerPrev);
-                                        final TextView tvCityCustomerPrev = (TextView) promptView.findViewById(R.id.tvCityCustomerPrev);
-                                        final TextView tvRegionCustomerPrev = (TextView) promptView.findViewById(R.id.tvRegionCustomerPrev);
-                                        TextView tvHideCustPrev = (TextView) promptView.findViewById(R.id.tvHideCustPrev);
-
-
-                                        final LinearLayout lnAttacedCust = (LinearLayout) promptView.findViewById(R.id.lnAttacedCust);
-                                        TextView tvCustomerPrev = (TextView) promptView.findViewById(R.id.tvCustomerPrev);
-
-
-                                        String noSO = etNoSo.getText().toString();
-                                        String soStatus = etSoStatus.getText().toString();
-                                        String soDate = etDate.getText().toString();
-                                        String soSource = etSOSource.getText().toString();
-                                        String deliverySche = etDeliverySchedule.getText().toString();
-                                        String agentName = etAgentName.getText().toString();
-                                        String orderLocation = etOrderLocation.getText().toString();
-                                        boolean deliverByWalkIn = cbWalkIn.isChecked();
-                                        boolean attchCust = cbAttach.isChecked();
-                                        String remarks = etRemarks.getText().toString();
-
-                                        tvSOSourcePrev.setText(soSource);
-                                        tvSoDatePrev.setText(soDate);
-                                        tvDeliverySchedulePrev.setText(deliverySche);
-                                        tvAgentNamePrev.setText(agentName);
-                                        tvOrderLocationPrev.setText(orderLocation);
-
-                                        tvPaymentMethod.setOnClickListener(new View.OnClickListener() {
-                                            @Override
-                                            public void onClick(View v) {
-                                                LayoutInflater layoutInflater = LayoutInflater.from(context);
-                                                final View promptView = layoutInflater.inflate(R.layout.popup_payment_method, null);
-                                                final RadioGroup rg = promptView.findViewById(R.id.radioGroup);
-                                                final RadioButton rbCash = (RadioButton) promptView.findViewById(R.id.radio_cash);
-                                                final RadioButton rbDebt = (RadioButton) promptView.findViewById(R.id.radio_debit);
-                                                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
-                                                alertDialogBuilder.setView(promptView);
-                                                alertDialogBuilder.setTitle("Payment Method");
-                                                alertDialogBuilder
-                                                        .setCancelable(false)
-                                                        .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                                                            public void onClick(DialogInterface dialog, int id) {
-                                                                dialog.cancel();
-                                                            }
-                                                        }).setPositiveButton("Oke", new DialogInterface.OnClickListener() {
-                                                    public void onClick(DialogInterface dialog, int id) {
-
-                                                    }
-                                                });
-                                                final AlertDialog alertD = alertDialogBuilder.create();
-                                                alertD.show();
-                                                alertD.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
-                                                    @Override
-                                                    public void onClick(View v) {
-                                                        int selectedId = rg.getCheckedRadioButtonId();
-                                                        if (rbCash.isChecked()) {
-                                                            tvPaymentMethod.setText("Cash");
-                                                            alertD.dismiss();
-                                                        } else if (rbDebt.isChecked()) {
-                                                            tvPaymentMethod.setText("Debit");
-                                                            alertD.dismiss();
-                                                        } else {
-                                                            ToastCustom.showToasty(context, "Please select payment method", 3);
-                                                        }
-                                                    }
-                                                });
-                                            }
-                                        });
-
-                                        if (deliverByWalkIn) {
-                                            tvDeliveryByPrev.setText("Walk-In");
-                                        } else {
-                                            tvDeliveryByPrev.setText("Delivery Order");
-                                        }
-
-                                        tvRemarksPreview.setText(remarks);
-
-                                        if (attchCust) {
-
-                                            etCustomerNamePrev.setText(tvCustomerNameHeader.getText().toString());
-                                            etContactIDPrev.setText(tvContactIDHeader.getText().toString());
-                                            etMemberNoPrev.setText(tvMemberNoHeader.getText().toString());
-                                            tvProvinceCustomerPrev.setText(spnProvinceAddOrder.getSelectedItem().toString());
-                                            tvCityCustomerPrev.setText(spnKabKotAddOrder.getSelectedItem().toString());
-                                            tvRegionCustomerPrev.setText(spnKecamatanAddOrder.getSelectedItem().toString());
-                                            tvPostCodeCustomerPrev.setText(spnPostCodeAddOrder.getSelectedItem().toString());
-                                            lnAttacedCust.setVisibility(View.VISIBLE);
-                                            tvCustomerPrev.setOnClickListener(new View.OnClickListener() {
-                                                @Override
-                                                public void onClick(View v) {
-                                                    lnAttacedCust.setVisibility(View.VISIBLE);
-                                                    etCustomerNamePrev.setText(tvCustomerNameHeader.getText().toString());
-                                                    etContactIDPrev.setText(tvContactIDHeader.getText().toString());
-                                                    etMemberNoPrev.setText(tvMemberNoHeader.getText().toString());
-                                                    tvProvinceCustomerPrev.setText(spnProvinceAddOrder.getSelectedItem().toString());
-                                                    tvCityCustomerPrev.setText(spnKabKotAddOrder.getSelectedItem().toString());
-                                                    tvRegionCustomerPrev.setText(spnKecamatanAddOrder.getSelectedItem().toString());
-                                                    tvPostCodeCustomerPrev.setText(spnPostCodeAddOrder.getSelectedItem().toString());
-                                                }
-                                            });
-
-                                            tvHideCustPrev.setOnClickListener(new View.OnClickListener() {
-                                                @Override
-                                                public void onClick(View v) {
-                                                    lnAttacedCust.setVisibility(View.GONE);
-                                                }
-                                            });
-                                        } else {
-                                            tvCustomerPrev.setText("KalCare Outlet");
-                                            tvCustomerPrev.setClickable(false);
-                                        }
-                                        tvCustomerPrev.setClickable(true);
-                                        lnAttacedCust.setVisibility(View.GONE);
-
-
-                                        lvPreview.setAdapter(new CardAppAdapter(context, contentLibs, Color.WHITE));
-                                        setListViewHeightBasedOnItems(lvPreview);
-                                        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
-                                        alertDialogBuilder.setView(promptView);
-                                        alertDialogBuilder
-                                                .setCancelable(false)
-                                                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                                                    public void onClick(DialogInterface dialog, int id) {
-                                                        dialog.cancel();
-                                                    }
-                                                }).setPositiveButton("Checkout", new DialogInterface.OnClickListener() {
-                                            public void onClick(DialogInterface dialog, int id) {
-
-                                                if (cbWalkIn.isChecked()) {
-                                                    dialog.cancel();
-
-                                                } else {
-                                                    if (boolCustomerSet) {
-                                                        ToastCustom.showToasty(context, "Checking out", 3);
-                                                    } else {
-                                                        ToastCustom.showToasty(context, "Attach customer first", 4);
-                                                    }
-
-                                                }
-
-                                            }
-                                        });
-                                        final AlertDialog alertD = alertDialogBuilder.create();
-                                        alertD.show();
-
-                                        btnCancelPrev.setOnClickListener(new View.OnClickListener() {
-                                            @Override
-                                            public void onClick(View v) {
-                                                alertD.dismiss();
-                                            }
-                                        });
-                                        btnCheckoutPrev.setOnClickListener(new View.OnClickListener() {
-                                            @Override
-                                            public void onClick(View v) {
-
-                                            }
-                                        });
+                                        contentLibsPreviewItem.add(item);
                                     }
+                                    LayoutInflater layoutInflater = LayoutInflater.from(context);
+                                    final View promptView = layoutInflater.inflate(R.layout.popup_preview, null);
+                                    //            final View promptViewCustomer = layoutInflater.inflate(R.layout.popup_preview, null);
+                                    ListView lvPreview = (ListView) promptView.findViewById(R.id.lvItemPrev);
+                                    Button btnCancelPrev = (Button) promptView.findViewById(R.id.btnCancelPrev);
+                                    Button btnCheckoutPrev = (Button) promptView.findViewById(R.id.btnCheckoutPrev);
+
+                                    TextView tvSOStatusPrev = (TextView) promptView.findViewById(R.id.tvSOStatusPrev);
+                                    TextView tvSoDatePrev = (TextView) promptView.findViewById(R.id.tvSoDatePrev);
+                                    TextView tvSOSourcePrev = (TextView) promptView.findViewById(R.id.tvSOSourcePrev);
+                                    TextView tvAgentNamePrev = (TextView) promptView.findViewById(R.id.tvAgentNamePrev);
+                                    TextView tvOrderLocationPrev = (TextView) promptView.findViewById(R.id.tvOrderLocationPrev);
+                                    TextView tvDeliveryByPrev = (TextView) promptView.findViewById(R.id.tvDeliveryByPrev);
+                                    TextView tvDeliverySchedulePrev = (TextView) promptView.findViewById(R.id.tvDeliverySchedulePrev);
+                                    TextView tvRemarksPreview = (TextView) promptView.findViewById(R.id.tvRemarksPreview);
+                                    final TextView tvPaymentMethod = (TextView) promptView.findViewById(R.id.tvPaymentMethod);
+
+                                    final TextView etCustomerNamePrev = (TextView) promptView.findViewById(R.id.etCustomerNamePrev);
+                                    final TextView etContactIDPrev = (TextView) promptView.findViewById(R.id.etContactIDPrev);
+                                    final TextView etMemberNoPrev = (TextView) promptView.findViewById(R.id.etMemberNoPrev);
+                                    final TextView tvPostCodeCustomerPrev = (TextView) promptView.findViewById(R.id.tvPostCodeCustomerPrev);
+                                    final TextView tvProvinceCustomerPrev = (TextView) promptView.findViewById(R.id.tvProvinceCustomerPrev);
+                                    final TextView tvCityCustomerPrev = (TextView) promptView.findViewById(R.id.tvCityCustomerPrev);
+                                    final TextView tvRegionCustomerPrev = (TextView) promptView.findViewById(R.id.tvRegionCustomerPrev);
+                                    TextView tvHideCustPrev = (TextView) promptView.findViewById(R.id.tvHideCustPrev);
+
+
+                                    final LinearLayout lnAttacedCust = (LinearLayout) promptView.findViewById(R.id.lnAttacedCust);
+                                    TextView tvCustomerPrev = (TextView) promptView.findViewById(R.id.tvCustomerPrev);
+
+
+                                    String noSO = etNoSo.getText().toString();
+                                    String soStatus = etSoStatus.getText().toString();
+                                    String soDate = etDate.getText().toString();
+                                    String soSource = etSOSource.getText().toString();
+                                    String deliverySche = etDeliverySchedule.getText().toString();
+                                    String agentName = etAgentName.getText().toString();
+                                    String orderLocation = etOrderLocation.getText().toString();
+                                    boolean deliverByWalkIn = cbWalkIn.isChecked();
+                                    boolean attchCust = cbAttach.isChecked();
+                                    String remarks = etRemarks.getText().toString();
+
+                                    tvSOSourcePrev.setText(soSource);
+                                    tvSoDatePrev.setText(soDate);
+                                    tvDeliverySchedulePrev.setText(deliverySche);
+                                    tvAgentNamePrev.setText(agentName);
+                                    tvOrderLocationPrev.setText(orderLocation);
+
+                                    tvPaymentMethod.setOnClickListener(new View.OnClickListener() {
+                                        @Override
+                                        public void onClick(View v) {
+                                            LayoutInflater layoutInflater = LayoutInflater.from(context);
+                                            final View promptView = layoutInflater.inflate(R.layout.popup_payment_method, null);
+                                            final RadioGroup rg = promptView.findViewById(R.id.radioGroup);
+                                            final RadioButton rbCash = (RadioButton) promptView.findViewById(R.id.radio_cash);
+                                            final RadioButton rbDebt = (RadioButton) promptView.findViewById(R.id.radio_debit);
+                                            AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
+                                            alertDialogBuilder.setView(promptView);
+                                            alertDialogBuilder.setTitle("Payment Method");
+                                            alertDialogBuilder
+                                                    .setCancelable(false)
+                                                    .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                                                        public void onClick(DialogInterface dialog, int id) {
+                                                            dialog.cancel();
+                                                        }
+                                                    }).setPositiveButton("Oke", new DialogInterface.OnClickListener() {
+                                                public void onClick(DialogInterface dialog, int id) {
+
+                                                }
+                                            });
+                                            final AlertDialog alertD = alertDialogBuilder.create();
+                                            alertD.show();
+                                            alertD.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
+                                                @Override
+                                                public void onClick(View v) {
+                                                    int selectedId = rg.getCheckedRadioButtonId();
+                                                    if (rbCash.isChecked()) {
+                                                        tvPaymentMethod.setText("Cash");
+                                                        alertD.dismiss();
+                                                    } else if (rbDebt.isChecked()) {
+                                                        tvPaymentMethod.setText("Debit");
+                                                        alertD.dismiss();
+                                                    } else {
+                                                        ToastCustom.showToasty(context, "Please select payment method", 3);
+                                                    }
+                                                }
+                                            });
+                                        }
+                                    });
+
+                                    if (deliverByWalkIn) {
+                                        tvDeliveryByPrev.setText("Walk-In");
+                                    } else {
+                                        tvDeliveryByPrev.setText("Delivery Order");
+                                    }
+
+                                    tvRemarksPreview.setText(remarks);
+
+                                    if (attchCust) {
+
+                                        etCustomerNamePrev.setText(tvCustomerNameHeader.getText().toString());
+                                        etContactIDPrev.setText(tvContactIDHeader.getText().toString());
+                                        etMemberNoPrev.setText(tvMemberNoHeader.getText().toString());
+                                        tvProvinceCustomerPrev.setText(spnProvinceAddOrder.getSelectedItem().toString());
+                                        tvCityCustomerPrev.setText(spnKabKotAddOrder.getSelectedItem().toString());
+                                        tvRegionCustomerPrev.setText(spnKecamatanAddOrder.getSelectedItem().toString());
+                                        tvPostCodeCustomerPrev.setText(spnPostCodeAddOrder.getSelectedItem().toString());
+                                        lnAttacedCust.setVisibility(View.VISIBLE);
+                                        tvCustomerPrev.setOnClickListener(new View.OnClickListener() {
+                                            @Override
+                                            public void onClick(View v) {
+                                                lnAttacedCust.setVisibility(View.VISIBLE);
+                                                etCustomerNamePrev.setText(tvCustomerNameHeader.getText().toString());
+                                                etContactIDPrev.setText(tvContactIDHeader.getText().toString());
+                                                etMemberNoPrev.setText(tvMemberNoHeader.getText().toString());
+                                                tvProvinceCustomerPrev.setText(spnProvinceAddOrder.getSelectedItem().toString());
+                                                tvCityCustomerPrev.setText(spnKabKotAddOrder.getSelectedItem().toString());
+                                                tvRegionCustomerPrev.setText(spnKecamatanAddOrder.getSelectedItem().toString());
+                                                tvPostCodeCustomerPrev.setText(spnPostCodeAddOrder.getSelectedItem().toString());
+                                            }
+                                        });
+
+                                        tvHideCustPrev.setOnClickListener(new View.OnClickListener() {
+                                            @Override
+                                            public void onClick(View v) {
+                                                lnAttacedCust.setVisibility(View.GONE);
+                                            }
+                                        });
+                                    } else {
+                                        tvCustomerPrev.setText("KalCare Outlet");
+                                        tvCustomerPrev.setClickable(false);
+                                    }
+                                    tvCustomerPrev.setClickable(true);
+                                    lnAttacedCust.setVisibility(View.GONE);
+
+
+                                    lvPreview.setAdapter(new CardAppAdapterPreview(context, contentLibsPreviewItem, Color.WHITE));
+                                    setListViewHeightBasedOnItems(lvPreview);
+                                    AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
+                                    alertDialogBuilder.setView(promptView);
+                                    alertDialogBuilder
+                                            .setCancelable(false)
+                                            .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                                                public void onClick(DialogInterface dialog, int id) {
+                                                    dialog.cancel();
+                                                }
+                                            }).setPositiveButton("Checkout", new DialogInterface.OnClickListener() {
+                                        public void onClick(DialogInterface dialog, int id) {
+
+                                            if (cbWalkIn.isChecked()) {
+                                                dialog.cancel();
+
+                                            } else {
+                                                if (boolCustomerSet) {
+                                                    ToastCustom.showToasty(context, "Checking out", 3);
+                                                } else {
+                                                    ToastCustom.showToasty(context, "Attach customer first", 4);
+                                                }
+
+                                            }
+
+                                        }
+                                    });
+                                    final AlertDialog alertD = alertDialogBuilder.create();
+                                    alertD.show();
+                                    alertD.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
+                                        @Override
+                                        public void onClick(View v) {
+                                            final String strLinkAPIFinalCheckout = new clsHardCode().linkCheckoutSalesOrder;
+                                            final JSONObject resJsonFinalCheckout = new JSONObject();
+                                            try {
+                                                draft = new clsDraftRepo(context).findByBitActive();
+                                            } catch (SQLException e) {
+                                                e.printStackTrace();
+                                            }
+                                            JSONArray jsonProductCheckout = new Helper().writeJSONSaveData(context, draft, contentLibs);
+                                            try {
+                                                resJsonFinalCheckout.put("txtNewId", draft.getGuiId());
+                                                String strNO = draft.getTxtNoSO();
+                                                if (strNO.equals("Generated by system")) {
+                                                    resJsonFinalCheckout.put("txtNoSo", "");
+                                                } else {
+                                                    resJsonFinalCheckout.put("txtNoSo", draft.getTxtNoSO());
+                                                }
+
+                                                resJsonFinalCheckout.put("txtSourceOrder", draft.getTxtSoSource());
+
+                                                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+                                                String currentDateandTime = sdf.format(new Date());
+                                                resJsonFinalCheckout.put("dtDate", currentDateandTime);
+                                                String txtDeliverSche = "";
+                                                if (draft.getDtDeliverySche() != null) {
+                                                    txtDeliverSche = sdf.format(draft.getDtDeliverySche());
+                                                }
+                                                resJsonFinalCheckout.put("dtDelivery", txtDeliverSche);
+                                                resJsonFinalCheckout.put("txtAgentName", draft.getTxtAgentName());
+                                                resJsonFinalCheckout.put("txtPickUpLocation", draft.getTxtProvince());
+                                                resJsonFinalCheckout.put("txtKelurahanID", draft.getTxtKelurahanID());
+                                                resJsonFinalCheckout.put("txtKelurahanName", draft.getTxtKelurahan());
+
+                                                String walkin = "";
+                                                if (draft.isBoolWalkin()) {
+                                                    walkin = "1";
+                                                } else {
+                                                    walkin = "0";
+                                                }
+                                                resJsonFinalCheckout.put("intWalkIn", walkin);
+
+                                                String deliverBy = "";
+                                                if (draft.isBoolAttachCustomer()) {
+                                                    deliverBy = "1";
+                                                } else {
+                                                    deliverBy = "0";
+                                                }
+                                                resJsonFinalCheckout.put("intDeliveryBy", deliverBy);
+                                                resJsonFinalCheckout.put("txtDeliveryBy", draft.getTxtAgentName());
+                                                resJsonFinalCheckout.put("txtCustomer", draft.getTxtCustomerName());
+                                                resJsonFinalCheckout.put("txtPropinsiID", String.valueOf(draft.getTxtProvinceID()));
+                                                resJsonFinalCheckout.put("txtPropinsiName", draft.getTxtProvince());
+                                                resJsonFinalCheckout.put("txtKabKotaID", String.valueOf(draft.getTxtKabKotID()));
+                                                resJsonFinalCheckout.put("txtKabupatenKotaName", draft.getTxtKabKot());
+                                                resJsonFinalCheckout.put("txtKecamatanID", String.valueOf(draft.getTxtKecamatanID()));
+                                                resJsonFinalCheckout.put("txtKecamatanName", draft.getTxtKecamatan());
+                                                resJsonFinalCheckout.put("txtKodePos", draft.getTxtPostCode());
+                                                resJsonFinalCheckout.put("txtDelivery", draft.getTxtAddress());
+                                                resJsonFinalCheckout.put("txtRemarks", draft.getTxtRemarks());
+                                                resJsonFinalCheckout.put("txtDeviceId", deviceInfo.getModel());
+                                                resJsonFinalCheckout.put("txtUser", dataLogin.getNmUser());
+                                                resJsonFinalCheckout.put("txtStatusDoc", "0");
+                                                resJsonFinalCheckout.put("Detail", jsonProductCheckout);
+                                            } catch (JSONException e) {
+                                                e.printStackTrace();
+                                            }
+
+                                            final String mRequestBodyFinalCheckout = resJsonFinalCheckout.toString();
+                                            new VolleyUtils().makeJsonObjectRequestWithToken(getActivity(), strLinkAPIFinalCheckout, mRequestBodyFinalCheckout, access_token, "Please Wait...", new VolleyResponseListener() {
+                                                @Override
+                                                public void onError(String response) {
+                                                    ToastCustom.showToasty(context, response, 2);
+                                                }
+
+                                                @Override
+                                                public void onResponse(String response, Boolean status, String strErrorMsg) {
+                                                    if (response != null) {
+                                                        JSONObject jsonObject = null;
+                                                        try {
+                                                            jsonObject = new JSONObject(response);
+                                                            int result = jsonObject.getInt("intResult");
+                                                            String warn = jsonObject.getString("txtMessage");
+                                                            if (result == 1) {
+                                                                if (!jsonObject.getString("ListData").equals("null")) {
+                                                                    JSONArray jsn = jsonObject.getJSONArray("ListData");
+                                                                    for (int n = 0; n < jsn.length(); n++) {
+
+                                                                    }
+                                                                }
+                                                                alertD.dismiss();
+
+                                                                ToastCustom.showToasty(context,"Checkout Completed", 1);
+                                                                FragmentSalesOrder SOFragment = new FragmentSalesOrder();
+                                                                FragmentTransaction fragmentTransactionSO = getActivity().getSupportFragmentManager().beginTransaction();
+                                                                fragmentTransactionSO.replace(R.id.frame, SOFragment,"FragmentSalesOrder");
+                                                                fragmentTransactionSO.commit();
+                                                                new clsDraftRepo(context).clearAllData();
+                                                                new clsProductDraftRepo(context).clearAllData();
+
+
+                                                            }else{
+                                                                ToastCustom.showToasty(context,warn, 2);
+
+                                                            }
+                                                        }catch (JSONException ex){
+                                                            String x = ex.getMessage();
+                                                        }
+                                                        String a = "";
+                                                    }
+                                                }
+                                            });
+
+                                        }
+                                    });
+
+                                    btnCancelPrev.setOnClickListener(new View.OnClickListener() {
+                                        @Override
+                                        public void onClick(View v) {
+                                            alertD.dismiss();
+                                        }
+                                    });
+                                    btnCheckoutPrev.setOnClickListener(new View.OnClickListener() {
+                                        @Override
+                                        public void onClick(View v) {
+
+                                        }
+                                    });
                                 }
                             }
                         } catch (Exception ex) {
-
+                            String exa = "sa";
                         }
 
 
@@ -2484,3 +2672,6 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener {
 
     }
 }
+
+
+//kodingan terakhir 23/03/2018

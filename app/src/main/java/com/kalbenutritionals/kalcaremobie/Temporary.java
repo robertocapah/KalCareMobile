@@ -45,8 +45,25 @@ public class Temporary extends AppCompatActivity {
                     @Override
                     public void onResponse(String response, Boolean status, String strErrorMsg) {
                         if (response != null) {
+                            JSONObject jsonObject = null;
+                            try {
+                                                            jsonObject = new JSONObject(response);
+                                                            int result = jsonObject.getInt("intResult");
+                                                            String warn = jsonObject.getString("txtMessage");
+                                                            if (result == 1) {
+                                                                if (!jsonObject.getString("ListData").equals("null")) {
+                                                                    JSONArray jsn = jsonObject.getJSONArray("ListData");
+                                                                    for (int n = 0; n < jsn.length(); n++) {
 
-                            String a = "";
+                                                                    }
+                                                                }
+                                                            }else{
+                                                                ToastCustom.showToasty(context,warn, 2);
+
+                                                            }
+                                                        }catch (JSONException ex){
+                                                            String x = ex.getMessage();
+                                                        }
                         }
                     }
                 });

@@ -1,6 +1,7 @@
 package com.kalbenutritionals.kalcaremobie.Fragment;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -13,14 +14,30 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.ScrollView;
 
+import com.kalbe.mobiledevknlibs.Toast.ToastCustom;
+import com.kalbenutritionals.kalcaremobie.Common.clsToken;
+import com.kalbenutritionals.kalcaremobie.Common.clsUserLogin;
+import com.kalbenutritionals.kalcaremobie.Data.VolleyResponseListener;
+import com.kalbenutritionals.kalcaremobie.Data.VolleyUtils;
 import com.kalbenutritionals.kalcaremobie.Data.adapter.CardAppAdapter2;
 import com.kalbenutritionals.kalcaremobie.Data.adapter.ListViewCustom;
+import com.kalbenutritionals.kalcaremobie.Data.clsHardCode;
 import com.kalbenutritionals.kalcaremobie.Fragment.dummy.DummyContent.DummyItem;
 import com.kalbenutritionals.kalcaremobie.R;
+import com.kalbenutritionals.kalcaremobie.Repo.clsTokenRepo;
+import com.kalbenutritionals.kalcaremobie.Repo.clsUserLoginRepo;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -37,6 +54,11 @@ public class FragmentSalesOrder extends Fragment {
     private OnListFragmentInteractionListener mListener;
     ListView lvSO;
     FloatingActionButton fabAdd;
+    String access_token;
+    Context context;
+    clsUserLogin dataLogin = null;
+    ScrollView scrollViewList;
+    LinearLayout lnNoData;
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
      * fragment (e.g. upon screen orientation changes).
@@ -53,6 +75,11 @@ public class FragmentSalesOrder extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        View view = inflater.inflate(R.layout.fragment_so, container, false);
+        context = getActivity().getApplicationContext();
+        lnNoData = (LinearLayout) view.findViewById(R.id.lnNoData);
+        dataLogin = new clsUserLogin();
+        dataLogin = new clsUserLoginRepo(context).getDataLogin(context);
 //        View view = inflater.inflate(R.layout.fragment_item_list, container, false);
 
         /*// Set the adapter
@@ -66,7 +93,15 @@ public class FragmentSalesOrder extends Fragment {
             }
             recyclerView.setAdapter(new MyItemRecyclerViewAdapter(DummyContent.ITEMS, mListener));
         }*/
-        View view = inflater.inflate(R.layout.fragment_so, container, false);
+        try {
+            List<clsToken> dataToken = new clsTokenRepo(context).findAll();
+            access_token = dataToken.get(0).txtUserToken.toString();
+        } catch (Exception e) {
+            ToastCustom.showToasty(context, "Token Empty", 2);
+        }
+
+        scrollViewList = (ScrollView) view.findViewById(R.id.scrollViewList);
+
         int permissionCheck = ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.WRITE_EXTERNAL_STORAGE);
         int permission = ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.READ_EXTERNAL_STORAGE);
         if (permissionCheck != PackageManager.PERMISSION_GRANTED) {
@@ -74,6 +109,62 @@ public class FragmentSalesOrder extends Fragment {
         } else if (permission != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, 1);
         }
+        final String strLinkAPI = new clsHardCode().linkGetDataSalesOrderMobile;
+        final JSONObject resJson = new JSONObject();
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        Date dtLoginData = dataLogin.getDtLogin();
+        String currentDateandTime = sdf.format(dtLoginData);
+        try {
+            resJson.put("txtAgentName", dataLogin.getNmUser());
+            resJson.put("dtDate", currentDateandTime);
+            resJson.put("txtNoSo", "");
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        final String mRequestBody = resJson.toString();
+        new VolleyUtils().makeJsonObjectRequestWithToken(getActivity(), strLinkAPI, mRequestBody, access_token, "Please Wait...", new VolleyResponseListener() {
+            @Override
+            public void onError(String response) {
+                ToastCustom.showToasty(context, response, 2);
+            }
+
+            @Override
+            public void onResponse(String response, Boolean status, String strErrorMsg) {
+                if (response != null) {
+                    JSONObject jsonObject = null;
+                    try {
+                        jsonObject = new JSONObject(response);
+                        int result = jsonObject.getInt("intResult");
+                        String warn = jsonObject.getString("txtMessage");
+                        if (result == 1) {
+                            if (!jsonObject.getString("ListData").equals("null")) {
+                                JSONArray jsn = jsonObject.getJSONArray("ListData");
+                                if(jsn.length()==0){
+                                    for (int n = 0; n < jsn.length(); n++) {
+
+                                    }
+                                    scrollViewList.setVisibility(View.VISIBLE);
+                                    lnNoData.setVisibility(View.GONE);
+                                }else{
+                                    scrollViewList.setVisibility(View.GONE);
+                                    lnNoData.setVisibility(View.VISIBLE);
+                                }
+
+                            }
+                        }else{
+                            ToastCustom.showToasty(context,warn, 2);
+
+                        }
+                    }catch (JSONException ex){
+                        String x = ex.getMessage();
+                    }
+                }
+
+            }
+        });
+
+
+
         final List<String> contentLibs = new ArrayList<>();
         contentLibs.add("Data 1");
         //casting
