@@ -556,9 +556,17 @@
             <ListView
                 android:id="@+id/lvItemPrev"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent">
+                android:layout_height="match_parent"
+                android:visibility="visible">
 
             </ListView>
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/rv_preview"
+                android:visibility="gone"
+                android:layout_width="match_parent"
+                android:nestedScrollingEnabled="false"
+                android:layout_height="wrap_content"
+                android:scrollbars="vertical" />
         </LinearLayout>
 
         <LinearLayout

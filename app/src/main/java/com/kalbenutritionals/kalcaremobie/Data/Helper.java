@@ -149,5 +149,59 @@ public class Helper {
         }
         return items;
     }
+    public JSONArray writeJSONSaveDataFinal(Context context, clsDraft draft, List<VMItems> contentLibs){
+        boolean saveDraftResult = false;
+        new clsProductDraftRepo(context).clearAllData();
+        JSONArray items = new JSONArray();
+        for (VMItems item : contentLibs) {
+            String guiid = new Helper().GenerateGuid();
+            JSONObject jsnItem = new JSONObject();
+            clsProductDraft product = new clsProductDraft();
+            product.setTxtDraftGUI(draft.getGuiId());
+            product.setTxtProductDraftGUI(guiid);
+            product.setTxtItemName(item.getItemName());
+            product.setTxtItemCode(item.getItemCode());
+            product.setDblItemDiscount(item.getDiscount());
+            product.setDblPrice(item.getPrice());
+            product.setDblNetPrice(item.getNetPrice());
+            product.setIntQty(item.getQty());
+            product.setDblItemTax(item.getTaxAmount());
+            product.setDblTotalPrice(item.getTotalPrice());
+            String strDecBasePoint = item.getBasePoint();
+            double decPrice = item.getPrice();
+            double decBasePoint = 0;
+            if (!strDecBasePoint.equals("") || !strDecBasePoint.equals("null")){
+                decBasePoint = Double.parseDouble(item.getBasePoint());
+            }
+            double decDiscount = item.getDiscount();
+            double intTotalBonus = 0;
+            String strBonusPoint = item.getBonusPoint();
+            if (!strBonusPoint.equals("") || !strBonusPoint.equals("null")){
+                intTotalBonus = Double.parseDouble(item.getBonusPoint());
+            }
+
+            int qty = item.getQty();
+            try {
+                jsnItem.put("decQty",qty);
+                jsnItem.put("ProductCode",item.getItemCode());
+                jsnItem.put("decPrice",decPrice);
+                jsnItem.put("decBasePoint",decBasePoint);
+                jsnItem.put("intTotBonusPoin",intTotalBonus);
+                jsnItem.put("decDiscount",decDiscount);
+                jsnItem.put("bitPromo","1");
+                jsnItem.put("intCampaignID","3");
+                jsnItem.put("txtProductCategory",item.getProductCategory());
+                jsnItem.put("txtDataId",draft.getGuiId());
+                jsnItem.put("ProductCode",item.getItemCode());
+                jsnItem.put("ProductName",item.getItemName());
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+            items.put(jsnItem);
+//            new clsProductDraftRepo(context).createOrUpdate(product);
+            saveDraftResult = true;
+        }
+        return items;
+    }
 
 }

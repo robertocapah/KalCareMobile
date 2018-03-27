@@ -1,10 +1,13 @@
 package com.kalbenutritionals.kalcaremobie.ViewModel;
 
+import android.support.v7.widget.RecyclerView;
+import android.view.View;
+
 /**
  * Created by Robert on 21/02/2018.
  */
 
-public class VMItems {
+public class VMItems extends RecyclerView.ViewHolder {
     String guiid;
     String productCategory;
     String itemCode;
@@ -21,9 +24,10 @@ public class VMItems {
     String basePoint;
     String bonusPoint;
 
-    public  VMItems(){
-
+    public VMItems(View itemView) {
+        super(itemView);
     }
+
 
     public String getProductCategory() {
         return productCategory;

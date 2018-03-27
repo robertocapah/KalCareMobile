@@ -9,6 +9,7 @@ import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.dao.RuntimeExceptionDao;
 import com.j256.ormlite.support.ConnectionSource;
 import com.j256.ormlite.table.TableUtils;
+import com.kalbenutritionals.kalcaremobie.Common.clsCustomerData;
 import com.kalbenutritionals.kalcaremobie.Common.clsDraft;
 import com.kalbenutritionals.kalcaremobie.Common.clsPhotoProfile;
 import com.kalbenutritionals.kalcaremobie.Common.clsProductDraft;
@@ -46,6 +47,7 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
 
     protected Dao<clsDraft, Integer> draftDao;
     protected Dao<clsProductDraft, Integer> productDraftDao;
+    protected Dao<clsCustomerData, Integer> customerDataDao;
 
     public DatabaseHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -97,6 +99,8 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
             TableUtils.clearTable(connectionSource, clsPhotoProfile.class);
             TableUtils.clearTable(connectionSource, clsProductDraft.class);
             TableUtils.clearTable(connectionSource, clsDraft.class);
+            TableUtils.clearTable(connectionSource, clsCustomerData.class);
+
             // after we drop the old databases, we create the new ones
 //            onCreate(db, connectionSource);
         } catch (SQLException e) {
@@ -117,6 +121,13 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
         } catch (SQLException e) {
             e.printStackTrace();
         }
+    }
+
+    public Dao<clsCustomerData, Integer> getcustomerDataDao() throws SQLException {
+        if (customerDataDao == null) {
+            customerDataDao = getDao(clsCustomerData.class);
+        }
+        return customerDataDao;
     }
 
     public Dao<clsProductDraft, Integer> getProductDraftDao() throws SQLException {
@@ -176,5 +187,6 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
         tokenDao = null;
         menuDao = null;
         profileDao = null;
+        customerDataDao = null;
     }
 }

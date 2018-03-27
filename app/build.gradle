@@ -31,6 +31,7 @@ dependencies {
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.1'
     compile 'net.steamcrafted:load-toast:1.0.12'
 
+    compile 'net.idik:slimadapter:2.1.2'
     //noinspection AndroidLintGradleCompatible
     //butterknife
     compile 'com.jakewharton:butterknife:8.8.1'

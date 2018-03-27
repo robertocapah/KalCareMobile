@@ -54,7 +54,8 @@ public class Temporary extends AppCompatActivity {
                                                                 if (!jsonObject.getString("ListData").equals("null")) {
                                                                     JSONArray jsn = jsonObject.getJSONArray("ListData");
                                                                     for (int n = 0; n < jsn.length(); n++) {
-
+                                                                            JSONObject object = jsn.getJSONObject(n);
+                                                                            String txtDiscount = object.getString("decDiscount");
                                                                     }
                                                                 }
                                                             }else{

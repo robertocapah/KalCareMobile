@@ -246,7 +246,7 @@ public class VolleyUtils {
                     }
                 } else {
 //                    popup();
-                    ToastCustom.showToasty(activity.getApplicationContext(),"Token expired, please re-login",3);
+                    ToastCustom.showToasty(activity.getApplicationContext(),"Failed, Check your network",3);
                     finalDialog.dismiss();
 //                    activity.startActivity(new Intent(activity, LoginActivity.class));
                 }

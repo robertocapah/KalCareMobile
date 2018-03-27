@@ -11,6 +11,9 @@ import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.widget.DefaultItemAnimator;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -29,12 +32,14 @@ import android.widget.RadioGroup;
 import android.widget.ScrollView;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.kalbe.mobiledevknlibs.DeviceInformation.DeviceInformation;
 import com.kalbe.mobiledevknlibs.DeviceInformation.ModelDevice;
 import com.kalbe.mobiledevknlibs.Spinner.SpinnerCustom;
 import com.kalbe.mobiledevknlibs.Toast.ToastCustom;
 import com.kalbe.mobiledevknlibs.library.pulltorefresh.interfaces.IXListViewListener;
+import com.kalbenutritionals.kalcaremobie.Common.clsCustomerData;
 import com.kalbenutritionals.kalcaremobie.Common.clsDraft;
 import com.kalbenutritionals.kalcaremobie.Common.clsProductDraft;
 import com.kalbenutritionals.kalcaremobie.Common.clsToken;
@@ -51,8 +56,11 @@ import com.kalbenutritionals.kalcaremobie.Data.adapter.CardAppAdapter;
 import com.kalbenutritionals.kalcaremobie.Data.adapter.CardAppAdapter2;
 import com.kalbenutritionals.kalcaremobie.Data.adapter.CardAppAdapterPreview;
 import com.kalbenutritionals.kalcaremobie.Data.adapter.ListViewCustom;
+import com.kalbenutritionals.kalcaremobie.Data.adapter.RVParentAdapter;
+import com.kalbenutritionals.kalcaremobie.Data.adapter.RVPreviewAdapter;
 import com.kalbenutritionals.kalcaremobie.Data.clsHardCode;
 import com.kalbenutritionals.kalcaremobie.R;
+import com.kalbenutritionals.kalcaremobie.Repo.clsCustomerDataRepo;
 import com.kalbenutritionals.kalcaremobie.Repo.clsDraftRepo;
 import com.kalbenutritionals.kalcaremobie.Repo.clsProductDraftRepo;
 import com.kalbenutritionals.kalcaremobie.Repo.clsTokenRepo;
@@ -61,6 +69,8 @@ import com.kalbenutritionals.kalcaremobie.ViewModel.VMCustomers;
 import com.kalbenutritionals.kalcaremobie.ViewModel.VMItems;
 import com.kalbenutritionals.kalcaremobie.ViewModel.VMItemsPreview;
 import com.kalbenutritionals.kalcaremobie.ViewModel.VMOutlets;
+
+import net.idik.lib.slimadapter.SlimAdapter;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -88,7 +98,7 @@ import jim.h.common.android.lib.zxing.integrator.IntentResult;
  * Created by Robert on 19/02/2018.
  */
 
-public class FragmentAddOrder extends Fragment implements IXListViewListener {
+public class FragmentAddOrder extends Fragment implements IXListViewListener, RVParentAdapter.ItemClickListener {
     View v;
     @BindView(R.id.etNoSo)
     EditText etNoSo;
@@ -178,6 +188,8 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener {
     TextInputLayout inputLayoutTelp2;
     @BindView(R.id.lvItemAdd)
     ListView lvItemAdd;
+    private RVParentAdapter mAdapterItemHeader;
+    private RVPreviewAdapter mAdapterItemPreview;
     List<VMItems> itemsadd = new ArrayList<VMItems>();
     List<VMItems> contentLibs = new ArrayList<VMItems>();
     List<VMItemsPreview> contentLibsPreviewItem = new ArrayList<VMItemsPreview>();
@@ -210,6 +222,8 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener {
     Spinner spnKelurahanAddOrder;
     @BindView(R.id.tvPhoneNumb)
     TextView tvPhoneNumb;
+    @BindView(R.id.rv_parent)
+    RecyclerView rvParent;
     //    @BindView(R.id.tvPostCodeHeader)
 //    EditText tvPostCodeHeader;
     private ZXingLibConfig zxingLibConfig;
@@ -240,6 +254,7 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener {
     ModelDevice deviceInfo = null;
     clsUserLogin dataLogin = null;
     boolean boolAttachCustomer = false;
+    private SlimAdapter slimAdapter;
     //    LoadToast lt = null;
     final static String STRSPINNEROPT = "--Choose one--"; // buat default spinner
 
@@ -249,14 +264,27 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener {
         v = inflater.inflate(R.layout.fragment_add_order, container, false);
         context = getActivity().getApplicationContext();
         unbinder = ButterKnife.bind(this, v);
+        try {
+            List<clsToken> dataToken = new clsTokenRepo(context).findAll();
+
+            access_token = dataToken.get(0).txtUserToken.toString();
+        } catch (Exception e) {
+            ToastCustom.showToasty(context, "Token Empty", 2);
+        }
 //        lt = new LoadToast(context);
         deviceInfo = new ModelDevice();
         deviceInfo = DeviceInformation.getDeviceInformation();
         contentLibs = new ArrayList<VMItems>();
         lvItemAdd.setAdapter(new CardAppAdapter(context, new ArrayList<VMItems>(), Color.WHITE));
+        rvParent.setAdapter(new RVParentAdapter(context, new ArrayList<VMItems>(), Color.WHITE));
         dataLogin = new clsUserLogin();
         dataLogin = new clsUserLoginRepo(context).getDataLogin(context);
 
+        Bundle arguments = getArguments();
+        String noSO = "";
+        if(arguments !=null){
+            noSO = arguments.getString("noSO");
+        }
         final String strLinkAPI = new clsHardCode().linkGetDataDetailSalesOrderMobile;
         final JSONObject resJsonRestore = new JSONObject();
         SimpleDateFormat sdfRestore = new SimpleDateFormat("yyyy-MM-dd");
@@ -265,11 +293,13 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener {
         try {
             resJsonRestore.put("txtAgentName", dataLogin.getNmUser());
             resJsonRestore.put("dtDate", currentDateandTime);
+            resJsonRestore.put("txtNoSo", noSO);
+
         } catch (JSONException e) {
             e.printStackTrace();
         }
         final String mRequestBodyRestore = resJsonRestore.toString();
-        /*new VolleyUtils().makeJsonObjectRequestWithToken(getActivity(), strLinkAPI, mRequestBodyRestore, access_token, "Please Wait...", new VolleyResponseListener() {
+        new VolleyUtils().makeJsonObjectRequestWithToken(getActivity(), strLinkAPI, mRequestBodyRestore, access_token, "Please Wait...", new VolleyResponseListener() {
             @Override
             public void onError(String response) {
                 ToastCustom.showToasty(context, response, 2);
@@ -286,10 +316,77 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener {
                         if (result == 1) {
                             if (!jsonObject.getString("ListData").equals("null")) {
                                 JSONArray jsn = jsonObject.getJSONArray("ListData");
-                                if(jsn.length()==0){
-                                    for (int n = 0; n < jsn.length(); n++) {
+
+                                JSONObject objData = jsn.getJSONObject(0).getJSONObject("DataSalesOrder");
+
+                                String txtNewIdSO = objData.getString("txtNewId");
+                                String txtNoSo = objData.getString("txtNoSo");
+                                String txtGenerateNoSo = objData.getString("txtGenerateNoSo");
+                                String dtDateGenerateSO = objData.getString("dtDateGenerateSO");
+                                String dtDate = objData.getString("dtDate");
+                                String txtSourceOrder = objData.getString("txtSourceOrder");
+                                String dtDelivery = objData.getString("dtDelivery");
+                                String txtAgentName = objData.getString("txtAgentName");
+                                String txtPickUpLocation = objData.getString("txtPickUpLocation");
+                                String intWalkIn = objData.getString("intWalkIn");
+                                String intDeliveryBy = objData.getString("intDeliveryBy");
+                                String txtDeliveryBy = objData.getString("txtDeliveryBy");
+                                String txtCustomer = objData.getString("txtCustomer");
+                                String txtDelivery = objData.getString("txtDelivery");
+                                String txtPropinsiID = objData.getString("txtPropinsiID");
+                                String txtPropinsiName = objData.getString("txtPropinsiName");
+                                String txtKabupatenKotaID = objData.getString("txtKabupatenKotaID");
+                                String txtKabupatenKotaName = objData.getString("txtKabupatenKotaName");
+                                String txtKecamatanID = objData.getString("txtKecamatanID");
+                                String txtKecamatanName = objData.getString("txtKecamatanName");
+                                String txtKelurahanID = objData.getString("txtKelurahanID");
+                                String txtKelurahanName = objData.getString("txtKelurahanName");
+                                String txtRemarks = objData.getString("txtRemarks");
+                                String txtDeviceId = objData.getString("txtDeviceId");
+                                String intStatus = objData.getString("intStatus");
+                                String txtStatus_code = objData.getString("txtStatus_code");
+
+                                if(jsn.length()>0){
+                                    JSONArray arrayData = jsn.getJSONObject(0).getJSONArray("ListDataDetail");
+                                    for (int n = 0; n < arrayData.length(); n++) {
+                                        JSONObject obj = arrayData.getJSONObject(0);
+                                        String txtNewId = obj.getString("txtNewId");
+                                        String txtProductCode = obj.getString("txtProductCode");
+                                        String txtProductName = obj.getString("txtProductName");
+                                        String intQty = obj.getString("intQty");
+                                        String decPrice = obj.getString("decPrice");
+                                        String decDiscount = obj.getString("decDiscount");
+                                        String decTotalPrice = obj.getString("decTotalPrice");
+                                        String decTaxAmount = obj.getString("decTaxAmount");
+                                        String decNetPrice = obj.getString("decNetPrice");
+                                        String decBasePoint = obj.getString("decBasePoint");
+                                        String decTotalBasePoint = obj.getString("decTotalBasePoint");
+                                        String decBonusPoint = obj.getString("decBonusPoint");
+                                        String txtNoSO = obj.getString("txtNoSO");
+
+                                        clsProductDraft itemsDraft = new clsProductDraft();
+                                        itemsDraft.setTxtDraftGUI(txtNewIdSO);
+                                        itemsDraft.setTxtProductDraftGUI(txtNewId);
+                                        itemsDraft.setTxtItemCode(txtProductCode);
+                                        itemsDraft.setTxtItemName(txtProductName);
+                                        itemsDraft.setIntQty(Integer.parseInt(intQty));
+                                        itemsDraft.setDblPrice(Double.parseDouble(decPrice));
+                                        itemsDraft.setDblItemDiscount(Double.parseDouble(decDiscount));
+                                        itemsDraft.setDblTotalPrice(Double.parseDouble(decTotalPrice));
+                                        itemsDraft.setDblItemTax(Double.parseDouble(decTaxAmount));
+                                        itemsDraft.setDblNetPrice(Double.parseDouble(decNetPrice));
+                                        itemsDraft.setTxtBasedPoint(decBasePoint);
+                                        itemsDraft.setTxtBonusPoint(decBonusPoint);
+                                        new clsProductDraftRepo(context).createOrUpdate(itemsDraft);
 
                                     }
+                                    // Reload current fragment
+                                    Fragment frg = null;
+                                    frg = getActivity().getSupportFragmentManager().findFragmentByTag("Fragment_AddOrder");
+                                    final FragmentTransaction ft = getActivity().getSupportFragmentManager().beginTransaction();
+                                    ft.detach(frg);
+                                    ft.attach(frg);
+                                    ft.commit();
                                 }else{
                                 }
 
@@ -304,16 +401,10 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener {
                 }
 
             }
-        });*/
+        });
 
 
-        try {
-            List<clsToken> dataToken = new clsTokenRepo(context).findAll();
 
-            access_token = dataToken.get(0).txtUserToken.toString();
-        } catch (Exception e) {
-            ToastCustom.showToasty(context, "Token Empty", 2);
-        }
         try {
             draft = new clsDraftRepo(context).findByBitActive();
         } catch (SQLException e) {
@@ -750,7 +841,8 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener {
             etSOSource.setText(data.getTxtSumberDataID());
             etOrderLocation.setText(data.getTxtNamaInstitusi());
             SimpleDateFormat sdf = new SimpleDateFormat("dd MMM yyyy");
-            etDate.setText(currentDateandTime);
+            String date = sdf.format(dtLoginData);
+            etDate.setText(date);
         }
         etOrderLocation.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -875,8 +967,11 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener {
                 Debug.waitForDebugger();
                 if (isChecked) {
 //                    cbAttach.setChecked(true);
-
+                    cbAttach.setChecked(false);
+                    cbAttach.setVisibility(View.GONE);
                 } else {
+                    cbAttach.setChecked(false);
+                    cbAttach.setVisibility(View.VISIBLE);
                     if (!cbAttach.isChecked()) {
                         etAddress.setVisibility(View.GONE);
                         lnCustomerDetail.setVisibility(View.GONE);
@@ -1345,7 +1440,7 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener {
                                         final EditText etBonusPoint = (EditText) promptView.findViewById(R.id.etBonusPoint);
                                         final EditText etBasedPoint = (EditText) promptView.findViewById(R.id.etBasePoint);
                                         final List<VMItems> contentSearchResult = new ArrayList<VMItems>();
-                                        VMItems item = new VMItems();
+                                        VMItems item = new VMItems(promptView);
 
                                         JSONArray jsn = jsonObject.getJSONArray("ListData");
                                         for (int n = 0; n < jsn.length(); n++) {
@@ -1357,7 +1452,7 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener {
                                             String txtProductCode = object.getString("txtProductCode");
                                             String txtProductDesc = object.getString("txtProductDesc");
 
-                                            item = new VMItems();
+                                            item = new VMItems(promptView);
                                             item.setGuiid(new Helper().GenerateGuid());
                                             item.setItemName(txtBrand);
                                             item.setPrice(80000);
@@ -1469,7 +1564,7 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener {
                                                         etQtySearch.setBackgroundResource(R.drawable.bg_edtext_error_border);
                                                     } else {
                                                         Object checkedItem = lvSearchResult.getAdapter().getItem(lvSearchResult.getCheckedItemPosition());
-                                                        VMItems itemResult = new VMItems();
+                                                        VMItems itemResult = new VMItems(promptView);
                                                         int position = lvSearchResult.getCheckedItemPosition();
                                                         String itemNameAdd = contentSearchResult.get(position).getItemName();
                                                         String itemCodeAdd = contentSearchResult.get(position).getItemCode();
@@ -1498,7 +1593,7 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener {
                                                         String itemBasePoint = etBasedPoint.getText().toString();
                                                         String itemBonusPoint = etBonusPoint.getText().toString();
 
-                                                        VMItems item = new VMItems();
+                                                        VMItems item = new VMItems(promptView);
                                                         item.setItemName(itemNameAdd);
                                                         item.setItemCode(itemCodeAdd);
                                                         item.setProductCategory(HMtxtProductCategory.get(itemCodeAdd));
@@ -1562,9 +1657,11 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener {
             ToastCustom.showToasty(context, "Please set delivery schedule", 3);
         } else {
             lvItemAdd.setAdapter(new CardAppAdapter(context, new ArrayList<VMItems>(), Color.WHITE));
+            rvParent.setAdapter(new RVParentAdapter(context, new ArrayList<VMItems>(), Color.WHITE));
             String noSO = etNoSo.getText().toString();
             String soStatus = etSoStatus.getText().toString();
             String soDate = etDate.getText().toString();
+            String kontakID = tvContactIDHeader.getText().toString();
             String soSource = etSOSource.getText().toString();
             String deliverySche = etDeliverySchedule.getText().toString();
             String agentName = etAgentName.getText().toString();
@@ -1620,14 +1717,17 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener {
                         String kelID = HMKel.get(kel);
                         String postCodeKel = spnPostCodeAddOrder.getSelectedItem().toString();
                         String postCode = HMKodePos.get(postCodeKel);
+                        String phoneNumber = tvPhoneNumb.getText().toString();
                         String address = etAddress.getText().toString();
                         draft.setTxtContactID(contactId);
                         draft.setTxtMemberID(memberNo);
+                        draft.setTxtPhoneNumber(phoneNumber);
                         draft.setTxtCustomerName(customername);
                         draft.setTxtProvinceID(provinceID);
                         draft.setTxtProvince(province);
                         draft.setTxtKabKot(kabKot);
                         draft.setTxtKabKotID(kabKotID);
+                        draft.setTxtKontakID(kontakID);
                         draft.setTxtKecamatan(Kec);
                         draft.setTxtKecamatanID(kecID);
                         draft.setTxtKelurahan(kel);
@@ -1643,6 +1743,7 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener {
                         draft.setTxtKecamatan("");
                         draft.setTxtPostCode("");
                         draft.setTxtAddress("");
+                        draft.setTxtKontakID("");
                     }
                     draft.setTxtRemarks(remarks);
                     new clsDraftRepo(context).createOrUpdate(draft);
@@ -1669,7 +1770,7 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener {
                         DateFormat dateFormat = new SimpleDateFormat("dd MMM yyyy");
                         Date dtDeliverySche = null;
                         try {
-                            dtDeliverySche = dateFormat.parse(soDate);
+                            dtDeliverySche = dateFormat.parse(deliverySche);
                             draft.setDtDeliverySche(dtDeliverySche);
                         } catch (ParseException e) {
                             e.printStackTrace();
@@ -1727,7 +1828,7 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener {
                 boolean addedSucces = false;
                 contentLibs = new ArrayList<VMItems>();
                 for (clsProductDraft productDraft : itemsDraft) {
-                    VMItems item = new VMItems();
+                    VMItems item = new VMItems(getView());
                     item.setItemName(productDraft.getTxtItemName());
                     item.setItemCode(productDraft.getTxtItemCode());
                     item.setProductCategory(productDraft.getTxtProductCategory());
@@ -1762,7 +1863,7 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener {
     public void onBtnSaveDraftClicked() {
         boolean saveDraftResult = false;
         try {
-            clsDraft draft = new clsDraftRepo(context).findByBitActive();
+            final clsDraft draft = new clsDraftRepo(context).findByBitActive();
             if (draft != null) {
                 final String strLinkAPI = new clsHardCode().linkSaveDataSalesOrder;
                 final JSONObject resJson = new JSONObject();
@@ -1834,6 +1935,39 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener {
                     @Override
                     public void onResponse(String response, Boolean status, String strErrorMsg) {
                         if (response != null) {
+
+                            JSONObject jsonObject = null;
+                            try {
+                                jsonObject = new JSONObject(response);
+                                int result = jsonObject.getInt("intResult");
+                                String warn = jsonObject.getString("txtMessage");
+                                if (result == 1) {
+                                    if (!jsonObject.getString("ListData").equals("null")) {
+                                        JSONArray jsn = jsonObject.getJSONArray("ListData");
+                                        for (int n = 0; n < jsn.length(); n++) {
+                                            JSONObject object = jsn.getJSONObject(n);
+                                            String txtNoSO = object.getString("txtNoSO");
+                                            String intStatus = object.getString("intStatus");
+                                            String txtStatus = object.getString("txtStatus");
+                                            draft.setTxtNoSO(txtNoSO);
+                                            draft.setIntStatus(Integer.parseInt(intStatus));
+                                            draft.setTxtSOStatus(txtStatus);
+                                            int resultan = new clsDraftRepo(context).update(draft);
+                                            if (resultan > -1){
+                                                Log.d("Update","Berhasil");
+                                            }else{
+                                                ToastCustom.showToasty(context,"failed to save",2);
+                                            }
+                                        }
+                                    }
+                                }else{
+                                    ToastCustom.showToasty(context,warn, 2);
+
+                                }
+                            }catch (JSONException ex){
+                                String x = ex.getMessage();
+                            }
+
                             new clsProductDraftRepo(context).clearAllData();
                             new clsDraftRepo(context).clearAllData();
                             new clsProductDraftRepo(context).clearAllData();
@@ -1999,7 +2133,8 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener {
                                         item.setPartnerAddress(txtPartnerAddress);
                                         item.setPartnerName(txtPartnerName);
                                         item.setProductCode(txtProductCode);
-                                        item.setProductName(txtProductDesc);;
+                                        item.setProductName(txtProductDesc);
+                                        ;
                                         item.setPartnerPhone(txtPartnerPhone);
                                         item.setQtyAvailable(intQtyAvailable);
                                         item.setQty(txtQTY);
@@ -2013,6 +2148,7 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener {
                                     ListView lvPreview = (ListView) promptView.findViewById(R.id.lvItemPrev);
                                     Button btnCancelPrev = (Button) promptView.findViewById(R.id.btnCancelPrev);
                                     Button btnCheckoutPrev = (Button) promptView.findViewById(R.id.btnCheckoutPrev);
+                                    RecyclerView rvPreview = (RecyclerView) promptView.findViewById(R.id.rv_preview);
 
                                     TextView tvSOStatusPrev = (TextView) promptView.findViewById(R.id.tvSOStatusPrev);
                                     TextView tvSoDatePrev = (TextView) promptView.findViewById(R.id.tvSoDatePrev);
@@ -2144,6 +2280,11 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener {
 
 
                                     lvPreview.setAdapter(new CardAppAdapterPreview(context, contentLibsPreviewItem, Color.WHITE));
+                                    RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(context);
+                                    rvPreview.setLayoutManager(mLayoutManager);
+                                    rvPreview.setItemAnimator(new DefaultItemAnimator());
+                                    mAdapterItemPreview = new RVPreviewAdapter(context, contentLibsPreviewItem, Color.WHITE);
+                                    rvPreview.setAdapter(mAdapterItemPreview);
                                     setListViewHeightBasedOnItems(lvPreview);
                                     AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
                                     alertDialogBuilder.setView(promptView);
@@ -2177,19 +2318,29 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener {
                                         public void onClick(View v) {
                                             final String strLinkAPIFinalCheckout = new clsHardCode().linkCheckoutSalesOrder;
                                             final JSONObject resJsonFinalCheckout = new JSONObject();
+                                            boolean boolSaved = true;
                                             try {
                                                 draft = new clsDraftRepo(context).findByBitActive();
                                             } catch (SQLException e) {
                                                 e.printStackTrace();
                                             }
+                                            if(draft.getTxtNoSO().equals("Generated by system")){
+                                                boolSaved = false;
+                                            }
                                             JSONArray jsonProductCheckout = new Helper().writeJSONSaveData(context, draft, contentLibs);
                                             try {
-                                                resJsonFinalCheckout.put("txtNewId", draft.getGuiId());
+//                                                resJsonFinalCheckout.put("txtNewId", draft.getGuiId());
                                                 String strNO = draft.getTxtNoSO();
                                                 if (strNO.equals("Generated by system")) {
-                                                    resJsonFinalCheckout.put("txtNoSo", "");
+                                                    resJsonFinalCheckout.put("txtOrderNo", "");
                                                 } else {
-                                                    resJsonFinalCheckout.put("txtNoSo", draft.getTxtNoSO());
+                                                    resJsonFinalCheckout.put("txtOrderNo", draft.getTxtNoSO());
+                                                }
+                                                clsCustomerData dataDefault = new clsCustomerData();
+                                                try {
+                                                    dataDefault = new clsCustomerDataRepo(context).findOne();
+                                                } catch (SQLException e) {
+                                                    e.printStackTrace();
                                                 }
 
                                                 resJsonFinalCheckout.put("txtSourceOrder", draft.getTxtSoSource());
@@ -2203,15 +2354,55 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener {
                                                 }
                                                 resJsonFinalCheckout.put("dtDelivery", txtDeliverSche);
                                                 resJsonFinalCheckout.put("txtAgentName", draft.getTxtAgentName());
-                                                resJsonFinalCheckout.put("txtPickUpLocation", draft.getTxtProvince());
-                                                resJsonFinalCheckout.put("txtKelurahanID", draft.getTxtKelurahanID());
-                                                resJsonFinalCheckout.put("txtKelurahanName", draft.getTxtKelurahan());
 
                                                 String walkin = "";
                                                 if (draft.isBoolWalkin()) {
                                                     walkin = "1";
+                                                    resJsonFinalCheckout.put("txtAlamatKirim", dataDefault.getTxtAlamat());
+                                                    resJsonFinalCheckout.put("txtCustPhone", dataLogin.getTxtPhoneNo());
+                                                    resJsonFinalCheckout.put("txtCustName", dataDefault.getTxtNama());
+                                                    resJsonFinalCheckout.put("txtKontakID", dataDefault.getTxtKontakID());
+                                                    resJsonFinalCheckout.put("txtPickUpLocation", dataLogin.getTxtNamaInstitusi());
+
+                                                    SimpleDateFormat sdfFinalCheckout = new SimpleDateFormat("yyyy-MM-dd");
+                                                    if (draft.getDtDeliverySche() != null) {
+                                                        txtDeliverSche = sdf.format(draft.getDtDeliverySche());
+                                                    }
+
+                                                    resJsonFinalCheckout.put("dtKirim", txtDeliverSche);
+                                                    resJsonFinalCheckout.put("txtKelurahanID", dataDefault.getTxtNamaKelurahan());
+                                                    resJsonFinalCheckout.put("txtNamaKelurahan", dataDefault.getTxtNamaKelurahan());
+                                                    resJsonFinalCheckout.put("txtPropinsiID", String.valueOf(dataDefault.getTxtPropinsiID()));
+                                                    resJsonFinalCheckout.put("txtNamaPropinsi", dataDefault.getTxtNamaPropinsi());
+                                                    resJsonFinalCheckout.put("txtKabKotaID", String.valueOf(dataDefault.getTxtKabKotaID()));
+                                                    resJsonFinalCheckout.put("txtNamaKabKota", dataDefault.getTxtNamaKabKota());
+                                                    resJsonFinalCheckout.put("txtKecamatanID", String.valueOf(dataDefault.getTxtKecamatan()));
+                                                    resJsonFinalCheckout.put("txtNamaKecamatan", dataDefault.getTxtNamaKecamatan());
+                                                    resJsonFinalCheckout.put("txtKodePos", dataDefault.getTxtKodePos());
                                                 } else {
                                                     walkin = "0";
+                                                    resJsonFinalCheckout.put("txtCustName", draft.getTxtCustomerName());
+                                                    resJsonFinalCheckout.put("txtAlamatKirim", draft.getTxtAddress());
+                                                    resJsonFinalCheckout.put("txtCustPhone", draft.getTxtPhoneNumber());
+                                                    resJsonFinalCheckout.put("txtCustName", draft.getTxtCustomerName());
+                                                    resJsonFinalCheckout.put("txtKontakID", draft.getTxtKontakID());
+                                                    resJsonFinalCheckout.put("txtPickUpLocation", draft.getTxtProvince());
+
+//                                                    SimpleDateFormat sdfFinalCheckout = new SimpleDateFormat("yyyy-MM-dd");
+                                                    if (draft.getDtDeliverySche() != null) {
+                                                        txtDeliverSche = sdf.format(draft.getDtDeliverySche());
+                                                    }
+
+                                                    resJsonFinalCheckout.put("dtKirim", txtDeliverSche);
+                                                    resJsonFinalCheckout.put("txtKelurahanID", draft.getTxtKelurahanID());
+                                                    resJsonFinalCheckout.put("txtNamaKelurahan", draft.getTxtKelurahan());
+                                                    resJsonFinalCheckout.put("txtPropinsiID", String.valueOf(draft.getTxtProvinceID()));
+                                                    resJsonFinalCheckout.put("txtNamaPropinsi", draft.getTxtProvince());
+                                                    resJsonFinalCheckout.put("txtKabKotaID", String.valueOf(draft.getTxtKabKotID()));
+                                                    resJsonFinalCheckout.put("txtNamaKabKota", draft.getTxtKabKot());
+                                                    resJsonFinalCheckout.put("txtKecamatanID", String.valueOf(draft.getTxtKecamatanID()));
+                                                    resJsonFinalCheckout.put("txtNamaKecamatan", draft.getTxtKecamatan());
+                                                    resJsonFinalCheckout.put("txtKodePos", draft.getTxtPostCode());
                                                 }
                                                 resJsonFinalCheckout.put("intWalkIn", walkin);
 
@@ -2221,18 +2412,19 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener {
                                                 } else {
                                                     deliverBy = "0";
                                                 }
-                                                resJsonFinalCheckout.put("intDeliveryBy", deliverBy);
-                                                resJsonFinalCheckout.put("txtDeliveryBy", draft.getTxtAgentName());
+                                                resJsonFinalCheckout.put("intNilaiPembulatan", 0);
+                                                resJsonFinalCheckout.put("txtPaymentMethodID", "");
+                                                resJsonFinalCheckout.put("txtMediaJasaID", "");
+                                                resJsonFinalCheckout.put("txtMediaJasaPaymentID", "");
+                                                resJsonFinalCheckout.put("txtCardNumber", "");
+                                                resJsonFinalCheckout.put("txtBCATraceNo", "");
+                                                resJsonFinalCheckout.put("txtUserID", dataLogin.getIdUser());
+                                                resJsonFinalCheckout.put("txtTeleID", dataLogin.getTxtTeleID());
+                                                resJsonFinalCheckout.put("txtUserID", dataLogin.getIdUser());
+                                                resJsonFinalCheckout.put("txtCodeID", dataLogin.getTxtCodeId());
                                                 resJsonFinalCheckout.put("txtCustomer", draft.getTxtCustomerName());
-                                                resJsonFinalCheckout.put("txtPropinsiID", String.valueOf(draft.getTxtProvinceID()));
-                                                resJsonFinalCheckout.put("txtPropinsiName", draft.getTxtProvince());
-                                                resJsonFinalCheckout.put("txtKabKotaID", String.valueOf(draft.getTxtKabKotID()));
-                                                resJsonFinalCheckout.put("txtKabupatenKotaName", draft.getTxtKabKot());
-                                                resJsonFinalCheckout.put("txtKecamatanID", String.valueOf(draft.getTxtKecamatanID()));
-                                                resJsonFinalCheckout.put("txtKecamatanName", draft.getTxtKecamatan());
-                                                resJsonFinalCheckout.put("txtKodePos", draft.getTxtPostCode());
-                                                resJsonFinalCheckout.put("txtDelivery", draft.getTxtAddress());
-                                                resJsonFinalCheckout.put("txtRemarks", draft.getTxtRemarks());
+
+                                                resJsonFinalCheckout.put("txtRemarkSO", draft.getTxtRemarks());
                                                 resJsonFinalCheckout.put("txtDeviceId", deviceInfo.getModel());
                                                 resJsonFinalCheckout.put("txtUser", dataLogin.getNmUser());
                                                 resJsonFinalCheckout.put("txtStatusDoc", "0");
@@ -2242,49 +2434,54 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener {
                                             }
 
                                             final String mRequestBodyFinalCheckout = resJsonFinalCheckout.toString();
-                                            new VolleyUtils().makeJsonObjectRequestWithToken(getActivity(), strLinkAPIFinalCheckout, mRequestBodyFinalCheckout, access_token, "Please Wait...", new VolleyResponseListener() {
-                                                @Override
-                                                public void onError(String response) {
-                                                    ToastCustom.showToasty(context, response, 2);
-                                                }
-
-                                                @Override
-                                                public void onResponse(String response, Boolean status, String strErrorMsg) {
-                                                    if (response != null) {
-                                                        JSONObject jsonObject = null;
-                                                        try {
-                                                            jsonObject = new JSONObject(response);
-                                                            int result = jsonObject.getInt("intResult");
-                                                            String warn = jsonObject.getString("txtMessage");
-                                                            if (result == 1) {
-                                                                if (!jsonObject.getString("ListData").equals("null")) {
-                                                                    JSONArray jsn = jsonObject.getJSONArray("ListData");
-                                                                    for (int n = 0; n < jsn.length(); n++) {
-
-                                                                    }
-                                                                }
-                                                                alertD.dismiss();
-
-                                                                ToastCustom.showToasty(context,"Checkout Completed", 1);
-                                                                FragmentSalesOrder SOFragment = new FragmentSalesOrder();
-                                                                FragmentTransaction fragmentTransactionSO = getActivity().getSupportFragmentManager().beginTransaction();
-                                                                fragmentTransactionSO.replace(R.id.frame, SOFragment,"FragmentSalesOrder");
-                                                                fragmentTransactionSO.commit();
-                                                                new clsDraftRepo(context).clearAllData();
-                                                                new clsProductDraftRepo(context).clearAllData();
-
-
-                                                            }else{
-                                                                ToastCustom.showToasty(context,warn, 2);
-
-                                                            }
-                                                        }catch (JSONException ex){
-                                                            String x = ex.getMessage();
-                                                        }
-                                                        String a = "";
+                                            if (boolSaved){
+                                                new VolleyUtils().makeJsonObjectRequestWithToken(getActivity(), strLinkAPIFinalCheckout, mRequestBodyFinalCheckout, access_token, "Please Wait...", new VolleyResponseListener() {
+                                                    @Override
+                                                    public void onError(String response) {
+                                                        ToastCustom.showToasty(context, response, 2);
                                                     }
-                                                }
-                                            });
+
+                                                    @Override
+                                                    public void onResponse(String response, Boolean status, String strErrorMsg) {
+                                                        if (response != null) {
+                                                            JSONObject jsonObject = null;
+                                                            try {
+                                                                jsonObject = new JSONObject(response);
+                                                                int result = jsonObject.getInt("intResult");
+                                                                String warn = jsonObject.getString("txtMessage");
+                                                                if (result == 1) {
+                                                                    if (!jsonObject.getString("ListData").equals("null")) {
+                                                                        JSONArray jsn = jsonObject.getJSONArray("ListData");
+                                                                        for (int n = 0; n < jsn.length(); n++) {
+
+                                                                        }
+                                                                    }
+                                                                    alertD.dismiss();
+
+                                                                    ToastCustom.showToasty(context, "Checkout Completed", 1);
+                                                                    FragmentSalesOrder SOFragment = new FragmentSalesOrder();
+                                                                    FragmentTransaction fragmentTransactionSO = getActivity().getSupportFragmentManager().beginTransaction();
+                                                                    fragmentTransactionSO.replace(R.id.frame, SOFragment, "FragmentSalesOrder");
+                                                                    fragmentTransactionSO.commit();
+                                                                    new clsDraftRepo(context).clearAllData();
+                                                                    new clsProductDraftRepo(context).clearAllData();
+
+
+                                                                } else {
+                                                                    ToastCustom.showToasty(context, warn, 2);
+
+                                                                }
+                                                            } catch (JSONException ex) {
+                                                                String x = ex.getMessage();
+                                                            }
+                                                            String a = "";
+                                                        }
+                                                    }
+                                                });
+                                            }else{
+                                                ToastCustom.showToasty(context,"Please save first to get SO numbers",3);
+                                            }
+
 
                                         }
                                     });
@@ -2359,6 +2556,99 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener {
 
             contentLibs.add(item);
             lvItemAdd.setAdapter(new CardAppAdapter(context, contentLibs, Color.WHITE));
+            RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(context);
+            rvParent.setLayoutManager(mLayoutManager);
+            /*slimAdapter = SlimAdapter.create().register(R.layout.card_list_app, new SlimInjector<VMItems>() {
+                @Override
+                public void onInject(VMItems data, IViewInjector injector) {
+                    injector.text(R.id.tvHeaderProductName, data.getItemName())
+                }
+            }).attachTo(rvParent);*/
+
+            rvParent.setItemAnimator(new DefaultItemAnimator());
+            mAdapterItemHeader = new RVParentAdapter(context, contentLibs, Color.WHITE);
+            mAdapterItemHeader.setClickListener(this);
+            rvParent.setAdapter(mAdapterItemHeader);
+
+            rvParent.addOnItemTouchListener(new RecyclerTouchListener(context,
+                    rvParent, new ClickListener() {
+                /*@Override
+                public void onClick(View view, final int position) {
+                    //Values are passing to activity & to fragment as well
+                    Toast.makeText(getActivity(), "Single Click on position :"+position,
+                            Toast.LENGTH_SHORT).show();
+                    ImageView picture=(ImageView)view.findViewById(R.id.imageScanner);
+                    picture.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            Toast.makeText(getActivity(), "Single Click on Image :"+position,
+                                    Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                }*/
+
+                @Override
+                public void onLongClick(View view, final int position) {
+                    Toast.makeText(getActivity(), "Long press on position :"+position,
+                            Toast.LENGTH_LONG).show();
+                    String productName = contentLibs.get(position).getItemName();
+                    AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
+//                    alertDialogBuilder.setView(promptView);
+                    alertDialogBuilder.setMessage("Delete item " + productName + " from list?");
+                    alertDialogBuilder
+                            .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    contentLibs.remove(position);
+                                    lvItemAdd.setAdapter(new CardAppAdapter(context, contentLibs, Color.WHITE));
+                                    rvParent.setAdapter(new RVParentAdapter(context, contentLibs, Color.WHITE));
+                                }
+                            })
+                            .setCancelable(false)
+                            .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int id) {
+                                    dialog.cancel();
+                                }
+                            });
+                    final AlertDialog alertD = alertDialogBuilder.create();
+                    alertD.show();
+                }
+            }));
+
+
+            rvParent.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View v) {
+                   /* if (itemLongClickListener != null) {
+
+                        final long id = recyclerView.getChildItemId(v);
+                        return itemLongClickListener.onItemLongClick(recyclerView, v, position, id);
+                    }*/
+                    final int position = rvParent.getChildAdapterPosition(v);
+                    String productName = contentLibs.get(position).getItemName();
+                    AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
+//                    alertDialogBuilder.setView(promptView);
+                    alertDialogBuilder.setMessage("Delete item " + productName + " from list?");
+                    alertDialogBuilder
+                            .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    contentLibs.remove(position);
+                                    lvItemAdd.setAdapter(new CardAppAdapter(context, contentLibs, Color.WHITE));
+                                    rvParent.setAdapter(new RVParentAdapter(context, contentLibs, Color.WHITE));
+                                }
+                            })
+                            .setCancelable(false)
+                            .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int id) {
+                                    dialog.cancel();
+                                }
+                            });
+                    final AlertDialog alertD = alertDialogBuilder.create();
+                    alertD.show();
+                    return false;
+                }
+            });
             lvItemAdd.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
                 @Override
                 public boolean onItemLongClick(AdapterView<?> parent, View view, final int position, long id) {
@@ -2372,6 +2662,7 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener {
                                 public void onClick(DialogInterface dialog, int which) {
                                     contentLibs.remove(position);
                                     lvItemAdd.setAdapter(new CardAppAdapter(context, contentLibs, Color.WHITE));
+                                    rvParent.setAdapter(new RVParentAdapter(context, contentLibs, Color.WHITE));
                                 }
                             })
                             .setCancelable(false)
@@ -2450,7 +2741,7 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener {
                                 final EditText etBasedPoint = (EditText) promptView.findViewById(R.id.etBasePoint);
 
                                 final List<VMItems> contentSearchResult = new ArrayList<VMItems>();
-                                VMItems item = new VMItems();
+                                VMItems item = new VMItems(promptView);
 
                                 JSONArray jsn = jsonObject.getJSONArray("ListData");
                                 for (int n = 0; n < jsn.length(); n++) {
@@ -2463,7 +2754,7 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener {
                                     HMtxtProductCategory.put(txtProductCode, txtProductCategory);
                                     String txtProductDesc = object.getString("txtProductDesc");
 
-                                    item = new VMItems();
+                                    item = new VMItems(promptView);
                                     item.setItemName(txtBrand);
                                     item.setGuiid(new Helper().GenerateGuid());
 //                                    item.setPrice(80000);
@@ -2577,7 +2868,7 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener {
                                                     etQtySearch.setBackgroundResource(R.drawable.bg_edtext_error_border);
                                                 } else {
                                                     Object checkedItem = lvSearchResult.getAdapter().getItem(lvSearchResult.getCheckedItemPosition());
-                                                    VMItems itemResult = new VMItems();
+                                                    VMItems itemResult = new VMItems(promptView);
                                                     int position = lvSearchResult.getCheckedItemPosition();
                                                     String itemNameAdd = contentSearchResult.get(position).getItemName();
                                                     String itemCodeAdd = contentSearchResult.get(position).getItemCode();
@@ -2604,7 +2895,7 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener {
                                                     String itemBasePoint = etBasedPoint.getText().toString();
                                                     String itemBonusPoint = etBonusPoint.getText().toString();
 
-                                                    VMItems item = new VMItems();
+                                                    VMItems item = new VMItems(promptView);
                                                     item.setItemName(itemNameAdd);
                                                     item.setGuiid(new Helper().GenerateGuid());
                                                     item.setItemCode(itemCodeAdd);
@@ -2670,6 +2961,12 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener {
     @OnClick(R.id.etOrderLocation)
     public void onOrderLocationClicked() {
 
+    }
+
+    @Override
+    public void onItemClick(View view, int position) {
+        String a = "adasd";
+        ToastCustom.showToasty(context,"Tst",2);
     }
 }
 

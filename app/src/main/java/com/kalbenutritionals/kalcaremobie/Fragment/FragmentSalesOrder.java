@@ -23,13 +23,14 @@ import com.kalbenutritionals.kalcaremobie.Common.clsToken;
 import com.kalbenutritionals.kalcaremobie.Common.clsUserLogin;
 import com.kalbenutritionals.kalcaremobie.Data.VolleyResponseListener;
 import com.kalbenutritionals.kalcaremobie.Data.VolleyUtils;
-import com.kalbenutritionals.kalcaremobie.Data.adapter.CardAppAdapter2;
+import com.kalbenutritionals.kalcaremobie.Data.adapter.CardAdapterListSo;
 import com.kalbenutritionals.kalcaremobie.Data.adapter.ListViewCustom;
 import com.kalbenutritionals.kalcaremobie.Data.clsHardCode;
 import com.kalbenutritionals.kalcaremobie.Fragment.dummy.DummyContent.DummyItem;
 import com.kalbenutritionals.kalcaremobie.R;
 import com.kalbenutritionals.kalcaremobie.Repo.clsTokenRepo;
 import com.kalbenutritionals.kalcaremobie.Repo.clsUserLoginRepo;
+import com.kalbenutritionals.kalcaremobie.ViewModel.VMLIstSo;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -114,6 +115,23 @@ public class FragmentSalesOrder extends Fragment {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         Date dtLoginData = dataLogin.getDtLogin();
         String currentDateandTime = sdf.format(dtLoginData);
+        final List<VMLIstSo> contentLibs = new ArrayList<>();
+
+        //casting
+        lvSO = (ListView) view.findViewById(R.id.lvContent);
+        fabAdd = (FloatingActionButton) view.findViewById(R.id.fabAdd);
+        fabAdd.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                FragmentAddOrder fragmentAddOrder = new FragmentAddOrder();
+                FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
+                fragmentTransaction.replace(R.id.frame, fragmentAddOrder,"Fragment_AddOrder");
+                fragmentTransaction.commit();
+            }
+        });
+
+
+
         try {
             resJson.put("txtAgentName", dataLogin.getNmUser());
             resJson.put("dtDate", currentDateandTime);
@@ -132,6 +150,7 @@ public class FragmentSalesOrder extends Fragment {
             public void onResponse(String response, Boolean status, String strErrorMsg) {
                 if (response != null) {
                     JSONObject jsonObject = null;
+                    final List<VMLIstSo> content = new ArrayList<VMLIstSo>();
                     try {
                         jsonObject = new JSONObject(response);
                         int result = jsonObject.getInt("intResult");
@@ -139,20 +158,63 @@ public class FragmentSalesOrder extends Fragment {
                         if (result == 1) {
                             if (!jsonObject.getString("ListData").equals("null")) {
                                 JSONArray jsn = jsonObject.getJSONArray("ListData");
-                                if(jsn.length()==0){
                                     for (int n = 0; n < jsn.length(); n++) {
+                                        JSONObject object = jsn.getJSONObject(n);
+                                        String txtNewId = object.getString("txtNewId");
+                                        String txtNoSo = object.getString("txtNoSo");
+                                        String txtGenerateNoSo = object.getString("txtGenerateNoSo");
+                                        String dtDateGenerateSO = object.getString("dtDateGenerateSO");
+                                        String dtDate = object.getString("dtDate");
+                                        String txtSourceOrder = object.getString("txtSourceOrder");
+                                        String dtDelivery = object.getString("dtDelivery");
+                                        String txtAgentName = object.getString("txtAgentName");
+                                        String txtPickUpLocation = object.getString("txtPickUpLocation");
+                                        String intWalkIn = object.getString("intWalkIn");
+                                        String intDeliveryBy = object.getString("intDeliveryBy");
+                                        String txtDeliveryBy = object.getString("txtDeliveryBy");
+                                        String txtCustomer = object.getString("txtCustomer");
+                                        String txtDelivery = object.getString("txtDelivery");
+                                        String txtDeviceId = object.getString("txtDeviceId");
+                                        String intStatus = object.getString("intStatus");
+                                        String txtRemarks = object.getString("txtRemarks");
+                                        String txtStatus_code = object.getString("txtStatus_code");
+
+                                        VMLIstSo data = new VMLIstSo();
+                                        data.setTxtNoSo(txtNoSo);
+                                        data.setTxtAgentName(txtAgentName);
+                                        data.setTxtStatus(txtStatus_code);
+                                        data.setIntStatus(intStatus);
+
+                                        contentLibs.add(data);
 
                                     }
+                                    lvSO.setAdapter(new CardAdapterListSo(getActivity().getApplicationContext(), contentLibs, Color.WHITE));
+                                    ListViewCustom.setListViewHeightBasedOnItems(getActivity(),lvSO);
+                                    lvSO.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                                        @Override
+                                        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                                            VMLIstSo itemSelected = null;
+                                            itemSelected = contentLibs.get(position);
+                                            FragmentAddOrder fragmentAddOrder = new FragmentAddOrder();
+                                            Bundle arguments = new Bundle();
+                                            arguments.putString( "noSO" , itemSelected.getTxtNoSo());
+                                            fragmentAddOrder.setArguments(arguments);
+                                            FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
+                                            fragmentTransaction.replace(R.id.frame, fragmentAddOrder);
+
+                                            fragmentTransaction.commit();
+                                        }
+                                    });
                                     scrollViewList.setVisibility(View.VISIBLE);
                                     lnNoData.setVisibility(View.GONE);
-                                }else{
-                                    scrollViewList.setVisibility(View.GONE);
-                                    lnNoData.setVisibility(View.VISIBLE);
-                                }
+
 
                             }
                         }else{
                             ToastCustom.showToasty(context,warn, 2);
+                                scrollViewList.setVisibility(View.GONE);
+                                lnNoData.setVisibility(View.VISIBLE);
+
 
                         }
                     }catch (JSONException ex){
@@ -165,31 +227,6 @@ public class FragmentSalesOrder extends Fragment {
 
 
 
-        final List<String> contentLibs = new ArrayList<>();
-        contentLibs.add("Data 1");
-        //casting
-        lvSO = (ListView) view.findViewById(R.id.lvContent);
-        fabAdd = (FloatingActionButton) view.findViewById(R.id.fabAdd);
-        fabAdd.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                FragmentAddOrder fragmentAddOrder = new FragmentAddOrder();
-                FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
-                fragmentTransaction.replace(R.id.frame, fragmentAddOrder);
-                fragmentTransaction.commit();
-            }
-        });
-
-        lvSO.setAdapter(new CardAppAdapter2(getActivity().getApplicationContext(), contentLibs, Color.WHITE));
-        ListViewCustom.setListViewHeightBasedOnItems(getActivity(),lvSO);
-        lvSO.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                if (contentLibs.get(position).equals("Spinner")){
-
-                }
-            }
-        });
 
         return view;
     }

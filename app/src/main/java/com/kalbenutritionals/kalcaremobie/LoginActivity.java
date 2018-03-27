@@ -41,6 +41,7 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.kalbe.mobiledevknlibs.Toast.ToastCustom;
+import com.kalbenutritionals.kalcaremobie.Common.clsCustomerData;
 import com.kalbenutritionals.kalcaremobie.Common.clsToken;
 import com.kalbenutritionals.kalcaremobie.Common.clsUserLogin;
 import com.kalbenutritionals.kalcaremobie.Common.mConfigData;
@@ -48,6 +49,7 @@ import com.kalbenutritionals.kalcaremobie.Data.Helper;
 import com.kalbenutritionals.kalcaremobie.Data.VolleyResponseListener;
 import com.kalbenutritionals.kalcaremobie.Data.VolleyUtils;
 import com.kalbenutritionals.kalcaremobie.Data.clsHardCode;
+import com.kalbenutritionals.kalcaremobie.Repo.clsCustomerDataRepo;
 import com.kalbenutritionals.kalcaremobie.Repo.clsTokenRepo;
 import com.kalbenutritionals.kalcaremobie.Repo.clsUserLoginRepo;
 import com.kalbenutritionals.kalcaremobie.Repo.mConfigRepo;
@@ -405,6 +407,41 @@ public class LoginActivity extends Activity {
 
                                     JSONObject jsnObject = jsn.getJSONObject(0);
                                     JSONObject dtInfo = jsnObject.getJSONObject("dtInfo");
+
+                                    JSONObject dtclsCustomerData = jsnObject.getJSONObject("dtclsCustomerData");
+                                    String txtKontakIDDefault = dtclsCustomerData.getString("txtKontakID");
+                                    String txtNama = dtclsCustomerData.getString("txtNama");
+                                    String txtAlamat = dtclsCustomerData.getString("txtAlamat");
+                                    String txtNamaKabKota = dtclsCustomerData.getString("txtNamaKabKota");
+                                    String txtNamaPropinsi = dtclsCustomerData.getString("txtNamaPropinsi");
+                                    String JenisAlamat = dtclsCustomerData.getString("JenisAlamat");
+                                    String txtListMedia = dtclsCustomerData.getString("txtListMedia");
+                                    String txtNamaKecamatan = dtclsCustomerData.getString("txtNamaKecamatan");
+                                    String txtNamaKelurahan = dtclsCustomerData.getString("txtNamaKelurahan");
+                                    String txtNHDSiteID = dtclsCustomerData.getString("txtNHDSiteID");
+                                    String txtPropinsiID = dtclsCustomerData.getString("txtPropinsiID");
+                                    String txtKabKotaID = dtclsCustomerData.getString("txtKabKotaID");
+                                    String txtKecamatan = dtclsCustomerData.getString("txtKecamatan");
+                                    String txtKodePos = dtclsCustomerData.getString("txtKodePos");
+
+                                    clsCustomerData dataDefault = new clsCustomerData();
+                                    dataDefault.setId(1);
+                                    dataDefault.setTxtKontakID(txtKontakIDDefault);
+                                    dataDefault.setTxtNama(txtNama);
+                                    dataDefault.setJenisAlamat(JenisAlamat);
+                                    dataDefault.setTxtAlamat(txtAlamat);
+                                    dataDefault.setTxtNamaKabKota(txtNamaKabKota);
+                                    dataDefault.setTxtNamaPropinsi(txtNamaPropinsi);
+                                    dataDefault.setTxtListMedia(txtListMedia);
+                                    dataDefault.setTxtNamaKecamatan(txtNamaKecamatan);
+                                    dataDefault.setTxtNamaKelurahan(txtNamaKelurahan);
+                                    dataDefault.setTxtNHDSiteID(txtNHDSiteID);
+                                    dataDefault.setTxtPropinsiID(txtPropinsiID);
+                                    dataDefault.setTxtKabKotaID(txtKabKotaID);
+                                    dataDefault.setTxtKecamatan(txtKecamatan);
+                                    dataDefault.setTxtKodePos(txtKodePos);
+                                    new clsCustomerDataRepo(getApplicationContext()).createOrUpdate(dataDefault);
+
                                     String dtDate = jsnObject.getString("dtDate");
                                     int intScheduleDevilery = jsnObject.getInt("intScheduleDevilery");
 

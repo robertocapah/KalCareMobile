@@ -32,6 +32,8 @@ public class clsDraft implements Serializable {
     @DatabaseField
     private String txtPhoneNumber;
     @DatabaseField
+    private String txtKontakID;
+    @DatabaseField
     private String txtOrderLocation;
     @DatabaseField
     private boolean boolWalkin;
@@ -67,6 +69,14 @@ public class clsDraft implements Serializable {
     private String txtAddress;
     @DatabaseField
     private String txtRemarks;
+
+    public String getTxtKontakID() {
+        return txtKontakID;
+    }
+
+    public void setTxtKontakID(String txtKontakID) {
+        this.txtKontakID = txtKontakID;
+    }
 
     public static String txtPropertyIntStatus = "intStatus";
 
