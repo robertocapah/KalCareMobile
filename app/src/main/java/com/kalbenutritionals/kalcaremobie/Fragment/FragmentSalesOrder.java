@@ -184,6 +184,7 @@ public class FragmentSalesOrder extends Fragment {
                                         data.setTxtAgentName(txtAgentName);
                                         data.setTxtStatus(txtStatus_code);
                                         data.setIntStatus(intStatus);
+                                        data.setTxtCustomerName(txtCustomer);
 
                                         contentLibs.add(data);
 
@@ -200,7 +201,7 @@ public class FragmentSalesOrder extends Fragment {
                                             arguments.putString( "noSO" , itemSelected.getTxtNoSo());
                                             fragmentAddOrder.setArguments(arguments);
                                             FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
-                                            fragmentTransaction.replace(R.id.frame, fragmentAddOrder);
+                                            fragmentTransaction.replace(R.id.frame, fragmentAddOrder, "Fragment_AddOrder");
 
                                             fragmentTransaction.commit();
                                         }

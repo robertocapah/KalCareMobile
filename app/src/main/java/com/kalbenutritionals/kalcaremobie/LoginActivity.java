@@ -423,6 +423,7 @@ public class LoginActivity extends Activity {
                                     String txtKabKotaID = dtclsCustomerData.getString("txtKabKotaID");
                                     String txtKecamatan = dtclsCustomerData.getString("txtKecamatan");
                                     String txtKodePos = dtclsCustomerData.getString("txtKodePos");
+                                    String txtPhoneNumb = dtclsCustomerData.getString("txtListMedia");
 
                                     clsCustomerData dataDefault = new clsCustomerData();
                                     dataDefault.setId(1);
@@ -440,6 +441,7 @@ public class LoginActivity extends Activity {
                                     dataDefault.setTxtKabKotaID(txtKabKotaID);
                                     dataDefault.setTxtKecamatan(txtKecamatan);
                                     dataDefault.setTxtKodePos(txtKodePos);
+                                    dataDefault.setTxtPhoneNumber(txtPhoneNumb);
                                     new clsCustomerDataRepo(getApplicationContext()).create(dataDefault);
 
                                     String dtDate = jsnObject.getString("dtDate");

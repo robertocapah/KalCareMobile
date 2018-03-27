@@ -51,7 +51,7 @@ public class CardAdapterListSo extends BaseAdapter {
         }
         VMLIstSo item = getItem(position);
         ViewHolder holder = (ViewHolder) convertView.getTag();
-        holder.tv_name.setText(item.getTxtAgentName());
+        holder.tv_name.setText(item.getTxtCustomerName());
         holder.cardView.setCardBackgroundColor(color);
         holder.noSo.setText(item.getTxtNoSo());
         return convertView;

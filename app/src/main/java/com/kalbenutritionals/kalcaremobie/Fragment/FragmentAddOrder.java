@@ -280,7 +280,7 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
         dataLogin = new clsUserLogin();
         dataLogin = new clsUserLoginRepo(context).getDataLogin(context);
 
-        Bundle arguments = getArguments();
+        final Bundle arguments = getArguments();
         String noSO = "";
         if(arguments !=null){
             noSO = arguments.getString("noSO");
@@ -299,139 +299,166 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
             e.printStackTrace();
         }
         final String mRequestBodyRestore = resJsonRestore.toString();
-        new VolleyUtils().makeJsonObjectRequestWithToken(getActivity(), strLinkAPI, mRequestBodyRestore, access_token, "Please Wait...", new VolleyResponseListener() {
-            @Override
-            public void onError(String response) {
-                ToastCustom.showToasty(context, response, 2);
-            }
-
-            @Override
-            public void onResponse(String response, Boolean status, String strErrorMsg) {
-                if (response != null) {
-                    JSONObject jsonObject = null;
-                    try {
-                        jsonObject = new JSONObject(response);
-                        int result = jsonObject.getInt("intResult");
-                        String warn = jsonObject.getString("txtMessage");
-                        if (result == 1) {
-                            if (!jsonObject.getString("ListData").equals("null")) {
-                                JSONArray jsn = jsonObject.getJSONArray("ListData");
-
-                                JSONObject objData = jsn.getJSONObject(0).getJSONObject("DataSalesOrder");
-
-                                String txtNewIdSO = objData.getString("txtNewId");
-                                String txtNoSo = objData.getString("txtNoSo");
-                                String txtGenerateNoSo = objData.getString("txtGenerateNoSo");
-                                String dtDateGenerateSO = objData.getString("dtDateGenerateSO");
-                                String dtDate = objData.getString("dtDate");
-                                String txtSourceOrder = objData.getString("txtSourceOrder");
-                                String dtDelivery = objData.getString("dtDelivery");
-                                String txtAgentName = objData.getString("txtAgentName");
-                                String txtPickUpLocation = objData.getString("txtPickUpLocation");
-                                String intWalkIn = objData.getString("intWalkIn");
-                                String intDeliveryBy = objData.getString("intDeliveryBy");
-                                String txtDeliveryBy = objData.getString("txtDeliveryBy");
-                                String txtCustomer = objData.getString("txtCustomer");
-                                String txtDelivery = objData.getString("txtDelivery");
-                                String txtPropinsiID = objData.getString("txtPropinsiID");
-                                String txtPropinsiName = objData.getString("txtPropinsiName");
-                                String txtKabupatenKotaID = objData.getString("txtKabupatenKotaID");
-                                String txtKabupatenKotaName = objData.getString("txtKabupatenKotaName");
-                                String txtKecamatanID = objData.getString("txtKecamatanID");
-                                String txtKecamatanName = objData.getString("txtKecamatanName");
-                                String txtKelurahanID = objData.getString("txtKelurahanID");
-                                String txtKelurahanName = objData.getString("txtKelurahanName");
-                                String txtRemarks = objData.getString("txtRemarks");
-                                String txtDeviceId = objData.getString("txtDeviceId");
-                                String intStatus = objData.getString("intStatus");
-                                String txtStatus_code = objData.getString("txtStatus_code");
-                                clsDraft draft = new clsDraft();
-                                draft.setGuiId(txtNewIdSO);
-                                draft.setTxtSOStatus(txtStatus_code);
-                                draft.setIntStatus(Integer.parseInt(intStatus));
-                                draft.setTxtSoSource(txtSourceOrder);
-                                draft.setTxtAgentName(txtAgentName);
-                                if(intWalkIn.equals("1")){
-                                    draft.setBoolWalkin(true);
-                                }else{
-                                    draft.setBoolWalkin(false);
-                                }
-                                if (intDeliveryBy.equals("1")){
-                                    draft.setBoolAttachCustomer(true);
-                                }else{
-                                    draft.setBoolAttachCustomer(false);
-                                }
-                                draft.setTxtAgentName(txtDeliveryBy);
-                                draft.setTxtRemarks(txtRemarks);
-                                draft.setTxtCustomerName(txtCustomer);
-                                draft.setTxtAddress(txtDelivery);
-                                draft.setTxtProvinceID(txtPropinsiID);
-                                draft.setTxtProvince(txtPropinsiName);
-                                draft.setTxtKabKotID(txtKabupatenKotaID);
-                                draft.setTxtKabKot(txtKabupatenKotaName);
-                                draft.setTxtKecamatanID(txtKecamatanID);
-                                draft.setTxtKecamatan(txtKecamatanName);
-                                draft.setTxtKelurahanID(txtKelurahanID);
-                                draft.setTxtKelurahan(txtKelurahanName);
-                                draft.setTxtPostCode("");
-                                new clsDraftRepo(context).createOrUpdate(draft);
-
-                                if(jsn.length()>0){
-                                    JSONArray arrayData = jsn.getJSONObject(0).getJSONArray("ListDataDetail");
-                                    for (int n = 0; n < arrayData.length(); n++) {
-                                        JSONObject obj = arrayData.getJSONObject(0);
-                                        String txtNewId = obj.getString("txtNewId");
-                                        String txtProductCode = obj.getString("txtProductCode");
-                                        String txtProductName = obj.getString("txtProductName");
-                                        String intQty = obj.getString("intQty");
-                                        String decPrice = obj.getString("decPrice");
-                                        String decDiscount = obj.getString("decDiscount");
-                                        String decTotalPrice = obj.getString("decTotalPrice");
-                                        String decTaxAmount = obj.getString("decTaxAmount");
-                                        String decNetPrice = obj.getString("decNetPrice");
-                                        String decBasePoint = obj.getString("decBasePoint");
-                                        String decTotalBasePoint = obj.getString("decTotalBasePoint");
-                                        String decBonusPoint = obj.getString("decBonusPoint");
-                                        String txtNoSO = obj.getString("txtNoSO");
-
-                                        clsProductDraft itemsDraft = new clsProductDraft();
-                                        itemsDraft.setTxtDraftGUI(txtNewIdSO);
-                                        itemsDraft.setTxtProductDraftGUI(txtNewId);
-                                        itemsDraft.setTxtItemCode(txtProductCode);
-                                        itemsDraft.setTxtItemName(txtProductName);
-                                        itemsDraft.setIntQty(Integer.parseInt(intQty));
-                                        itemsDraft.setDblPrice(Double.parseDouble(decPrice));
-                                        itemsDraft.setDblItemDiscount(Double.parseDouble(decDiscount));
-                                        itemsDraft.setDblTotalPrice(Double.parseDouble(decTotalPrice));
-                                        itemsDraft.setDblItemTax(Double.parseDouble(decTaxAmount));
-                                        itemsDraft.setDblNetPrice(Double.parseDouble(decNetPrice));
-                                        itemsDraft.setTxtBasedPoint(decBasePoint);
-                                        itemsDraft.setTxtBonusPoint(decBonusPoint);
-                                        new clsProductDraftRepo(context).createOrUpdate(itemsDraft);
-
-                                    }
-                                    // Reload current fragment
-                                    Fragment frg = null;
-                                    frg = getActivity().getSupportFragmentManager().findFragmentByTag("Fragment_AddOrder");
-                                    final FragmentTransaction ft = getActivity().getSupportFragmentManager().beginTransaction();
-                                    ft.detach(frg);
-                                    ft.attach(frg);
-                                    ft.commit();
-                                }else{
-                                }
-
-                            }
-                        }else{
-                            ToastCustom.showToasty(context,warn, 2);
-
-                        }
-                    }catch (JSONException ex){
-                        String x = ex.getMessage();
-                    }
+        if (!noSO.equals("")){
+            new VolleyUtils().makeJsonObjectRequestWithToken(getActivity(), strLinkAPI, mRequestBodyRestore, access_token, "Please Wait...", new VolleyResponseListener() {
+                @Override
+                public void onError(String response) {
+                    ToastCustom.showToasty(context, response, 2);
                 }
 
-            }
-        });
+                @Override
+                public void onResponse(String response, Boolean status, String strErrorMsg) {
+                    if (response != null) {
+                        JSONObject jsonObject = null;
+                        try {
+                            jsonObject = new JSONObject(response);
+                            int result = jsonObject.getInt("intResult");
+                            String warn = jsonObject.getString("txtMessage");
+                            if (result == 1) {
+                                if (!jsonObject.getString("ListData").equals("null")) {
+                                    JSONArray jsn = jsonObject.getJSONArray("ListData");
+
+                                    JSONObject objData = jsn.getJSONObject(0).getJSONObject("DataSalesOrder");
+
+                                    String txtNewIdSO = objData.getString("txtNewId");
+                                    String txtNoSo = objData.getString("txtNoSo");
+                                    String txtGenerateNoSo = objData.getString("txtGenerateNoSo");
+                                    String dtDateGenerateSO = objData.getString("dtDateGenerateSO");
+                                    String dtDate = objData.getString("dtDate");
+                                    String txtSourceOrder = objData.getString("txtSourceOrder");
+                                    String dtDelivery = objData.getString("dtDelivery");
+                                    String txtAgentName = objData.getString("txtAgentName");
+                                    String txtPickUpLocation = objData.getString("txtPickUpLocation");
+                                    String intWalkIn = objData.getString("intWalkIn");
+                                    String intDeliveryBy = objData.getString("intDeliveryBy");
+                                    String txtDeliveryBy = objData.getString("txtDeliveryBy");
+                                    String txtCustomer = objData.getString("txtCustomer");
+                                    String txtDelivery = objData.getString("txtDelivery");
+                                    String txtPropinsiID = objData.getString("txtPropinsiID");
+                                    String txtPropinsiName = objData.getString("txtPropinsiName");
+                                    String txtKabupatenKotaID = objData.getString("txtKabupatenKotaID");
+                                    String txtKabupatenKotaName = objData.getString("txtKabupatenKotaName");
+                                    String txtKecamatanID = objData.getString("txtKecamatanID");
+                                    String txtKecamatanName = objData.getString("txtKecamatanName");
+                                    String txtKelurahanID = objData.getString("txtKelurahanID");
+                                    String txtKelurahanName = objData.getString("txtKelurahanName");
+                                    String txtRemarks = objData.getString("txtRemarks");
+                                    String txtDeviceId = objData.getString("txtDeviceId");
+                                    String intStatus = objData.getString("intStatus");
+                                    String txtStatus_code = objData.getString("txtStatus_code");
+                                    clsDraft draft = new clsDraft();
+                                    draft.setGuiId(txtNewIdSO);
+                                    draft.setTxtSOStatus(txtStatus_code);
+                                    draft.setIntStatus(Integer.parseInt(intStatus));
+                                    draft.setTxtSoSource(txtSourceOrder);
+                                    draft.setTxtAgentName(txtAgentName);
+                                    draft.setTxtNoSO(txtNoSo);
+                                    DateFormat dateFormati = new SimpleDateFormat("yyyy-MM-dd");
+                                    if (!dtDate.equals("")) {
+                                        Date dtdtDate = null;
+                                        try {
+                                            dtdtDate = dateFormati.parse(dtDate);
+                                            draft.setDtSODate(dtdtDate);
+                                        } catch (ParseException e) {
+                                            e.printStackTrace();
+                                        }
+                                    }
+                                    if (!dtDelivery.equals("")) {
+                                        Date dtdtDate = null;
+                                        try {
+                                            dtdtDate = dateFormati.parse(dtDelivery);
+                                            draft.setDtDeliverySche(dtdtDate);
+                                        } catch (ParseException e) {
+                                            e.printStackTrace();
+                                        }
+                                    }
+                                    if(intWalkIn.equals("1")){
+                                        draft.setBoolWalkin(true);
+                                    }else{
+                                        draft.setBoolWalkin(false);
+                                    }
+                                    if (intDeliveryBy.equals("1")){
+                                        draft.setBoolAttachCustomer(true);
+                                    }else{
+                                        draft.setBoolAttachCustomer(false);
+                                    }
+                                    draft.setTxtAgentName(txtDeliveryBy);
+                                    draft.setTxtRemarks(txtRemarks);
+                                    draft.setTxtCustomerName(txtCustomer);
+                                    draft.setTxtAddress(txtDelivery);
+                                    draft.setTxtProvinceID(txtPropinsiID);
+                                    draft.setTxtProvince(txtPropinsiName);
+                                    draft.setTxtKabKotID(txtKabupatenKotaID);
+                                    draft.setTxtKabKot(txtKabupatenKotaName);
+                                    draft.setTxtKecamatanID(txtKecamatanID);
+                                    draft.setTxtKecamatan(txtKecamatanName);
+                                    draft.setTxtKelurahanID(txtKelurahanID);
+                                    draft.setTxtKelurahan(txtKelurahanName);
+                                    draft.setTxtPostCode("");
+                                    draft.setIntStatus(0);
+                                    new clsDraftRepo(context).createOrUpdate(draft);
+
+                                    if(jsn.length()>0){
+                                        JSONArray arrayData = jsn.getJSONObject(0).getJSONArray("ListDataDetail");
+                                        for (int n = 0; n < arrayData.length(); n++) {
+                                            JSONObject obj = arrayData.getJSONObject(0);
+                                            String txtNewId = obj.getString("txtNewId");
+                                            String txtProductCode = obj.getString("txtProductCode");
+                                            String txtProductName = obj.getString("txtProductName");
+                                            String intQty = obj.getString("intQty");
+                                            String decPrice = obj.getString("decPrice");
+                                            String decDiscount = obj.getString("decDiscount");
+                                            String decTotalPrice = obj.getString("decTotalPrice");
+                                            String decTaxAmount = obj.getString("decTaxAmount");
+                                            String decNetPrice = obj.getString("decNetPrice");
+                                            String decBasePoint = obj.getString("decBasePoint");
+                                            String decTotalBasePoint = obj.getString("decTotalBasePoint");
+                                            String decBonusPoint = obj.getString("decBonusPoint");
+                                            String txtNoSO = obj.getString("txtNoSO");
+
+                                            clsProductDraft itemsDraft = new clsProductDraft();
+                                            itemsDraft.setTxtDraftGUI(txtNewIdSO);
+                                            itemsDraft.setTxtProductDraftGUI(txtNewId);
+                                            itemsDraft.setTxtItemCode(txtProductCode);
+                                            itemsDraft.setTxtItemName(txtProductName);
+                                            double dblQty = Double.parseDouble(intQty);
+                                            int intQtyf = (int) dblQty;
+                                            itemsDraft.setIntQty(intQtyf);
+                                            itemsDraft.setDblPrice(Double.parseDouble(decPrice));
+                                            itemsDraft.setDblItemDiscount(Double.parseDouble(decDiscount));
+                                            itemsDraft.setDblTotalPrice(Double.parseDouble(decTotalPrice));
+                                            itemsDraft.setDblItemTax(Double.parseDouble(decTaxAmount));
+                                            itemsDraft.setDblNetPrice(Double.parseDouble(decNetPrice));
+                                            itemsDraft.setTxtBasedPoint(decBasePoint);
+                                            itemsDraft.setTxtBonusPoint(decBonusPoint);
+                                            new clsProductDraftRepo(context).createOrUpdate(itemsDraft);
+
+                                        }
+                                        // Reload current fragment
+                                        Fragment frg = null;
+                                        frg = getActivity().getSupportFragmentManager().findFragmentByTag("Fragment_AddOrder");
+                                        arguments.putString( "noSO" , "");
+                                        final FragmentTransaction ft = getActivity().getSupportFragmentManager().beginTransaction();
+                                        ft.detach(frg);
+                                        ft.attach(frg);
+                                        ft.commit();
+                                    }else{
+                                    }
+
+                                }
+                            }else{
+                                ToastCustom.showToasty(context,warn, 2);
+
+                            }
+                        }catch (JSONException ex){
+                            String x = ex.getMessage();
+                        }
+                    }
+
+                }
+            });
+        }
+
 
 
 
@@ -441,7 +468,14 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
             e.printStackTrace();
         }
         if (draft != null) {
+            if(!draft.getTxtSOStatus().equals("")){
+                etSoStatus.setText(draft.getTxtSOStatus());
+            }
+            if(!draft.getTxtNoSO().equals("")){
+                etNoSo.setText(draft.getTxtNoSO());
+            }
             if (draft.getDtDeliverySche() != null) {
+
                 SimpleDateFormat sdf = new SimpleDateFormat("dd MMM yyyy");
                 String txtDeliverSche = sdf.format(draft.getDtDeliverySche());
                 etDeliverySchedule.setText(txtDeliverSche);
@@ -999,6 +1033,7 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
 //                    cbAttach.setChecked(true);
                     cbAttach.setChecked(false);
                     cbAttach.setVisibility(View.GONE);
+                    lnCustomerDetail.setVisibility(View.GONE);
                 } else {
                     cbAttach.setChecked(false);
                     cbAttach.setVisibility(View.VISIBLE);
@@ -1416,7 +1451,10 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
 
         SpinnerCustom.setAdapterSpinner(spnKecamatanAddOrder, context, R.layout.custom_spinner, categoriesKecamatan);
         SpinnerCustom.selectedItemByText(context, spnKecamatanAddOrder, categoriesProvince, "Kelapa Gading");*/
-
+        if (cbWalkIn.isChecked()){
+            cbAttach.setChecked(false);
+            lnCustomerDetail.setVisibility(View.GONE);
+        }
         return v;
     }
 
@@ -1936,7 +1974,7 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                         }
                         resJson.put("intWalkIn", walkin);
                         resJson.put("intDeliveryBy", deliverBy);
-                        resJson.put("txtDeliveryBy", draft.getTxtAgentName());
+                        resJson.put("txtDeliveryBy", dataLogin.getTxtNamaInstitusi());
                         resJson.put("txtCustomer", dataDefault.getTxtNama());
 
                         resJson.put("txtPickUpLocation", dataDefault.getTxtNamaPropinsi());
@@ -1960,7 +1998,7 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                         walkin = "0";
                         resJson.put("intWalkIn", walkin);
                         resJson.put("intDeliveryBy", deliverBy);
-                        resJson.put("txtDeliveryBy", draft.getTxtAgentName());
+                        resJson.put("txtDeliveryBy", dataLogin.getTxtNamaInstitusi());
 
                         resJson.put("txtPickUpLocation", draft.getTxtProvince());
                         resJson.put("txtKelurahanID", draft.getTxtKelurahanID());
@@ -2016,6 +2054,7 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                                             int resultan = new clsDraftRepo(context).update(draft);
                                             if (resultan > -1){
                                                 Log.d("Update","Berhasil");
+                                                ToastCustom.showToasty(context,"Save done",2);
                                             }else{
                                                 ToastCustom.showToasty(context,"failed to save",2);
                                             }
@@ -2106,18 +2145,18 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                 e.printStackTrace();
             }
             JSONArray jsonProduct = new Helper().writeJSONSaveData(context, draft, contentLibs);
+            boolean boolSavedDispatch = true;
             try {
                 String strNO = draft.getTxtNoSO();
+
                 if (strNO.equals("Generated by system")) {
+                    boolSavedDispatch = false;
                     resJson.put("txtOrderNo", "");
                 } else {
                     resJson.put("txtOrderNo", draft.getTxtNoSO());
                 }
                 String txtKontakID = dataLogin.getTxtKontakID();
-                resJson.put("txtKontakID", txtKontakID);
-                resJson.put("txtCustName", draft.getTxtCustomerName());
-                resJson.put("txtCustPhone", draft.getTxtPhoneNumber());
-                resJson.put("txtAlamatKirim", draft.getTxtAddress());
+
                 String soDate = etDate.getText().toString();
                 String dateSO = "";
                 if (!soDate.equals("")) {
@@ -2135,15 +2174,46 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                     dateSO = dateFormatStr.format(newDate);
                 }
                 resJson.put("dtKirim", dateSO);
-                resJson.put("txtNamaPropinsi", draft.getTxtProvince());
-                resJson.put("txtNamaKabKota", draft.getTxtKabKot());
-                resJson.put("txtNamaKecamatan", draft.getTxtKecamatan());
-                resJson.put("txtNamaKelurahan", draft.getTxtKelurahan());
-                resJson.put("txtRemarkSO", draft.getTxtRemarks());
-                resJson.put("txtPropinsiID", draft.getTxtProvinceID());
-                resJson.put("txtKabKotaID", draft.getTxtKabKotID());
-                resJson.put("txtKecamatanID", draft.getTxtKecamatanID());
-                resJson.put("txtKodePos", draft.getTxtPostCode());
+
+                if (draft.isBoolWalkin()){
+                    clsCustomerData dataDefault = new clsCustomerData();
+                    try {
+                        dataDefault = new clsCustomerDataRepo(context).findOne();
+                    } catch (SQLException e) {
+                        e.printStackTrace();
+                    }
+                    resJson.put("txtNamaPropinsi", dataDefault.getTxtNamaPropinsi());
+                    resJson.put("txtNamaKabKota", dataDefault.getTxtNamaKabKota());
+                    resJson.put("txtNamaKecamatan", dataDefault.getTxtKecamatan());
+                    resJson.put("txtNamaKelurahan", dataDefault.getTxtNamaKelurahan());
+                    resJson.put("txtRemarkSO", draft.getTxtRemarks());
+                    resJson.put("txtPropinsiID", dataDefault.getTxtPropinsiID());
+                    resJson.put("txtKabKotaID", dataDefault.getTxtKabKotaID());
+                    resJson.put("txtKecamatanID", dataDefault.getTxtKecamatan());
+                    resJson.put("txtKodePos", dataDefault.getTxtKodePos());
+
+                    resJson.put("txtKontakID", txtKontakID);
+                    resJson.put("txtCustName", dataDefault.getTxtNama());
+                    resJson.put("txtCustPhone", dataDefault.getTxtPhoneNumber());
+                    resJson.put("txtAlamatKirim", dataDefault.getTxtAlamat());
+                }else{
+                    resJson.put("txtNamaPropinsi", draft.getTxtProvince());
+                    resJson.put("txtNamaKabKota", draft.getTxtKabKot());
+                    resJson.put("txtNamaKecamatan", draft.getTxtKecamatan());
+                    resJson.put("txtNamaKelurahan", draft.getTxtKelurahan());
+                    resJson.put("txtRemarkSO", draft.getTxtRemarks());
+                    resJson.put("txtPropinsiID", draft.getTxtProvinceID());
+                    resJson.put("txtKabKotaID", draft.getTxtKabKotID());
+                    resJson.put("txtKecamatanID", draft.getTxtKecamatanID());
+                    resJson.put("txtKodePos", draft.getTxtPostCode());
+
+                    resJson.put("txtKontakID", txtKontakID);
+                    resJson.put("txtCustName", draft.getTxtCustomerName());
+                    resJson.put("txtCustPhone", draft.getTxtPhoneNumber());
+                    resJson.put("txtAlamatKirim", draft.getTxtAddress());
+                }
+
+
                 resJson.put("intNilaiPembulatan", 0);
                 resJson.put("txtPaymentMethodID", "");
                 resJson.put("txtMediaJasaID", "");
@@ -2159,417 +2229,419 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
             }
 
             final String mRequestBody = resJson.toString();
-            new VolleyUtils().makeJsonObjectRequestWithToken(getActivity(), strLinkAPI, mRequestBody, access_token, "Please Wait...", new VolleyResponseListener() {
-                @Override
-                public void onError(String response) {
-                    ToastCustom.showToasty(context, response, 2);
-                }
 
-                @Override
-                public void onResponse(String response, Boolean status, String strErrorMsg) {
-                    if (response != null) {
-                        JSONObject jsonObject = null;
-                        try {
-                            jsonObject = new JSONObject(response);
-                            int result = jsonObject.getInt("intResult");
-                            String warn = jsonObject.getString("txtMessage");
-                            if (result == 1) {
-                                if (!jsonObject.getString("ListData").equals("null")) {
-                                    JSONArray jsn = jsonObject.getJSONArray("ListData");
-                                    for (int n = 0; n < jsn.length(); n++) {
-                                        JSONObject object = jsn.getJSONObject(n);
-                                        String txtQTY = object.getString("intQTY");
-                                        String decAmount = object.getString("decAmount");
-                                        String bitAvailable = object.getString("bitAvailable");
-                                        String intQtyAvailable = object.getString("intQtyAvailable");
-                                        String txtPartnerAddress = object.getString("txtPartnerAddress");
-                                        String txtPartnerID = object.getString("txtPartnerID");
-                                        String txtPartnerName = object.getString("txtPartnerName");
-                                        String txtPartnerPhone = object.getString("txtPartnerPhone");
-                                        String txtProductCode = object.getString("txtProductCode");
-                                        String txtProductDesc = object.getString("txtProductDesc");
-                                        String intPriority = object.getString("intPriority");
-                                        String intFlag = object.getString("intFlag");
-                                        VMItemsPreview item = new VMItemsPreview();
-                                        item.setPartnerAddress(txtPartnerAddress);
-                                        item.setPartnerName(txtPartnerName);
-                                        item.setProductCode(txtProductCode);
-                                        item.setProductName(txtProductDesc);
-                                        ;
-                                        item.setPartnerPhone(txtPartnerPhone);
-                                        item.setQtyAvailable(intQtyAvailable);
-                                        item.setQty(txtQTY);
-                                        item.setTxtIntFlag(intFlag);
+            if(boolSavedDispatch){
+                new VolleyUtils().makeJsonObjectRequestWithToken(getActivity(), strLinkAPI, mRequestBody, access_token, "Please Wait...", new VolleyResponseListener() {
+                    @Override
+                    public void onError(String response) {
+                        ToastCustom.showToasty(context, response, 2);
+                    }
 
-                                        contentLibsPreviewItem.add(item);
-                                    }
-                                    LayoutInflater layoutInflater = LayoutInflater.from(context);
-                                    final View promptView = layoutInflater.inflate(R.layout.popup_preview, null);
-                                    //            final View promptViewCustomer = layoutInflater.inflate(R.layout.popup_preview, null);
-                                    ListView lvPreview = (ListView) promptView.findViewById(R.id.lvItemPrev);
-                                    Button btnCancelPrev = (Button) promptView.findViewById(R.id.btnCancelPrev);
-                                    Button btnCheckoutPrev = (Button) promptView.findViewById(R.id.btnCheckoutPrev);
-                                    RecyclerView rvPreview = (RecyclerView) promptView.findViewById(R.id.rv_preview);
+                    @Override
+                    public void onResponse(String response, Boolean status, String strErrorMsg) {
+                        if (response != null) {
+                            JSONObject jsonObject = null;
+                            try {
+                                jsonObject = new JSONObject(response);
+                                int result = jsonObject.getInt("intResult");
+                                String warn = jsonObject.getString("txtMessage");
+                                if (result == 1) {
+                                    if (!jsonObject.getString("ListData").equals("null")) {
+                                        JSONArray jsn = jsonObject.getJSONArray("ListData");
+                                        for (int n = 0; n < jsn.length(); n++) {
+                                            JSONObject object = jsn.getJSONObject(n);
+                                            String txtQTY = object.getString("intQTY");
+                                            String decAmount = object.getString("decAmount");
+                                            String bitAvailable = object.getString("bitAvailable");
+                                            String intQtyAvailable = object.getString("intQtyAvailable");
+                                            String txtPartnerAddress = object.getString("txtPartnerAddress");
+                                            String txtPartnerID = object.getString("txtPartnerID");
+                                            String txtPartnerName = object.getString("txtPartnerName");
+                                            String txtPartnerPhone = object.getString("txtPartnerPhone");
+                                            String txtProductCode = object.getString("txtProductCode");
+                                            String txtProductDesc = object.getString("txtProductDesc");
+                                            String intPriority = object.getString("intPriority");
+                                            String intFlag = object.getString("intFlag");
+                                            VMItemsPreview item = new VMItemsPreview();
+                                            item.setPartnerAddress(txtPartnerAddress);
+                                            item.setPartnerName(txtPartnerName);
+                                            item.setProductCode(txtProductCode);
+                                            item.setProductName(txtProductDesc);
+                                            ;
+                                            item.setPartnerPhone(txtPartnerPhone);
+                                            item.setQtyAvailable(intQtyAvailable);
+                                            item.setQty(txtQTY);
+                                            item.setTxtIntFlag(intFlag);
 
-                                    TextView tvSOStatusPrev = (TextView) promptView.findViewById(R.id.tvSOStatusPrev);
-                                    TextView tvSoDatePrev = (TextView) promptView.findViewById(R.id.tvSoDatePrev);
-                                    TextView tvSOSourcePrev = (TextView) promptView.findViewById(R.id.tvSOSourcePrev);
-                                    TextView tvAgentNamePrev = (TextView) promptView.findViewById(R.id.tvAgentNamePrev);
-                                    TextView tvOrderLocationPrev = (TextView) promptView.findViewById(R.id.tvOrderLocationPrev);
-                                    TextView tvDeliveryByPrev = (TextView) promptView.findViewById(R.id.tvDeliveryByPrev);
-                                    TextView tvDeliverySchedulePrev = (TextView) promptView.findViewById(R.id.tvDeliverySchedulePrev);
-                                    TextView tvRemarksPreview = (TextView) promptView.findViewById(R.id.tvRemarksPreview);
-                                    final TextView tvPaymentMethod = (TextView) promptView.findViewById(R.id.tvPaymentMethod);
-
-                                    final TextView etCustomerNamePrev = (TextView) promptView.findViewById(R.id.etCustomerNamePrev);
-                                    final TextView etContactIDPrev = (TextView) promptView.findViewById(R.id.etContactIDPrev);
-                                    final TextView etMemberNoPrev = (TextView) promptView.findViewById(R.id.etMemberNoPrev);
-                                    final TextView tvPostCodeCustomerPrev = (TextView) promptView.findViewById(R.id.tvPostCodeCustomerPrev);
-                                    final TextView tvProvinceCustomerPrev = (TextView) promptView.findViewById(R.id.tvProvinceCustomerPrev);
-                                    final TextView tvCityCustomerPrev = (TextView) promptView.findViewById(R.id.tvCityCustomerPrev);
-                                    final TextView tvRegionCustomerPrev = (TextView) promptView.findViewById(R.id.tvRegionCustomerPrev);
-                                    TextView tvHideCustPrev = (TextView) promptView.findViewById(R.id.tvHideCustPrev);
-
-
-                                    final LinearLayout lnAttacedCust = (LinearLayout) promptView.findViewById(R.id.lnAttacedCust);
-                                    TextView tvCustomerPrev = (TextView) promptView.findViewById(R.id.tvCustomerPrev);
-
-
-                                    String noSO = etNoSo.getText().toString();
-                                    String soStatus = etSoStatus.getText().toString();
-                                    String soDate = etDate.getText().toString();
-                                    String soSource = etSOSource.getText().toString();
-                                    String deliverySche = etDeliverySchedule.getText().toString();
-                                    String agentName = etAgentName.getText().toString();
-                                    String orderLocation = etOrderLocation.getText().toString();
-                                    boolean deliverByWalkIn = cbWalkIn.isChecked();
-                                    boolean attchCust = cbAttach.isChecked();
-                                    String remarks = etRemarks.getText().toString();
-
-                                    tvSOSourcePrev.setText(soSource);
-                                    tvSoDatePrev.setText(soDate);
-                                    tvDeliverySchedulePrev.setText(deliverySche);
-                                    tvAgentNamePrev.setText(agentName);
-                                    tvOrderLocationPrev.setText(orderLocation);
-
-                                    tvPaymentMethod.setOnClickListener(new View.OnClickListener() {
-                                        @Override
-                                        public void onClick(View v) {
-                                            LayoutInflater layoutInflater = LayoutInflater.from(context);
-                                            final View promptView = layoutInflater.inflate(R.layout.popup_payment_method, null);
-                                            final RadioGroup rg = promptView.findViewById(R.id.radioGroup);
-                                            final RadioButton rbCash = (RadioButton) promptView.findViewById(R.id.radio_cash);
-                                            final RadioButton rbDebt = (RadioButton) promptView.findViewById(R.id.radio_debit);
-                                            AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
-                                            alertDialogBuilder.setView(promptView);
-                                            alertDialogBuilder.setTitle("Payment Method");
-                                            alertDialogBuilder
-                                                    .setCancelable(false)
-                                                    .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                                                        public void onClick(DialogInterface dialog, int id) {
-                                                            dialog.cancel();
-                                                        }
-                                                    }).setPositiveButton("Oke", new DialogInterface.OnClickListener() {
-                                                public void onClick(DialogInterface dialog, int id) {
-
-                                                }
-                                            });
-                                            final AlertDialog alertD = alertDialogBuilder.create();
-                                            alertD.show();
-                                            alertD.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
-                                                @Override
-                                                public void onClick(View v) {
-                                                    int selectedId = rg.getCheckedRadioButtonId();
-                                                    if (rbCash.isChecked()) {
-                                                        tvPaymentMethod.setText("Cash");
-                                                        alertD.dismiss();
-                                                    } else if (rbDebt.isChecked()) {
-                                                        tvPaymentMethod.setText("Debit");
-                                                        alertD.dismiss();
-                                                    } else {
-                                                        ToastCustom.showToasty(context, "Please select payment method", 3);
-                                                    }
-                                                }
-                                            });
+                                            contentLibsPreviewItem.add(item);
                                         }
-                                    });
+                                        LayoutInflater layoutInflater = LayoutInflater.from(context);
+                                        final View promptView = layoutInflater.inflate(R.layout.popup_preview, null);
+                                        //            final View promptViewCustomer = layoutInflater.inflate(R.layout.popup_preview, null);
+                                        ListView lvPreview = (ListView) promptView.findViewById(R.id.lvItemPrev);
+                                        Button btnCancelPrev = (Button) promptView.findViewById(R.id.btnCancelPrev);
+                                        Button btnCheckoutPrev = (Button) promptView.findViewById(R.id.btnCheckoutPrev);
+                                        RecyclerView rvPreview = (RecyclerView) promptView.findViewById(R.id.rv_preview);
 
-                                    if (deliverByWalkIn) {
-                                        tvDeliveryByPrev.setText("Walk-In");
-                                    } else {
-                                        tvDeliveryByPrev.setText("Delivery Order");
-                                    }
+                                        TextView tvSOStatusPrev = (TextView) promptView.findViewById(R.id.tvSOStatusPrev);
+                                        TextView tvSoDatePrev = (TextView) promptView.findViewById(R.id.tvSoDatePrev);
+                                        TextView tvSOSourcePrev = (TextView) promptView.findViewById(R.id.tvSOSourcePrev);
+                                        TextView tvAgentNamePrev = (TextView) promptView.findViewById(R.id.tvAgentNamePrev);
+                                        TextView tvOrderLocationPrev = (TextView) promptView.findViewById(R.id.tvOrderLocationPrev);
+                                        TextView tvDeliveryByPrev = (TextView) promptView.findViewById(R.id.tvDeliveryByPrev);
+                                        TextView tvDeliverySchedulePrev = (TextView) promptView.findViewById(R.id.tvDeliverySchedulePrev);
+                                        TextView tvRemarksPreview = (TextView) promptView.findViewById(R.id.tvRemarksPreview);
+                                        final TextView tvPaymentMethod = (TextView) promptView.findViewById(R.id.tvPaymentMethod);
 
-                                    tvRemarksPreview.setText(remarks);
+                                        final TextView etCustomerNamePrev = (TextView) promptView.findViewById(R.id.etCustomerNamePrev);
+                                        final TextView etContactIDPrev = (TextView) promptView.findViewById(R.id.etContactIDPrev);
+                                        final TextView etMemberNoPrev = (TextView) promptView.findViewById(R.id.etMemberNoPrev);
+                                        final TextView tvPostCodeCustomerPrev = (TextView) promptView.findViewById(R.id.tvPostCodeCustomerPrev);
+                                        final TextView tvProvinceCustomerPrev = (TextView) promptView.findViewById(R.id.tvProvinceCustomerPrev);
+                                        final TextView tvCityCustomerPrev = (TextView) promptView.findViewById(R.id.tvCityCustomerPrev);
+                                        final TextView tvRegionCustomerPrev = (TextView) promptView.findViewById(R.id.tvRegionCustomerPrev);
+                                        TextView tvHideCustPrev = (TextView) promptView.findViewById(R.id.tvHideCustPrev);
 
-                                    if (attchCust) {
 
-                                        etCustomerNamePrev.setText(tvCustomerNameHeader.getText().toString());
-                                        etContactIDPrev.setText(tvContactIDHeader.getText().toString());
-                                        etMemberNoPrev.setText(tvMemberNoHeader.getText().toString());
-                                        tvProvinceCustomerPrev.setText(spnProvinceAddOrder.getSelectedItem().toString());
-                                        tvCityCustomerPrev.setText(spnKabKotAddOrder.getSelectedItem().toString());
-                                        tvRegionCustomerPrev.setText(spnKecamatanAddOrder.getSelectedItem().toString());
-                                        tvPostCodeCustomerPrev.setText(spnPostCodeAddOrder.getSelectedItem().toString());
-                                        lnAttacedCust.setVisibility(View.VISIBLE);
-                                        tvCustomerPrev.setOnClickListener(new View.OnClickListener() {
+                                        final LinearLayout lnAttacedCust = (LinearLayout) promptView.findViewById(R.id.lnAttacedCust);
+                                        TextView tvCustomerPrev = (TextView) promptView.findViewById(R.id.tvCustomerPrev);
+
+
+                                        String noSO = etNoSo.getText().toString();
+                                        String soStatus = etSoStatus.getText().toString();
+                                        String soDate = etDate.getText().toString();
+                                        String soSource = etSOSource.getText().toString();
+                                        String deliverySche = etDeliverySchedule.getText().toString();
+                                        String agentName = etAgentName.getText().toString();
+                                        String orderLocation = etOrderLocation.getText().toString();
+                                        boolean deliverByWalkIn = cbWalkIn.isChecked();
+                                        boolean attchCust = cbAttach.isChecked();
+                                        String remarks = etRemarks.getText().toString();
+
+                                        tvSOSourcePrev.setText(soSource);
+                                        tvSoDatePrev.setText(soDate);
+                                        tvDeliverySchedulePrev.setText(deliverySche);
+                                        tvAgentNamePrev.setText(agentName);
+                                        tvOrderLocationPrev.setText(orderLocation);
+
+                                        tvPaymentMethod.setOnClickListener(new View.OnClickListener() {
                                             @Override
                                             public void onClick(View v) {
-                                                lnAttacedCust.setVisibility(View.VISIBLE);
-                                                etCustomerNamePrev.setText(tvCustomerNameHeader.getText().toString());
-                                                etContactIDPrev.setText(tvContactIDHeader.getText().toString());
-                                                etMemberNoPrev.setText(tvMemberNoHeader.getText().toString());
-                                                tvProvinceCustomerPrev.setText(spnProvinceAddOrder.getSelectedItem().toString());
-                                                tvCityCustomerPrev.setText(spnKabKotAddOrder.getSelectedItem().toString());
-                                                tvRegionCustomerPrev.setText(spnKecamatanAddOrder.getSelectedItem().toString());
-                                                tvPostCodeCustomerPrev.setText(spnPostCodeAddOrder.getSelectedItem().toString());
-                                            }
-                                        });
-
-                                        tvHideCustPrev.setOnClickListener(new View.OnClickListener() {
-                                            @Override
-                                            public void onClick(View v) {
-                                                lnAttacedCust.setVisibility(View.GONE);
-                                            }
-                                        });
-                                    } else {
-                                        tvCustomerPrev.setText("KalCare Outlet");
-                                        tvCustomerPrev.setClickable(false);
-                                    }
-                                    tvCustomerPrev.setClickable(true);
-                                    lnAttacedCust.setVisibility(View.GONE);
-
-
-                                    lvPreview.setAdapter(new CardAppAdapterPreview(context, contentLibsPreviewItem, Color.WHITE));
-                                    RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(context);
-                                    rvPreview.setLayoutManager(mLayoutManager);
-                                    rvPreview.setItemAnimator(new DefaultItemAnimator());
-                                    mAdapterItemPreview = new RVPreviewAdapter(context, contentLibsPreviewItem, Color.WHITE);
-                                    rvPreview.setAdapter(mAdapterItemPreview);
-                                    setListViewHeightBasedOnItems(lvPreview);
-                                    AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
-                                    alertDialogBuilder.setView(promptView);
-                                    alertDialogBuilder
-                                            .setCancelable(false)
-                                            .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                                                public void onClick(DialogInterface dialog, int id) {
-                                                    dialog.cancel();
-                                                }
-                                            }).setPositiveButton("Checkout", new DialogInterface.OnClickListener() {
-                                        public void onClick(DialogInterface dialog, int id) {
-
-                                            if (cbWalkIn.isChecked()) {
-                                                dialog.cancel();
-
-                                            } else {
-                                                if (boolCustomerSet) {
-                                                    ToastCustom.showToasty(context, "Checking out", 3);
-                                                } else {
-                                                    ToastCustom.showToasty(context, "Attach customer first", 4);
-                                                }
-
-                                            }
-
-                                        }
-                                    });
-                                    final AlertDialog alertD = alertDialogBuilder.create();
-                                    alertD.show();
-                                    alertD.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
-                                        @Override
-                                        public void onClick(View v) {
-                                            final String strLinkAPIFinalCheckout = new clsHardCode().linkCheckoutSalesOrder;
-                                            final JSONObject resJsonFinalCheckout = new JSONObject();
-                                            boolean boolSaved = true;
-                                            try {
-                                                draft = new clsDraftRepo(context).findByBitActive();
-                                            } catch (SQLException e) {
-                                                e.printStackTrace();
-                                            }
-                                            if(draft.getTxtNoSO().equals("Generated by system")){
-                                                boolSaved = false;
-                                            }
-                                            JSONArray jsonProductCheckout = new Helper().writeJSONSaveData(context, draft, contentLibs);
-                                            try {
-//                                                resJsonFinalCheckout.put("txtNewId", draft.getGuiId());
-                                                String strNO = draft.getTxtNoSO();
-                                                if (strNO.equals("Generated by system")) {
-                                                    resJsonFinalCheckout.put("txtOrderNo", "");
-                                                } else {
-                                                    resJsonFinalCheckout.put("txtOrderNo", draft.getTxtNoSO());
-                                                }
-                                                clsCustomerData dataDefault = new clsCustomerData();
-                                                try {
-                                                    dataDefault = new clsCustomerDataRepo(context).findOne();
-                                                } catch (SQLException e) {
-                                                    e.printStackTrace();
-                                                }
-
-                                                resJsonFinalCheckout.put("txtSourceOrder", draft.getTxtSoSource());
-
-                                                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-                                                String currentDateandTime = sdf.format(new Date());
-                                                resJsonFinalCheckout.put("dtDate", currentDateandTime);
-                                                String txtDeliverSche = "";
-                                                if (draft.getDtDeliverySche() != null) {
-                                                    txtDeliverSche = sdf.format(draft.getDtDeliverySche());
-                                                }
-                                                resJsonFinalCheckout.put("dtDelivery", txtDeliverSche);
-                                                resJsonFinalCheckout.put("txtAgentName", draft.getTxtAgentName());
-
-                                                String walkin = "";
-                                                if (draft.isBoolWalkin()) {
-                                                    walkin = "1";
-                                                    resJsonFinalCheckout.put("txtAlamatKirim", dataDefault.getTxtAlamat());
-                                                    resJsonFinalCheckout.put("txtCustPhone", dataLogin.getTxtPhoneNo());
-                                                    resJsonFinalCheckout.put("txtCustName", dataDefault.getTxtNama());
-                                                    resJsonFinalCheckout.put("txtKontakID", dataDefault.getTxtKontakID());
-                                                    resJsonFinalCheckout.put("txtPickUpLocation", dataLogin.getTxtNamaInstitusi());
-
-                                                    SimpleDateFormat sdfFinalCheckout = new SimpleDateFormat("yyyy-MM-dd");
-                                                    if (draft.getDtDeliverySche() != null) {
-                                                        txtDeliverSche = sdf.format(draft.getDtDeliverySche());
-                                                    }
-
-                                                    resJsonFinalCheckout.put("dtKirim", txtDeliverSche);
-                                                    resJsonFinalCheckout.put("txtKelurahanID", dataDefault.getTxtNamaKelurahan());
-                                                    resJsonFinalCheckout.put("txtNamaKelurahan", dataDefault.getTxtNamaKelurahan());
-                                                    resJsonFinalCheckout.put("txtPropinsiID", String.valueOf(dataDefault.getTxtPropinsiID()));
-                                                    resJsonFinalCheckout.put("txtNamaPropinsi", dataDefault.getTxtNamaPropinsi());
-                                                    resJsonFinalCheckout.put("txtKabKotaID", String.valueOf(dataDefault.getTxtKabKotaID()));
-                                                    resJsonFinalCheckout.put("txtNamaKabKota", dataDefault.getTxtNamaKabKota());
-                                                    resJsonFinalCheckout.put("txtKecamatanID", String.valueOf(dataDefault.getTxtKecamatan()));
-                                                    resJsonFinalCheckout.put("txtNamaKecamatan", dataDefault.getTxtNamaKecamatan());
-                                                    resJsonFinalCheckout.put("txtKodePos", dataDefault.getTxtKodePos());
-                                                } else {
-                                                    walkin = "0";
-                                                    resJsonFinalCheckout.put("txtCustName", draft.getTxtCustomerName());
-                                                    resJsonFinalCheckout.put("txtAlamatKirim", draft.getTxtAddress());
-                                                    resJsonFinalCheckout.put("txtCustPhone", draft.getTxtPhoneNumber());
-                                                    resJsonFinalCheckout.put("txtCustName", draft.getTxtCustomerName());
-                                                    resJsonFinalCheckout.put("txtKontakID", draft.getTxtKontakID());
-                                                    resJsonFinalCheckout.put("txtPickUpLocation", draft.getTxtProvince());
-
-//                                                    SimpleDateFormat sdfFinalCheckout = new SimpleDateFormat("yyyy-MM-dd");
-                                                    if (draft.getDtDeliverySche() != null) {
-                                                        txtDeliverSche = sdf.format(draft.getDtDeliverySche());
-                                                    }
-
-                                                    resJsonFinalCheckout.put("dtKirim", txtDeliverSche);
-                                                    resJsonFinalCheckout.put("txtKelurahanID", draft.getTxtKelurahanID());
-                                                    resJsonFinalCheckout.put("txtNamaKelurahan", draft.getTxtKelurahan());
-                                                    resJsonFinalCheckout.put("txtPropinsiID", String.valueOf(draft.getTxtProvinceID()));
-                                                    resJsonFinalCheckout.put("txtNamaPropinsi", draft.getTxtProvince());
-                                                    resJsonFinalCheckout.put("txtKabKotaID", String.valueOf(draft.getTxtKabKotID()));
-                                                    resJsonFinalCheckout.put("txtNamaKabKota", draft.getTxtKabKot());
-                                                    resJsonFinalCheckout.put("txtKecamatanID", String.valueOf(draft.getTxtKecamatanID()));
-                                                    resJsonFinalCheckout.put("txtNamaKecamatan", draft.getTxtKecamatan());
-                                                    resJsonFinalCheckout.put("txtKodePos", draft.getTxtPostCode());
-                                                }
-                                                resJsonFinalCheckout.put("intWalkIn", walkin);
-
-                                                String deliverBy = "";
-                                                if (draft.isBoolAttachCustomer()) {
-                                                    deliverBy = "1";
-                                                } else {
-                                                    deliverBy = "0";
-                                                }
-                                                resJsonFinalCheckout.put("intNilaiPembulatan", 0);
-                                                resJsonFinalCheckout.put("txtPaymentMethodID", "");
-                                                resJsonFinalCheckout.put("txtMediaJasaID", "");
-                                                resJsonFinalCheckout.put("txtMediaJasaPaymentID", "");
-                                                resJsonFinalCheckout.put("txtCardNumber", "");
-                                                resJsonFinalCheckout.put("txtBCATraceNo", "");
-                                                resJsonFinalCheckout.put("txtUserID", dataLogin.getIdUser());
-                                                resJsonFinalCheckout.put("txtTeleID", dataLogin.getTxtTeleID());
-                                                resJsonFinalCheckout.put("txtUserID", dataLogin.getIdUser());
-                                                resJsonFinalCheckout.put("txtCodeID", dataLogin.getTxtCodeId());
-                                                resJsonFinalCheckout.put("txtCustomer", draft.getTxtCustomerName());
-
-                                                resJsonFinalCheckout.put("txtRemarkSO", draft.getTxtRemarks());
-                                                resJsonFinalCheckout.put("txtDeviceId", deviceInfo.getModel());
-                                                resJsonFinalCheckout.put("txtUser", dataLogin.getNmUser());
-                                                resJsonFinalCheckout.put("txtStatusDoc", "0");
-                                                resJsonFinalCheckout.put("Detail", jsonProductCheckout);
-                                            } catch (JSONException e) {
-                                                e.printStackTrace();
-                                            }
-
-                                            final String mRequestBodyFinalCheckout = resJsonFinalCheckout.toString();
-                                            if (boolSaved){
-                                                new VolleyUtils().makeJsonObjectRequestWithToken(getActivity(), strLinkAPIFinalCheckout, mRequestBodyFinalCheckout, access_token, "Please Wait...", new VolleyResponseListener() {
-                                                    @Override
-                                                    public void onError(String response) {
-                                                        ToastCustom.showToasty(context, response, 2);
-                                                    }
-
-                                                    @Override
-                                                    public void onResponse(String response, Boolean status, String strErrorMsg) {
-                                                        if (response != null) {
-                                                            JSONObject jsonObject = null;
-                                                            try {
-                                                                jsonObject = new JSONObject(response);
-                                                                int result = jsonObject.getInt("intResult");
-                                                                String warn = jsonObject.getString("txtMessage");
-                                                                if (result == 1) {
-                                                                    if (!jsonObject.getString("ListData").equals("null")) {
-                                                                        JSONArray jsn = jsonObject.getJSONArray("ListData");
-                                                                        for (int n = 0; n < jsn.length(); n++) {
-
-                                                                        }
-                                                                    }
-                                                                    alertD.dismiss();
-
-                                                                    ToastCustom.showToasty(context, "Checkout Completed", 1);
-                                                                    FragmentSalesOrder SOFragment = new FragmentSalesOrder();
-                                                                    FragmentTransaction fragmentTransactionSO = getActivity().getSupportFragmentManager().beginTransaction();
-                                                                    fragmentTransactionSO.replace(R.id.frame, SOFragment, "FragmentSalesOrder");
-                                                                    fragmentTransactionSO.commit();
-                                                                    new clsDraftRepo(context).clearAllData();
-                                                                    new clsProductDraftRepo(context).clearAllData();
-
-
-                                                                } else {
-                                                                    ToastCustom.showToasty(context, warn, 2);
-
-                                                                }
-                                                            } catch (JSONException ex) {
-                                                                String x = ex.getMessage();
+                                                LayoutInflater layoutInflater = LayoutInflater.from(context);
+                                                final View promptView = layoutInflater.inflate(R.layout.popup_payment_method, null);
+                                                final RadioGroup rg = promptView.findViewById(R.id.radioGroup);
+                                                final RadioButton rbCash = (RadioButton) promptView.findViewById(R.id.radio_cash);
+                                                final RadioButton rbDebt = (RadioButton) promptView.findViewById(R.id.radio_debit);
+                                                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
+                                                alertDialogBuilder.setView(promptView);
+                                                alertDialogBuilder.setTitle("Payment Method");
+                                                alertDialogBuilder
+                                                        .setCancelable(false)
+                                                        .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                                                            public void onClick(DialogInterface dialog, int id) {
+                                                                dialog.cancel();
                                                             }
-                                                            String a = "";
+                                                        }).setPositiveButton("Oke", new DialogInterface.OnClickListener() {
+                                                    public void onClick(DialogInterface dialog, int id) {
+
+                                                    }
+                                                });
+                                                final AlertDialog alertD = alertDialogBuilder.create();
+                                                alertD.show();
+                                                alertD.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
+                                                    @Override
+                                                    public void onClick(View v) {
+                                                        int selectedId = rg.getCheckedRadioButtonId();
+                                                        if (rbCash.isChecked()) {
+                                                            tvPaymentMethod.setText("Cash");
+                                                            alertD.dismiss();
+                                                        } else if (rbDebt.isChecked()) {
+                                                            tvPaymentMethod.setText("Debit");
+                                                            alertD.dismiss();
+                                                        } else {
+                                                            ToastCustom.showToasty(context, "Please select payment method", 3);
                                                         }
                                                     }
                                                 });
-                                            }else{
-                                                ToastCustom.showToasty(context,"Please save first to get SO numbers",3);
                                             }
+                                        });
 
-
+                                        if (deliverByWalkIn) {
+                                            tvDeliveryByPrev.setText("Walk-In");
+                                        } else {
+                                            tvDeliveryByPrev.setText("Delivery Order");
                                         }
-                                    });
 
-                                    btnCancelPrev.setOnClickListener(new View.OnClickListener() {
-                                        @Override
-                                        public void onClick(View v) {
-                                            alertD.dismiss();
-                                        }
-                                    });
-                                    btnCheckoutPrev.setOnClickListener(new View.OnClickListener() {
-                                        @Override
-                                        public void onClick(View v) {
+                                        tvRemarksPreview.setText(remarks);
 
+                                        if (attchCust) {
+
+                                            etCustomerNamePrev.setText(tvCustomerNameHeader.getText().toString());
+                                            etContactIDPrev.setText(tvContactIDHeader.getText().toString());
+                                            etMemberNoPrev.setText(tvMemberNoHeader.getText().toString());
+                                            tvProvinceCustomerPrev.setText(spnProvinceAddOrder.getSelectedItem().toString());
+                                            tvCityCustomerPrev.setText(spnKabKotAddOrder.getSelectedItem().toString());
+                                            tvRegionCustomerPrev.setText(spnKecamatanAddOrder.getSelectedItem().toString());
+                                            tvPostCodeCustomerPrev.setText(spnPostCodeAddOrder.getSelectedItem().toString());
+                                            lnAttacedCust.setVisibility(View.VISIBLE);
+                                            tvCustomerPrev.setOnClickListener(new View.OnClickListener() {
+                                                @Override
+                                                public void onClick(View v) {
+                                                    lnAttacedCust.setVisibility(View.VISIBLE);
+                                                    etCustomerNamePrev.setText(tvCustomerNameHeader.getText().toString());
+                                                    etContactIDPrev.setText(tvContactIDHeader.getText().toString());
+                                                    etMemberNoPrev.setText(tvMemberNoHeader.getText().toString());
+                                                    tvProvinceCustomerPrev.setText(spnProvinceAddOrder.getSelectedItem().toString());
+                                                    tvCityCustomerPrev.setText(spnKabKotAddOrder.getSelectedItem().toString());
+                                                    tvRegionCustomerPrev.setText(spnKecamatanAddOrder.getSelectedItem().toString());
+                                                    tvPostCodeCustomerPrev.setText(spnPostCodeAddOrder.getSelectedItem().toString());
+                                                }
+                                            });
+
+                                            tvHideCustPrev.setOnClickListener(new View.OnClickListener() {
+                                                @Override
+                                                public void onClick(View v) {
+                                                    lnAttacedCust.setVisibility(View.GONE);
+                                                }
+                                            });
+                                        } else {
+                                            tvCustomerPrev.setText("KalCare Outlet");
+                                            tvCustomerPrev.setClickable(false);
                                         }
-                                    });
+                                        tvCustomerPrev.setClickable(true);
+                                        lnAttacedCust.setVisibility(View.GONE);
+
+
+                                        lvPreview.setAdapter(new CardAppAdapterPreview(context, contentLibsPreviewItem, Color.WHITE));
+                                        RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(context);
+                                        rvPreview.setLayoutManager(mLayoutManager);
+                                        rvPreview.setItemAnimator(new DefaultItemAnimator());
+                                        mAdapterItemPreview = new RVPreviewAdapter(context, contentLibsPreviewItem, Color.WHITE);
+                                        rvPreview.setAdapter(mAdapterItemPreview);
+                                        setListViewHeightBasedOnItems(lvPreview);
+                                        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
+                                        alertDialogBuilder.setView(promptView);
+                                        alertDialogBuilder
+                                                .setCancelable(false)
+                                                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                                                    public void onClick(DialogInterface dialog, int id) {
+                                                        dialog.cancel();
+                                                    }
+                                                }).setPositiveButton("Checkout", new DialogInterface.OnClickListener() {
+                                            public void onClick(DialogInterface dialog, int id) {
+
+                                                if (cbWalkIn.isChecked()) {
+                                                    dialog.cancel();
+
+                                                } else {
+                                                    if (boolCustomerSet) {
+                                                        ToastCustom.showToasty(context, "Checking out", 3);
+                                                    } else {
+                                                        ToastCustom.showToasty(context, "Attach customer first", 4);
+                                                    }
+
+                                                }
+
+                                            }
+                                        });
+                                        final AlertDialog alertD = alertDialogBuilder.create();
+                                        alertD.show();
+                                        alertD.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
+                                            @Override
+                                            public void onClick(View v) {
+                                                final String strLinkAPIFinalCheckout = new clsHardCode().linkCheckoutSalesOrder;
+                                                final JSONObject resJsonFinalCheckout = new JSONObject();
+                                                boolean boolSaved = true;
+                                                try {
+                                                    draft = new clsDraftRepo(context).findByBitActive();
+                                                } catch (SQLException e) {
+                                                    e.printStackTrace();
+                                                }
+                                                if(draft.getTxtNoSO().equals("Generated by system")){
+                                                    boolSaved = false;
+                                                }
+                                                JSONArray jsonProductCheckout = new Helper().writeJSONSaveData(context, draft, contentLibs);
+                                                try {
+//                                                resJsonFinalCheckout.put("txtNewId", draft.getGuiId());
+                                                    String strNO = draft.getTxtNoSO();
+                                                    if (strNO.equals("Generated by system")) {
+                                                        resJsonFinalCheckout.put("txtOrderNo", "");
+                                                    } else {
+                                                        resJsonFinalCheckout.put("txtOrderNo", draft.getTxtNoSO());
+                                                    }
+                                                    clsCustomerData dataDefault = new clsCustomerData();
+                                                    try {
+                                                        dataDefault = new clsCustomerDataRepo(context).findOne();
+                                                    } catch (SQLException e) {
+                                                        e.printStackTrace();
+                                                    }
+
+                                                    resJsonFinalCheckout.put("txtSourceOrder", draft.getTxtSoSource());
+
+                                                    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+                                                    String currentDateandTime = sdf.format(new Date());
+                                                    resJsonFinalCheckout.put("dtDate", currentDateandTime);
+                                                    String txtDeliverSche = "";
+                                                    if (draft.getDtDeliverySche() != null) {
+                                                        txtDeliverSche = sdf.format(draft.getDtDeliverySche());
+                                                    }
+                                                    resJsonFinalCheckout.put("dtDelivery", txtDeliverSche);
+                                                    resJsonFinalCheckout.put("txtAgentName", draft.getTxtAgentName());
+
+                                                    String walkin = "";
+                                                    if (draft.isBoolWalkin()) {
+                                                        walkin = "1";
+                                                        resJsonFinalCheckout.put("txtAlamatKirim", dataDefault.getTxtAlamat());
+                                                        resJsonFinalCheckout.put("txtCustPhone", dataLogin.getTxtPhoneNo());
+                                                        resJsonFinalCheckout.put("txtCustName", dataDefault.getTxtNama());
+                                                        resJsonFinalCheckout.put("txtKontakID", dataDefault.getTxtKontakID());
+                                                        resJsonFinalCheckout.put("txtPickUpLocation", dataLogin.getTxtNamaInstitusi());
+
+                                                        SimpleDateFormat sdfFinalCheckout = new SimpleDateFormat("yyyy-MM-dd");
+                                                        if (draft.getDtDeliverySche() != null) {
+                                                            txtDeliverSche = sdf.format(draft.getDtDeliverySche());
+                                                        }
+
+                                                        resJsonFinalCheckout.put("dtKirim", txtDeliverSche);
+                                                        resJsonFinalCheckout.put("txtKelurahanID", dataDefault.getTxtNamaKelurahan());
+                                                        resJsonFinalCheckout.put("txtNamaKelurahan", dataDefault.getTxtNamaKelurahan());
+                                                        resJsonFinalCheckout.put("txtPropinsiID", String.valueOf(dataDefault.getTxtPropinsiID()));
+                                                        resJsonFinalCheckout.put("txtNamaPropinsi", dataDefault.getTxtNamaPropinsi());
+                                                        resJsonFinalCheckout.put("txtKabKotaID", String.valueOf(dataDefault.getTxtKabKotaID()));
+                                                        resJsonFinalCheckout.put("txtNamaKabKota", dataDefault.getTxtNamaKabKota());
+                                                        resJsonFinalCheckout.put("txtKecamatanID", String.valueOf(dataDefault.getTxtKecamatan()));
+                                                        resJsonFinalCheckout.put("txtNamaKecamatan", dataDefault.getTxtNamaKecamatan());
+                                                        resJsonFinalCheckout.put("txtKodePos", dataDefault.getTxtKodePos());
+                                                    } else {
+                                                        walkin = "0";
+                                                        resJsonFinalCheckout.put("txtCustName", draft.getTxtCustomerName());
+                                                        resJsonFinalCheckout.put("txtAlamatKirim", draft.getTxtAddress());
+                                                        resJsonFinalCheckout.put("txtCustPhone", draft.getTxtPhoneNumber());
+                                                        resJsonFinalCheckout.put("txtCustName", draft.getTxtCustomerName());
+                                                        resJsonFinalCheckout.put("txtKontakID", draft.getTxtKontakID());
+                                                        resJsonFinalCheckout.put("txtPickUpLocation", draft.getTxtProvince());
+
+//                                                    SimpleDateFormat sdfFinalCheckout = new SimpleDateFormat("yyyy-MM-dd");
+                                                        if (draft.getDtDeliverySche() != null) {
+                                                            txtDeliverSche = sdf.format(draft.getDtDeliverySche());
+                                                        }
+
+                                                        resJsonFinalCheckout.put("dtKirim", txtDeliverSche);
+                                                        resJsonFinalCheckout.put("txtKelurahanID", draft.getTxtKelurahanID());
+                                                        resJsonFinalCheckout.put("txtNamaKelurahan", draft.getTxtKelurahan());
+                                                        resJsonFinalCheckout.put("txtPropinsiID", String.valueOf(draft.getTxtProvinceID()));
+                                                        resJsonFinalCheckout.put("txtNamaPropinsi", draft.getTxtProvince());
+                                                        resJsonFinalCheckout.put("txtKabKotaID", String.valueOf(draft.getTxtKabKotID()));
+                                                        resJsonFinalCheckout.put("txtNamaKabKota", draft.getTxtKabKot());
+                                                        resJsonFinalCheckout.put("txtKecamatanID", String.valueOf(draft.getTxtKecamatanID()));
+                                                        resJsonFinalCheckout.put("txtNamaKecamatan", draft.getTxtKecamatan());
+                                                        resJsonFinalCheckout.put("txtKodePos", draft.getTxtPostCode());
+                                                    }
+                                                    resJsonFinalCheckout.put("intWalkIn", walkin);
+
+                                                    String deliverBy = "";
+                                                    if (draft.isBoolAttachCustomer()) {
+                                                        deliverBy = "1";
+                                                    } else {
+                                                        deliverBy = "0";
+                                                    }
+                                                    resJsonFinalCheckout.put("intNilaiPembulatan", 0);
+                                                    resJsonFinalCheckout.put("txtPaymentMethodID", "");
+                                                    resJsonFinalCheckout.put("txtMediaJasaID", "");
+                                                    resJsonFinalCheckout.put("txtMediaJasaPaymentID", "");
+                                                    resJsonFinalCheckout.put("txtCardNumber", "");
+                                                    resJsonFinalCheckout.put("txtBCATraceNo", "");
+                                                    resJsonFinalCheckout.put("txtUserID", dataLogin.getIdUser());
+                                                    resJsonFinalCheckout.put("txtTeleID", dataLogin.getTxtTeleID());
+                                                    resJsonFinalCheckout.put("txtUserID", dataLogin.getIdUser());
+                                                    resJsonFinalCheckout.put("txtCodeID", dataLogin.getTxtCodeId());
+                                                    resJsonFinalCheckout.put("txtCustomer", draft.getTxtCustomerName());
+
+                                                    resJsonFinalCheckout.put("txtRemarkSO", draft.getTxtRemarks());
+                                                    resJsonFinalCheckout.put("txtDeviceId", deviceInfo.getModel());
+                                                    resJsonFinalCheckout.put("txtUser", dataLogin.getNmUser());
+                                                    resJsonFinalCheckout.put("txtStatusDoc", "0");
+                                                    resJsonFinalCheckout.put("Detail", jsonProductCheckout);
+                                                } catch (JSONException e) {
+                                                    e.printStackTrace();
+                                                }
+
+                                                final String mRequestBodyFinalCheckout = resJsonFinalCheckout.toString();
+                                                if (boolSaved){
+                                                    new VolleyUtils().makeJsonObjectRequestWithToken(getActivity(), strLinkAPIFinalCheckout, mRequestBodyFinalCheckout, access_token, "Please Wait...", new VolleyResponseListener() {
+                                                        @Override
+                                                        public void onError(String response) {
+                                                            ToastCustom.showToasty(context, response, 2);
+                                                        }
+
+                                                        @Override
+                                                        public void onResponse(String response, Boolean status, String strErrorMsg) {
+                                                            if (response != null) {
+                                                                JSONObject jsonObject = null;
+                                                                try {
+                                                                    jsonObject = new JSONObject(response);
+                                                                    int result = jsonObject.getInt("intResult");
+                                                                    String warn = jsonObject.getString("txtMessage");
+                                                                    if (result == 1) {
+                                                                        if (!jsonObject.getString("ListData").equals("null")) {
+                                                                            JSONArray jsn = jsonObject.getJSONArray("ListData");
+                                                                            for (int n = 0; n < jsn.length(); n++) {
+
+                                                                            }
+                                                                        }
+                                                                        alertD.dismiss();
+
+                                                                        ToastCustom.showToasty(context, "Checkout Completed", 1);
+                                                                        FragmentSalesOrder SOFragment = new FragmentSalesOrder();
+                                                                        FragmentTransaction fragmentTransactionSO = getActivity().getSupportFragmentManager().beginTransaction();
+                                                                        fragmentTransactionSO.replace(R.id.frame, SOFragment, "FragmentSalesOrder");
+                                                                        fragmentTransactionSO.commit();
+                                                                        new clsDraftRepo(context).clearAllData();
+                                                                        new clsProductDraftRepo(context).clearAllData();
+
+
+                                                                    } else {
+                                                                        ToastCustom.showToasty(context, warn, 2);
+
+                                                                    }
+                                                                } catch (JSONException ex) {
+                                                                    String x = ex.getMessage();
+                                                                }
+                                                                String a = "";
+                                                            }
+                                                        }
+                                                    });
+                                                }else{
+                                                    ToastCustom.showToasty(context,"Please save first to get SO numbers",3);
+                                                }
+
+
+                                            }
+                                        });
+
+                                        btnCancelPrev.setOnClickListener(new View.OnClickListener() {
+                                            @Override
+                                            public void onClick(View v) {
+                                                alertD.dismiss();
+                                            }
+                                        });
+                                        btnCheckoutPrev.setOnClickListener(new View.OnClickListener() {
+                                            @Override
+                                            public void onClick(View v) {
+
+                                            }
+                                        });
+                                    }
                                 }
+                            } catch (Exception ex) {
+                                String exa = "sa";
                             }
-                        } catch (Exception ex) {
-                            String exa = "sa";
+
+
                         }
-
-
                     }
-                }
-            });
-
+                });
+            }
 
         } else {
             ToastCustom.showToasty(context, "List empty !", 4);

@@ -19,6 +19,8 @@ public class clsCustomerData implements Serializable {
     @DatabaseField
     String txtAlamat;
     @DatabaseField
+    String txtPhoneNumber;
+    @DatabaseField
     String txtNamaKabKota;
     @DatabaseField
     String txtNamaPropinsi;
@@ -40,6 +42,14 @@ public class clsCustomerData implements Serializable {
     String txtKecamatan;
     @DatabaseField
     String txtKodePos;
+
+    public String getTxtPhoneNumber() {
+        return txtPhoneNumber;
+    }
+
+    public void setTxtPhoneNumber(String txtPhoneNumber) {
+        this.txtPhoneNumber = txtPhoneNumber;
+    }
 
     public int getId() {
         return id;
