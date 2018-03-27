@@ -19,6 +19,69 @@ public class VMLIstSo {
     String txtDeviceId;
     String intStatus;
     String txtStatus;
+    String txtPickupLocation;
+    String txtDelivery;
+    String txtPropinsiName;
+    String txtKabupatenKotaName;
+    String txtKecamatanName;
+    String txtKelurahanName;
+    String txtRemarks;
+
+    public String getTxtPropinsiName() {
+        return txtPropinsiName;
+    }
+
+    public void setTxtPropinsiName(String txtPropinsiName) {
+        this.txtPropinsiName = txtPropinsiName;
+    }
+
+    public String getTxtKabupatenKotaName() {
+        return txtKabupatenKotaName;
+    }
+
+    public void setTxtKabupatenKotaName(String txtKabupatenKotaName) {
+        this.txtKabupatenKotaName = txtKabupatenKotaName;
+    }
+
+    public String getTxtKecamatanName() {
+        return txtKecamatanName;
+    }
+
+    public void setTxtKecamatanName(String txtKecamatanName) {
+        this.txtKecamatanName = txtKecamatanName;
+    }
+
+    public String getTxtKelurahanName() {
+        return txtKelurahanName;
+    }
+
+    public void setTxtKelurahanName(String txtKelurahanName) {
+        this.txtKelurahanName = txtKelurahanName;
+    }
+
+    public String getTxtRemarks() {
+        return txtRemarks;
+    }
+
+    public void setTxtRemarks(String txtRemarks) {
+        this.txtRemarks = txtRemarks;
+    }
+
+    public String getTxtDelivery() {
+        return txtDelivery;
+    }
+
+    public void setTxtDelivery(String txtDelivery) {
+        this.txtDelivery = txtDelivery;
+    }
+
+    public String getTxtPickupLocation() {
+        return txtPickupLocation;
+    }
+
+    public void setTxtPickupLocation(String txtPickupLocation) {
+        this.txtPickupLocation = txtPickupLocation;
+    }
 
     public String getTxtCustomerName() {
         return txtCustomerName;

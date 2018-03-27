@@ -486,8 +486,7 @@
                         android:background="@drawable/bg_edtext"
                         android:gravity="top"
                         android:inputType="textMultiLine"
-                        android:maxLength="100"
-                        android:maxLines="2"
+                        android:maxLength="300"
                         android:minLines="2" />
 
                 </LinearLayout>

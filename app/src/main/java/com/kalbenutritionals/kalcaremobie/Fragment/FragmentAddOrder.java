@@ -401,7 +401,7 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                                     if(jsn.length()>0){
                                         JSONArray arrayData = jsn.getJSONObject(0).getJSONArray("ListDataDetail");
                                         for (int n = 0; n < arrayData.length(); n++) {
-                                            JSONObject obj = arrayData.getJSONObject(0);
+                                            JSONObject obj = arrayData.getJSONObject(n);
                                             String txtNewId = obj.getString("txtNewId");
                                             String txtProductCode = obj.getString("txtProductCode");
                                             String txtProductName = obj.getString("txtProductName");
@@ -1037,13 +1037,13 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                 } else {
                     cbAttach.setChecked(false);
                     cbAttach.setVisibility(View.VISIBLE);
-                    if (!cbAttach.isChecked()) {
+                    /*if (!cbAttach.isChecked()) {
                         etAddress.setVisibility(View.GONE);
                         lnCustomerDetail.setVisibility(View.GONE);
                     } else {
                         etAddress.setVisibility(View.VISIBLE);
                         lnCustomerDetail.setVisibility(View.VISIBLE);
-                    }
+                    }*/
                 }
             }
         });
@@ -1960,7 +1960,7 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                     if (draft.getDtDeliverySche() != null) {
                         txtDeliverSche = sdf.format(draft.getDtDeliverySche());
                     }
-                    resJson.put("dtDelivery", txtDeliverSche);
+
                     resJson.put("txtAgentName", draft.getTxtAgentName());
 
                     String walkin = "";
@@ -1972,10 +1972,12 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                         } catch (SQLException e) {
                             e.printStackTrace();
                         }
+                        resJson.put("dtDelivery", txtDeliverSche);
                         resJson.put("intWalkIn", walkin);
                         resJson.put("intDeliveryBy", deliverBy);
                         resJson.put("txtDeliveryBy", dataLogin.getTxtNamaInstitusi());
                         resJson.put("txtCustomer", dataDefault.getTxtNama());
+                        resJson.put("txtCustomerName", dataDefault.getTxtKontakID());
 
                         resJson.put("txtPickUpLocation", dataDefault.getTxtNamaPropinsi());
                         resJson.put("txtKelurahanID", dataDefault.getTxtNamaKelurahan());
@@ -1996,6 +1998,7 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                         resJson.put("Detail", jsonProduct);
                     } else {
                         walkin = "0";
+                        resJson.put("dtDelivery", "");
                         resJson.put("intWalkIn", walkin);
                         resJson.put("intDeliveryBy", deliverBy);
                         resJson.put("txtDeliveryBy", dataLogin.getTxtNamaInstitusi());
@@ -2004,7 +2007,8 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                         resJson.put("txtKelurahanID", draft.getTxtKelurahanID());
                         resJson.put("txtKelurahanName", draft.getTxtKelurahan());
 
-                        resJson.put("txtCustomer", draft.getTxtCustomerName());
+                        resJson.put("txtCustomer", draft.getTxtKontakID());
+                        resJson.put("txtCustomerName", draft.getTxtCustomerName());
                         resJson.put("txtPickUpLocation", draft.getTxtProvince());
                         resJson.put("txtPropinsiID", String.valueOf(draft.getTxtProvinceID()));
                         resJson.put("txtPropinsiName", draft.getTxtProvince());
@@ -2280,7 +2284,7 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                                         //            final View promptViewCustomer = layoutInflater.inflate(R.layout.popup_preview, null);
                                         ListView lvPreview = (ListView) promptView.findViewById(R.id.lvItemPrev);
                                         Button btnCancelPrev = (Button) promptView.findViewById(R.id.btnCancelPrev);
-                                        Button btnCheckoutPrev = (Button) promptView.findViewById(R.id.btnCheckoutPrev);
+//                                        Button btnCheckoutPrev = (Button) promptView.findViewById(R.id.btnCheckoutPrev);
                                         RecyclerView rvPreview = (RecyclerView) promptView.findViewById(R.id.rv_preview);
 
                                         TextView tvSOStatusPrev = (TextView) promptView.findViewById(R.id.tvSOStatusPrev);
@@ -2590,14 +2594,14 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                                                                             }
                                                                         }
                                                                         alertD.dismiss();
-
+                                                                        new clsProductDraftRepo(context).clearAllData();
+                                                                        new clsDraftRepo(context).clearAllData();
+                                                                        new clsProductDraftRepo(context).clearAllData();
                                                                         ToastCustom.showToasty(context, "Checkout Completed", 1);
                                                                         FragmentSalesOrder SOFragment = new FragmentSalesOrder();
                                                                         FragmentTransaction fragmentTransactionSO = getActivity().getSupportFragmentManager().beginTransaction();
                                                                         fragmentTransactionSO.replace(R.id.frame, SOFragment, "FragmentSalesOrder");
                                                                         fragmentTransactionSO.commit();
-                                                                        new clsDraftRepo(context).clearAllData();
-                                                                        new clsProductDraftRepo(context).clearAllData();
 
 
                                                                     } else {
@@ -2625,12 +2629,12 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                                                 alertD.dismiss();
                                             }
                                         });
-                                        btnCheckoutPrev.setOnClickListener(new View.OnClickListener() {
+                                        /*btnCheckoutPrev.setOnClickListener(new View.OnClickListener() {
                                             @Override
                                             public void onClick(View v) {
 
                                             }
-                                        });
+                                        });*/
                                     }
                                 }
                             } catch (Exception ex) {
