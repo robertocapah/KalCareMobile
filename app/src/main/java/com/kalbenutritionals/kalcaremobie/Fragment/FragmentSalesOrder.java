@@ -196,14 +196,19 @@ public class FragmentSalesOrder extends Fragment {
                                         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                                             VMLIstSo itemSelected = null;
                                             itemSelected = contentLibs.get(position);
-                                            FragmentAddOrder fragmentAddOrder = new FragmentAddOrder();
-                                            Bundle arguments = new Bundle();
-                                            arguments.putString( "noSO" , itemSelected.getTxtNoSo());
-                                            fragmentAddOrder.setArguments(arguments);
-                                            FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
-                                            fragmentTransaction.replace(R.id.frame, fragmentAddOrder, "Fragment_AddOrder");
+                                            if (itemSelected.getTxtStatus().equals("APPROVED")){
 
-                                            fragmentTransaction.commit();
+                                            }else{
+                                                FragmentAddOrder fragmentAddOrder = new FragmentAddOrder();
+                                                Bundle arguments = new Bundle();
+                                                arguments.putString( "noSO" , itemSelected.getTxtNoSo());
+                                                fragmentAddOrder.setArguments(arguments);
+                                                FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
+                                                fragmentTransaction.replace(R.id.frame, fragmentAddOrder, "Fragment_AddOrder");
+
+                                                fragmentTransaction.commit();
+                                            }
+
                                         }
                                     });
                                     if (jsn.length()==0){
