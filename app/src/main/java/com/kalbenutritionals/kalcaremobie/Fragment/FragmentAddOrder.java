@@ -345,6 +345,36 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                                 String txtDeviceId = objData.getString("txtDeviceId");
                                 String intStatus = objData.getString("intStatus");
                                 String txtStatus_code = objData.getString("txtStatus_code");
+                                clsDraft draft = new clsDraft();
+                                draft.setGuiId(txtNewIdSO);
+                                draft.setTxtSOStatus(txtStatus_code);
+                                draft.setIntStatus(Integer.parseInt(intStatus));
+                                draft.setTxtSoSource(txtSourceOrder);
+                                draft.setTxtAgentName(txtAgentName);
+                                if(intWalkIn.equals("1")){
+                                    draft.setBoolWalkin(true);
+                                }else{
+                                    draft.setBoolWalkin(false);
+                                }
+                                if (intDeliveryBy.equals("1")){
+                                    draft.setBoolAttachCustomer(true);
+                                }else{
+                                    draft.setBoolAttachCustomer(false);
+                                }
+                                draft.setTxtAgentName(txtDeliveryBy);
+                                draft.setTxtRemarks(txtRemarks);
+                                draft.setTxtCustomerName(txtCustomer);
+                                draft.setTxtAddress(txtDelivery);
+                                draft.setTxtProvinceID(txtPropinsiID);
+                                draft.setTxtProvince(txtPropinsiName);
+                                draft.setTxtKabKotID(txtKabupatenKotaID);
+                                draft.setTxtKabKot(txtKabupatenKotaName);
+                                draft.setTxtKecamatanID(txtKecamatanID);
+                                draft.setTxtKecamatan(txtKecamatanName);
+                                draft.setTxtKelurahanID(txtKelurahanID);
+                                draft.setTxtKelurahan(txtKelurahanName);
+                                draft.setTxtPostCode("");
+                                new clsDraftRepo(context).createOrUpdate(draft);
 
                                 if(jsn.length()>0){
                                     JSONArray arrayData = jsn.getJSONObject(0).getJSONArray("ListDataDetail");
