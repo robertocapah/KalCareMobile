@@ -3,13 +3,15 @@ package com.kalbenutritionals.kalcaremobie.Common;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 
+import java.io.Serializable;
+
 /**
  * Created by Robert on 26/03/2018.
  */
 @DatabaseTable
-public class clsCustomerData {
+public class clsCustomerData implements Serializable {
     @DatabaseField(id = true)
-    int id;
+    private int id;
     @DatabaseField
     String txtKontakID;
     @DatabaseField

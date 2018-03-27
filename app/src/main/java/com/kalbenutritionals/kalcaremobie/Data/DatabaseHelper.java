@@ -63,6 +63,7 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
             TableUtils.createTableIfNotExists(connectionSource, clsPhotoProfile.class);
             TableUtils.createTableIfNotExists(connectionSource, clsDraft.class);
             TableUtils.createTableIfNotExists(connectionSource, clsProductDraft.class);
+            TableUtils.createTableIfNotExists(connectionSource, clsCustomerData.class);
         } catch (SQLException e) {
             e.printStackTrace();
         }

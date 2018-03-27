@@ -440,7 +440,7 @@ public class LoginActivity extends Activity {
                                     dataDefault.setTxtKabKotaID(txtKabKotaID);
                                     dataDefault.setTxtKecamatan(txtKecamatan);
                                     dataDefault.setTxtKodePos(txtKodePos);
-                                    new clsCustomerDataRepo(getApplicationContext()).createOrUpdate(dataDefault);
+                                    new clsCustomerDataRepo(getApplicationContext()).create(dataDefault);
 
                                     String dtDate = jsnObject.getString("dtDate");
                                     int intScheduleDevilery = jsnObject.getInt("intScheduleDevilery");

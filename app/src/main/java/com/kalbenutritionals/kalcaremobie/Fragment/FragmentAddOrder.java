@@ -1913,45 +1913,76 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                     String currentDateandTime = sdf.format(new Date());
                     resJson.put("dtDate", currentDateandTime);
                     String txtDeliverSche = "";
-                    if (draft.getDtDeliverySche() != null) {
-                        txtDeliverSche = sdf.format(draft.getDtDeliverySche());
-                    }
-                    resJson.put("dtDelivery", txtDeliverSche);
-                    resJson.put("txtAgentName", draft.getTxtAgentName());
-                    resJson.put("txtPickUpLocation", draft.getTxtProvince());
-                    resJson.put("txtKelurahanID", draft.getTxtKelurahanID());
-                    resJson.put("txtKelurahanName", draft.getTxtKelurahan());
-
-                    String walkin = "";
-                    if (draft.isBoolWalkin()) {
-                        walkin = "1";
-                    } else {
-                        walkin = "0";
-                    }
-                    resJson.put("intWalkIn", walkin);
-
                     String deliverBy = "";
                     if (draft.isBoolAttachCustomer()) {
                         deliverBy = "1";
                     } else {
                         deliverBy = "0";
                     }
-                    resJson.put("intDeliveryBy", deliverBy);
-                    resJson.put("txtDeliveryBy", draft.getTxtAgentName());
-                    resJson.put("txtCustomer", draft.getTxtCustomerName());
-                    resJson.put("txtPropinsiID", String.valueOf(draft.getTxtProvinceID()));
-                    resJson.put("txtPropinsiName", draft.getTxtProvince());
-                    resJson.put("txtKabKotaID", String.valueOf(draft.getTxtKabKotID()));
-                    resJson.put("txtKabupatenKotaName", draft.getTxtKabKot());
-                    resJson.put("txtKecamatanID", String.valueOf(draft.getTxtKecamatanID()));
-                    resJson.put("txtKecamatanName", draft.getTxtKecamatan());
-                    resJson.put("txtKodePos", draft.getTxtPostCode());
-                    resJson.put("txtDelivery", draft.getTxtAddress());
-                    resJson.put("txtRemarks", draft.getTxtRemarks());
-                    resJson.put("txtDeviceId", deviceInfo.getModel());
-                    resJson.put("txtUser", dataLogin.getNmUser());
-                    resJson.put("txtStatusDoc", "0");
-                    resJson.put("Detail", jsonProduct);
+                    if (draft.getDtDeliverySche() != null) {
+                        txtDeliverSche = sdf.format(draft.getDtDeliverySche());
+                    }
+                    resJson.put("dtDelivery", txtDeliverSche);
+                    resJson.put("txtAgentName", draft.getTxtAgentName());
+
+                    String walkin = "";
+                    if (draft.isBoolWalkin()) {
+                        walkin = "1";
+                        clsCustomerData dataDefault = new clsCustomerData();
+                        try {
+                            dataDefault = new clsCustomerDataRepo(context).findOne();
+                        } catch (SQLException e) {
+                            e.printStackTrace();
+                        }
+                        resJson.put("intWalkIn", walkin);
+                        resJson.put("intDeliveryBy", deliverBy);
+                        resJson.put("txtDeliveryBy", draft.getTxtAgentName());
+                        resJson.put("txtCustomer", dataDefault.getTxtNama());
+
+                        resJson.put("txtPickUpLocation", dataDefault.getTxtNamaPropinsi());
+                        resJson.put("txtKelurahanID", dataDefault.getTxtNamaKelurahan());
+                        resJson.put("txtKelurahanName", dataDefault.getTxtNamaKelurahan());
+
+                        resJson.put("txtPropinsiID", dataDefault.getTxtPropinsiID());
+                        resJson.put("txtPropinsiName", dataDefault.getTxtNamaPropinsi());
+                        resJson.put("txtKabKotaID", dataDefault.getTxtKabKotaID());
+                        resJson.put("txtKabupatenKotaName", dataDefault.getTxtNamaKabKota());
+                        resJson.put("txtKecamatanID", dataDefault.getTxtKecamatan());
+                        resJson.put("txtKecamatanName", dataDefault.getTxtKecamatan());
+                        resJson.put("txtKodePos", dataDefault.getTxtKodePos());
+                        resJson.put("txtDelivery", dataDefault.getTxtAlamat());
+                        resJson.put("txtRemarks", draft.getTxtRemarks());
+                        resJson.put("txtDeviceId", deviceInfo.getModel());
+                        resJson.put("txtUser", dataLogin.getNmUser());
+                        resJson.put("txtStatusDoc", "0");
+                        resJson.put("Detail", jsonProduct);
+                    } else {
+                        walkin = "0";
+                        resJson.put("intWalkIn", walkin);
+                        resJson.put("intDeliveryBy", deliverBy);
+                        resJson.put("txtDeliveryBy", draft.getTxtAgentName());
+
+                        resJson.put("txtPickUpLocation", draft.getTxtProvince());
+                        resJson.put("txtKelurahanID", draft.getTxtKelurahanID());
+                        resJson.put("txtKelurahanName", draft.getTxtKelurahan());
+
+                        resJson.put("txtCustomer", draft.getTxtCustomerName());
+                        resJson.put("txtPickUpLocation", draft.getTxtProvince());
+                        resJson.put("txtPropinsiID", String.valueOf(draft.getTxtProvinceID()));
+                        resJson.put("txtPropinsiName", draft.getTxtProvince());
+                        resJson.put("txtKabKotaID", String.valueOf(draft.getTxtKabKotID()));
+                        resJson.put("txtKabupatenKotaName", draft.getTxtKabKot());
+                        resJson.put("txtKecamatanID", String.valueOf(draft.getTxtKecamatanID()));
+                        resJson.put("txtKecamatanName", draft.getTxtKecamatan());
+                        resJson.put("txtKodePos", draft.getTxtPostCode());
+                        resJson.put("txtDelivery", draft.getTxtAddress());
+                        resJson.put("txtRemarks", draft.getTxtRemarks());
+                        resJson.put("txtDeviceId", deviceInfo.getModel());
+                        resJson.put("txtUser", dataLogin.getNmUser());
+                        resJson.put("txtStatusDoc", "0");
+                        resJson.put("Detail", jsonProduct);
+                    }
+
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }

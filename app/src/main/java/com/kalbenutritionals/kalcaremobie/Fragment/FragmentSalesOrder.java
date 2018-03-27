@@ -205,8 +205,14 @@ public class FragmentSalesOrder extends Fragment {
                                             fragmentTransaction.commit();
                                         }
                                     });
-                                    scrollViewList.setVisibility(View.VISIBLE);
-                                    lnNoData.setVisibility(View.GONE);
+                                    if (jsn.length()==0){
+                                        scrollViewList.setVisibility(View.GONE);
+                                        lnNoData.setVisibility(View.VISIBLE);
+                                    }else{
+                                        scrollViewList.setVisibility(View.VISIBLE);
+                                        lnNoData.setVisibility(View.GONE);
+                                    }
+
 
 
                             }
