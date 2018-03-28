@@ -2573,11 +2573,11 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                             if (draft.getDtDeliverySche() != null) {
                                 txtDeliverSche = sdf.format(draft.getDtDeliverySche());
                             }
-                            resJson.put("txtAgentName", draft.getTxtAgentName());
-                            resJson.put("txtPickUpLocationName", "");
-                            resJson.put("txtAgentName", draft.getTxtAgentName());
-                            resJson.put("txtSourceOrder", draft.getTxtSoSource());
-                            resJson.put("txtSourceOrderName", "");
+                            resJsoni.put("txtAgentName", draft.getTxtAgentName());
+                            resJsoni.put("txtPickUpLocationName", "");
+                            resJsoni.put("txtAgentName", draft.getTxtAgentName());
+                            resJsoni.put("txtSourceOrder", draft.getTxtSoSource());
+                            resJsoni.put("txtSourceOrderName", "");
                             resJsoni.put("txtAgentName", draft.getTxtAgentName());
 
                             String walkin = "";
