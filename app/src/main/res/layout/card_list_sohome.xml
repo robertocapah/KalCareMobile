@@ -44,6 +44,14 @@
                     android:layout_marginLeft="10dp"
                     android:text="name"
                     android:textColor="@android:color/black" />
+                <TextView
+                    android:id="@+id/tvStatus"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    android:layout_marginLeft="10dp"
+                    android:text="Status"
+                    android:textColor="@android:color/black" />
             </LinearLayout>
 
         </LinearLayout>

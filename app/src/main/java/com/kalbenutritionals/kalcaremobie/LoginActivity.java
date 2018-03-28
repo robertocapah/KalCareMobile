@@ -45,6 +45,8 @@ import com.kalbenutritionals.kalcaremobie.Common.clsCustomerData;
 import com.kalbenutritionals.kalcaremobie.Common.clsToken;
 import com.kalbenutritionals.kalcaremobie.Common.clsUserLogin;
 import com.kalbenutritionals.kalcaremobie.Common.mConfigData;
+import com.kalbenutritionals.kalcaremobie.Data.DatabaseHelper;
+import com.kalbenutritionals.kalcaremobie.Data.DatabaseManager;
 import com.kalbenutritionals.kalcaremobie.Data.Helper;
 import com.kalbenutritionals.kalcaremobie.Data.VolleyResponseListener;
 import com.kalbenutritionals.kalcaremobie.Data.VolleyUtils;
@@ -150,7 +152,8 @@ public class LoginActivity extends Activity {
             getWindow().addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
             getWindow().setStatusBarColor(getResources().getColor(R.color.colorAccent));
         }
-
+        DatabaseHelper helper = DatabaseManager.getInstance().getHelper();
+        helper.clearDataAfterLogout();
         setContentView(R.layout.activity_login);
 
         ButterKnife.bind(this);

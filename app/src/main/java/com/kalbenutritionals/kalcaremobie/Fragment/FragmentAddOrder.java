@@ -5,7 +5,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.os.Debug;
 import android.support.annotation.Nullable;
 import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.Fragment;
@@ -68,6 +67,7 @@ import com.kalbenutritionals.kalcaremobie.Repo.clsUserLoginRepo;
 import com.kalbenutritionals.kalcaremobie.ViewModel.VMCustomers;
 import com.kalbenutritionals.kalcaremobie.ViewModel.VMItems;
 import com.kalbenutritionals.kalcaremobie.ViewModel.VMItemsPreview;
+import com.kalbenutritionals.kalcaremobie.ViewModel.VMLIstSo;
 import com.kalbenutritionals.kalcaremobie.ViewModel.VMOutlets;
 
 import net.idik.lib.slimadapter.SlimAdapter;
@@ -254,6 +254,7 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
     ModelDevice deviceInfo = null;
     clsUserLogin dataLogin = null;
     boolean boolAttachCustomer = false;
+    boolean boolRestore = false;
     private SlimAdapter slimAdapter;
     //    LoadToast lt = null;
     final static String STRSPINNEROPT = "--Choose one--"; // buat default spinner
@@ -285,183 +286,10 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
         if(arguments !=null){
             noSO = arguments.getString("noSO");
         }
-        final String strLinkAPI = new clsHardCode().linkGetDataDetailSalesOrderMobile;
-        final JSONObject resJsonRestore = new JSONObject();
-        SimpleDateFormat sdfRestore = new SimpleDateFormat("yyyy-MM-dd");
-        Date dtLoginData = dataLogin.getDtLogin();
-        String currentDateandTime = sdfRestore.format(dtLoginData);
-        try {
-            resJsonRestore.put("txtAgentName", dataLogin.getNmUser());
-            resJsonRestore.put("dtDate", currentDateandTime);
-            resJsonRestore.put("txtNoSo", noSO);
-
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        final String mRequestBodyRestore = resJsonRestore.toString();
-        if (!noSO.equals("")){
-            new VolleyUtils().makeJsonObjectRequestWithToken(getActivity(), strLinkAPI, mRequestBodyRestore, access_token, "Please Wait...", new VolleyResponseListener() {
-                @Override
-                public void onError(String response) {
-                    ToastCustom.showToasty(context, response, 2);
-                }
-
-                @Override
-                public void onResponse(String response, Boolean status, String strErrorMsg) {
-                    if (response != null) {
-                        JSONObject jsonObject = null;
-                        try {
-                            jsonObject = new JSONObject(response);
-                            int result = jsonObject.getInt("intResult");
-                            String warn = jsonObject.getString("txtMessage");
-                            if (result == 1) {
-                                if (!jsonObject.getString("ListData").equals("null")) {
-                                    JSONArray jsn = jsonObject.getJSONArray("ListData");
-
-                                    JSONObject objData = jsn.getJSONObject(0).getJSONObject("DataSalesOrder");
-
-                                    String txtNewIdSO = objData.getString("txtNewId");
-                                    String txtNoSo = objData.getString("txtNoSo");
-                                    String txtGenerateNoSo = objData.getString("txtGenerateNoSo");
-                                    String dtDateGenerateSO = objData.getString("dtDateGenerateSO");
-                                    String dtDate = objData.getString("dtDate");
-                                    String txtSourceOrder = objData.getString("txtSourceOrder");
-                                    String dtDelivery = objData.getString("dtDelivery");
-                                    String txtAgentName = objData.getString("txtAgentName");
-                                    String txtPickUpLocation = objData.getString("txtPickUpLocation");
-                                    String intWalkIn = objData.getString("intWalkIn");
-                                    String intDeliveryBy = objData.getString("intDeliveryBy");
-                                    String txtDeliveryBy = objData.getString("txtDeliveryBy");
-                                    String txtCustomer = objData.getString("txtCustomer");
-                                    String txtDelivery = objData.getString("txtDelivery");
-                                    String txtPropinsiID = objData.getString("txtPropinsiID");
-                                    String txtPropinsiName = objData.getString("txtPropinsiName");
-                                    String txtKabupatenKotaID = objData.getString("txtKabupatenKotaID");
-                                    String txtKabupatenKotaName = objData.getString("txtKabupatenKotaName");
-                                    String txtKecamatanID = objData.getString("txtKecamatanID");
-                                    String txtKecamatanName = objData.getString("txtKecamatanName");
-                                    String txtKelurahanID = objData.getString("txtKelurahanID");
-                                    String txtKelurahanName = objData.getString("txtKelurahanName");
-                                    String txtRemarks = objData.getString("txtRemarks");
-                                    String txtDeviceId = objData.getString("txtDeviceId");
-                                    String intStatus = objData.getString("intStatus");
-                                    String txtStatus_code = objData.getString("txtStatus_code");
-                                    clsDraft draft = new clsDraft();
-                                    draft.setGuiId(txtNewIdSO);
-                                    draft.setTxtSOStatus(txtStatus_code);
-                                    draft.setIntStatus(Integer.parseInt(intStatus));
-                                    draft.setTxtSoSource(txtSourceOrder);
-                                    draft.setTxtAgentName(txtAgentName);
-                                    draft.setTxtNoSO(txtNoSo);
-                                    DateFormat dateFormati = new SimpleDateFormat("yyyy-MM-dd");
-                                    if (!dtDate.equals("")) {
-                                        Date dtdtDate = null;
-                                        try {
-                                            dtdtDate = dateFormati.parse(dtDate);
-                                            draft.setDtSODate(dtdtDate);
-                                        } catch (ParseException e) {
-                                            e.printStackTrace();
-                                        }
-                                    }
-                                    if (!dtDelivery.equals("")) {
-                                        Date dtdtDate = null;
-                                        try {
-                                            dtdtDate = dateFormati.parse(dtDelivery);
-                                            draft.setDtDeliverySche(dtdtDate);
-                                        } catch (ParseException e) {
-                                            e.printStackTrace();
-                                        }
-                                    }
-                                    if(intWalkIn.equals("1")){
-                                        draft.setBoolWalkin(true);
-                                    }else{
-                                        draft.setBoolWalkin(false);
-                                    }
-                                    if (intDeliveryBy.equals("1")){
-                                        draft.setBoolAttachCustomer(true);
-                                    }else{
-                                        draft.setBoolAttachCustomer(false);
-                                    }
-                                    draft.setTxtAgentName(txtDeliveryBy);
-                                    draft.setTxtRemarks(txtRemarks);
-                                    draft.setTxtCustomerName(txtCustomer);
-                                    draft.setTxtAddress(txtDelivery);
-                                    draft.setTxtProvinceID(txtPropinsiID);
-                                    draft.setTxtProvince(txtPropinsiName);
-                                    draft.setTxtKabKotID(txtKabupatenKotaID);
-                                    draft.setTxtKabKot(txtKabupatenKotaName);
-                                    draft.setTxtKecamatanID(txtKecamatanID);
-                                    draft.setTxtKecamatan(txtKecamatanName);
-                                    draft.setTxtKelurahanID(txtKelurahanID);
-                                    draft.setTxtKelurahan(txtKelurahanName);
-                                    draft.setTxtPostCode("");
-                                    draft.setIntStatus(0);
-                                    new clsDraftRepo(context).createOrUpdate(draft);
-
-                                    if(jsn.length()>0){
-                                        JSONArray arrayData = jsn.getJSONObject(0).getJSONArray("ListDataDetail");
-                                        for (int n = 0; n < arrayData.length(); n++) {
-                                            JSONObject obj = arrayData.getJSONObject(n);
-                                            String txtNewId = obj.getString("txtNewId");
-                                            String txtProductCode = obj.getString("txtProductCode");
-                                            String txtProductName = obj.getString("txtProductName");
-                                            String intQty = obj.getString("intQty");
-                                            String decPrice = obj.getString("decPrice");
-                                            String decDiscount = obj.getString("decDiscount");
-                                            String decTotalPrice = obj.getString("decTotalPrice");
-                                            String decTaxAmount = obj.getString("decTaxAmount");
-                                            String decNetPrice = obj.getString("decNetPrice");
-                                            String decBasePoint = obj.getString("decBasePoint");
-                                            String decTotalBasePoint = obj.getString("decTotalBasePoint");
-                                            String decBonusPoint = obj.getString("decBonusPoint");
-                                            String txtNoSO = obj.getString("txtNoSO");
-
-                                            clsProductDraft itemsDraft = new clsProductDraft();
-                                            itemsDraft.setTxtDraftGUI(txtNewIdSO);
-                                            itemsDraft.setTxtProductDraftGUI(txtNewId);
-                                            itemsDraft.setTxtItemCode(txtProductCode);
-                                            itemsDraft.setTxtItemName(txtProductName);
-                                            double dblQty = Double.parseDouble(intQty);
-                                            int intQtyf = (int) dblQty;
-                                            itemsDraft.setIntQty(intQtyf);
-                                            itemsDraft.setDblPrice(Double.parseDouble(decPrice));
-                                            itemsDraft.setDblItemDiscount(Double.parseDouble(decDiscount));
-                                            itemsDraft.setDblTotalPrice(Double.parseDouble(decTotalPrice));
-                                            itemsDraft.setDblItemTax(Double.parseDouble(decTaxAmount));
-                                            itemsDraft.setDblNetPrice(Double.parseDouble(decNetPrice));
-                                            itemsDraft.setTxtBasedPoint(decBasePoint);
-                                            itemsDraft.setTxtBonusPoint(decBonusPoint);
-                                            new clsProductDraftRepo(context).createOrUpdate(itemsDraft);
-
-                                        }
-                                        // Reload current fragment
-                                        Fragment frg = null;
-                                        frg = getActivity().getSupportFragmentManager().findFragmentByTag("Fragment_AddOrder");
-                                        arguments.putString( "noSO" , "");
-                                        final FragmentTransaction ft = getActivity().getSupportFragmentManager().beginTransaction();
-                                        ft.detach(frg);
-                                        ft.attach(frg);
-                                        ft.commit();
-                                    }else{
-                                    }
-
-                                }
-                            }else{
-                                ToastCustom.showToasty(context,warn, 2);
-
-                            }
-                        }catch (JSONException ex){
-                            String x = ex.getMessage();
-                        }
-                    }
-
-                }
-            });
-        }
-
-
-
-
+        final SimpleDateFormat sdfi = new SimpleDateFormat("yyyy-MM-dd");
+        final Date dtLoginData = dataLogin.getDtLogin();
+        String currentDateandTime = sdfi.format(dtLoginData);
+        final List<VMLIstSo> contentLibs = new ArrayList<>();
         try {
             draft = new clsDraftRepo(context).findByBitActive();
         } catch (SQLException e) {
@@ -473,6 +301,58 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
             }
             if(!draft.getTxtNoSO().equals("")){
                 etNoSo.setText(draft.getTxtNoSO());
+            }
+            if(!draft.isBoolWalkin()){
+                String txtPropinsiID = draft.getTxtProvinceID();
+                String txtPropinsiName = draft.getTxtProvince();
+                String txtKabupatenKotaID = draft.getTxtKabKotID();
+                String txtKabupatenKotaName = draft.getTxtKabKot();
+                String txtKecamatanID = draft.getTxtKecamatanID();
+                String txtKecamatanName = draft.getTxtKecamatan();
+                String txtKelurahanID = draft.getTxtKelurahan();
+                String txtKelurahanName = draft.getTxtKelurahan();
+                String txtAddress = draft.getTxtAddress();
+                String txtKontakId = draft.getTxtContactID();
+                String txtMemberId = draft.getTxtMemberID();
+                String txtCustomerName = draft.getTxtCustomerName();
+                String txtPhoneNum = draft.getTxtPhoneNumber();
+
+                tvMemberNoHeader.setText(txtMemberId);
+                tvCustomerNameHeader.setText(txtCustomerName);
+                tvContactIDHeader.setText(txtKontakId);
+                tvPhoneNumb.setText(txtPhoneNum);
+                etAddress.setText(txtAddress);
+                cbWalkIn.setChecked(false);
+                String postCode = draft.getTxtPostCode()+"-"+draft.getTxtKelurahan();
+
+                categoriesPostCode.add(postCode);
+                HMKodePos.put(postCode,draft.getTxtPostCode());
+                SpinnerCustom.setAdapterSpinner(spnPostCodeAddOrder, context, R.layout.custom_spinner, categoriesPostCode);
+                SpinnerCustom.selectedItemByText(context, spnPostCodeAddOrder, categoriesPostCode, postCode);
+
+                categoriesProv.add(draft.getTxtProvince());
+                HMProvinceID.put(txtPropinsiName,txtPropinsiID);
+                SpinnerCustom.setAdapterSpinner(spnProvinceAddOrder, context, R.layout.custom_spinner, categoriesProv);
+                SpinnerCustom.selectedItemByText(context, spnProvinceAddOrder, categoriesProv, txtPropinsiName);
+
+                categoriesKabKot.add(txtKabupatenKotaName);
+                HMKabKotID.put(txtKabupatenKotaName,txtKabupatenKotaID);
+                SpinnerCustom.setAdapterSpinner(spnKabKotAddOrder, context, R.layout.custom_spinner, categoriesKabKot);
+                SpinnerCustom.selectedItemByText(context, spnKabKotAddOrder, categoriesKabKot, txtKabupatenKotaName);
+
+                categoriesKecamatan.add(txtKecamatanName);
+                HMKecID.put(txtKecamatanName,txtKecamatanID);
+                SpinnerCustom.setAdapterSpinner(spnKecamatanAddOrder, context, R.layout.custom_spinner, categoriesKecamatan);
+                SpinnerCustom.selectedItemByText(context, spnKecamatanAddOrder, categoriesKecamatan, txtKecamatanName);
+
+                categoriesKelurahan.add(txtKelurahanName);
+                HMKel.put(txtKelurahanName,txtKelurahanID);
+                SpinnerCustom.setAdapterSpinner(spnKelurahanAddOrder, context, R.layout.custom_spinner, categoriesKelurahan);
+                SpinnerCustom.selectedItemByText(context, spnKelurahanAddOrder, categoriesKelurahan, txtKelurahanName);
+                cbWalkIn.setChecked(false);
+                cbAttach.setChecked(true);
+                cbAttach.setVisibility(View.VISIBLE);
+                lnCustomerDetail.setVisibility(View.VISIBLE);
             }
             if (draft.getDtDeliverySche() != null) {
 
@@ -584,7 +464,7 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
 //                lt.setText("Retrieving data Kabupaten Kota...");
 //                lt.show();
 
-               new VolleyUtils().makeJsonObjectRequestWithToken(getActivity(), strLinkSpnProvince, mRequestBody, access_token, "Please Wait...", new VolleyResponseListener() {
+                new VolleyUtils().makeJsonObjectRequestWithToken(getActivity(), strLinkSpnProvince, mRequestBody, access_token, "Please Wait...", new VolleyResponseListener() {
                     @Override
                     public void onError(String response) {
                         ToastCustom.showToasty(context, response, 2);
@@ -903,7 +783,7 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
         data = new clsUserLoginRepo(context).getDataLogin(context);
         if (data != null) {
             etAgentName.setText(data.getNmUser());
-            etSOSource.setText(data.getTxtSumberDataID());
+            etSOSource.setText(data.getTxtNamaInstitusi());
             etOrderLocation.setText(data.getTxtNamaInstitusi());
             SimpleDateFormat sdf = new SimpleDateFormat("dd MMM yyyy");
             String date = sdf.format(dtLoginData);
@@ -1029,7 +909,7 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
         cbWalkIn.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                Debug.waitForDebugger();
+//                Debug.waitForDebugger();
                 if (isChecked) {
 //                    cbAttach.setChecked(true);
                     cbAttach.setChecked(false);
@@ -1051,51 +931,279 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
         cbAttach.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (isChecked) {
-                    LayoutInflater layoutInflater = LayoutInflater.from(context);
-                    AlertDialog.Builder alertDialogBuilderAttch = new AlertDialog.Builder(getActivity());
-                    final View promptView = layoutInflater.inflate(R.layout.popup_customer, null);
+                if(!boolRestore){
+                    if (isChecked) {
+                        LayoutInflater layoutInflater = LayoutInflater.from(context);
+                        AlertDialog.Builder alertDialogBuilderAttch = new AlertDialog.Builder(getActivity());
+                        final View promptView = layoutInflater.inflate(R.layout.popup_customer, null);
 //                    unbinder = ButterKnife.bind(this, promptView);
-                    Button btnSearchCustomer = (Button) promptView.findViewById(R.id.btnSearchCustomer);
-                    final Spinner spnOpsiSearchCustomer = (Spinner) promptView.findViewById(R.id.spnJenisCustomer);
-                    final EditText etSearchCustomer = (EditText) promptView.findViewById(R.id.etSearchCustomer);
-                    final EditText etContactID = (EditText) promptView.findViewById(R.id.etContactID);
-                    final EditText etPhoneNumb = (EditText) promptView.findViewById(R.id.etPhoneNumb);
-                    final EditText etMemberNo = (EditText) promptView.findViewById(R.id.etMemberNo);
-                    final EditText etCustomerName = (EditText) promptView.findViewById(R.id.etCustomerName);
+                        Button btnSearchCustomer = (Button) promptView.findViewById(R.id.btnSearchCustomer);
+                        final Spinner spnOpsiSearchCustomer = (Spinner) promptView.findViewById(R.id.spnJenisCustomer);
+                        final EditText etSearchCustomer = (EditText) promptView.findViewById(R.id.etSearchCustomer);
+                        final EditText etContactID = (EditText) promptView.findViewById(R.id.etContactID);
+                        final EditText etPhoneNumb = (EditText) promptView.findViewById(R.id.etPhoneNumb);
+                        final EditText etMemberNo = (EditText) promptView.findViewById(R.id.etMemberNo);
+                        final EditText etCustomerName = (EditText) promptView.findViewById(R.id.etCustomerName);
 //                    final EditText spnPostCodeCustomer = (EditText) promptView.findViewById(R.id.etPostCodeCustomer);
-                    final Spinner spnPostCodeCustomer = (Spinner) promptView.findViewById(R.id.spnPostCodeCustomer);
-                    final Spinner spnProvinceCustomer = (Spinner) promptView.findViewById(R.id.spnProvinceCustomer);
-                    final Spinner spnKabKotCustomer = (Spinner) promptView.findViewById(R.id.spnKabKotCustomer);
-                    final Spinner spnKecamatanCustomer = (Spinner) promptView.findViewById(R.id.spnKecamatanCustomer);
-                    final Spinner spnKelurahanCustomer = (Spinner) promptView.findViewById(R.id.spnKelurahanCustomer);
-                    final String strLinkAPI = new clsHardCode().linkSearchCustomer;
-                    final JSONObject resJson = new JSONObject();
-                    btnSearchCustomer.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            final String keyword = etSearchCustomer.getText().toString();
-                            if (keyword.equals("")) {
-                                ToastCustom.showToasty(context, "Keyword Empty", 4);
-                            } else {
-                                if (spnOpsiSearchCustomer.getSelectedItem().toString().equals(SPNMEMBERID)) {
-                                    try {
-                                        resJson.put("txtPhone", "");
-                                        resJson.put("txtMember", keyword);
-                                    } catch (JSONException e) {
-                                        e.printStackTrace();
-                                    }
+                        final Spinner spnPostCodeCustomer = (Spinner) promptView.findViewById(R.id.spnPostCodeCustomer);
+                        final Spinner spnProvinceCustomer = (Spinner) promptView.findViewById(R.id.spnProvinceCustomer);
+                        final Spinner spnKabKotCustomer = (Spinner) promptView.findViewById(R.id.spnKabKotCustomer);
+                        final Spinner spnKecamatanCustomer = (Spinner) promptView.findViewById(R.id.spnKecamatanCustomer);
+                        final Spinner spnKelurahanCustomer = (Spinner) promptView.findViewById(R.id.spnKelurahanCustomer);
+                        final String strLinkAPI = new clsHardCode().linkSearchCustomer;
+                        final JSONObject resJson = new JSONObject();
+                        btnSearchCustomer.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                final String keyword = etSearchCustomer.getText().toString();
+                                if (keyword.equals("")) {
+                                    ToastCustom.showToasty(context, "Keyword Empty", 4);
                                 } else {
-                                    try {
-                                        resJson.put("txtPhone", keyword);
-                                        resJson.put("txtMember", "");
-                                    } catch (JSONException e) {
-                                        e.printStackTrace();
+                                    if (spnOpsiSearchCustomer.getSelectedItem().toString().equals(SPNMEMBERID)) {
+                                        try {
+                                            resJson.put("txtPhone", "");
+                                            resJson.put("txtMember", keyword);
+                                        } catch (JSONException e) {
+                                            e.printStackTrace();
+                                        }
+                                    } else {
+                                        try {
+                                            resJson.put("txtPhone", keyword);
+                                            resJson.put("txtMember", "");
+                                        } catch (JSONException e) {
+                                            e.printStackTrace();
+                                        }
                                     }
+
+                                    final String mRequestBody = resJson.toString();
+                                    new VolleyUtils().makeJsonObjectRequestWithToken(getActivity(), strLinkAPI, mRequestBody, access_token, "Please Wait...", new VolleyResponseListener() {
+                                        @Override
+                                        public void onError(String response) {
+                                            ToastCustom.showToasty(context, response, 2);
+                                        }
+
+                                        @Override
+                                        public void onResponse(String response, Boolean status, String strErrorMsg) {
+                                            if (response != null) {
+                                                JSONObject jsonObject = null;
+                                                try {
+                                                    jsonObject = new JSONObject(response);
+                                                    int result = jsonObject.getInt("intResult");
+                                                    String warn = jsonObject.getString("txtMessage");
+                                                    if (result == 1) {
+                                                        if (!jsonObject.getString("ListData").equals("null")) {
+                                                            LayoutInflater layoutInflater = LayoutInflater.from(context);
+                                                            final View promptView = layoutInflater.inflate(R.layout.popup_customer_search, null);
+
+                                                            final ListView lvCustomerSearch = (ListView) promptView.findViewById(R.id.lvCustSearchResult);
+                                                            final List<VMCustomers> contentSearchResult = new ArrayList<VMCustomers>();
+                                                            VMCustomers item = new VMCustomers();
+
+                                                            JSONArray jsn = jsonObject.getJSONArray("ListData");
+                                                            for (int n = 0; n < jsn.length(); n++) {
+                                                                JSONObject object = jsn.getJSONObject(n);
+                                                                String txtContactID = object.getString("txtKontakID");
+                                                                String txtAlamat = object.getString("txtAlamat");
+                                                                String txtNama = object.getString("txtNama");
+                                                                String txtKabKot = object.getString("txtNamaKabKota");
+                                                                String txtProv = object.getString("txtNamaPropinsi");
+                                                                String txtjenisAlm = object.getString("JenisAlamat");
+                                                                String txtListMed = object.getString("txtListMedia");
+                                                                String txtKec = object.getString("txtNamaKecamatan");
+                                                                String txtKel = object.getString("txtNamaKelurahan");
+                                                                String txtNHDSiteID = object.getString("txtNHDSiteID");
+                                                                String txtProvID = object.getString("txtPropinsiID");
+                                                                String txtKABKotID = object.getString("txtKabKotaID");
+                                                                String txtKodePos = object.getString("txtKodePos");
+                                                                String txtKacamatan = object.getString("txtKecamatan");
+
+                                                                item = new VMCustomers();
+                                                                item.setTxtContactID(txtContactID);
+                                                                item.setTxtAlamat(txtAlamat);
+                                                                item.setTxtNama(txtNama);
+                                                                item.setTxtKabKot(txtKabKot);
+                                                                item.setTxtProv(txtProv);
+                                                                item.setTxtjenisAlm(txtjenisAlm);
+                                                                item.setTxtListMed(txtListMed);
+                                                                item.setTxtKec(txtKec);
+                                                                item.setTxtKel(txtKel);
+                                                                item.setTxtNHDSiteID(txtNHDSiteID);
+                                                                item.setTxtProvID(txtProvID);
+                                                                item.setTxtKABKotID(txtKABKotID);
+                                                                item.setTxtKodePos(txtKodePos);
+                                                                item.setTxtKecID(txtKacamatan);
+
+                                                                contentSearchResult.add(item);
+                                                            }
+                                                            lvCustomerSearch.setAdapter(new CardAdapterCustomerSearch(context, contentSearchResult, Color.WHITE));
+                                                            final VMItems itemSelected = null;
+                                                            lvCustomerSearch.setSelection(0);
+                                                            lvCustomerSearch.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                                                                @Override
+                                                                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                                                                    view.setSelected(true);
+
+                                                                }
+                                                            });
+                                                            AlertDialog.Builder alertDialogBuilderAttch = new AlertDialog.Builder(getActivity());
+                                                            alertDialogBuilderAttch.setView(promptView);
+//        alertDialogBuilderAttch.setMessage("this is attachment of customer dialog");
+                                                            alertDialogBuilderAttch
+                                                                    .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                                                                        @Override
+                                                                        public void onClick(DialogInterface dialog, int which) {
+
+                                                                        }
+                                                                    })
+                                                                    .setCancelable(false)
+                                                                    .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                                                                        public void onClick(DialogInterface dialog, int id) {
+                                                                            dialog.cancel();
+                                                                            cbAttach.setChecked(false);
+                                                                            lvCustomerSearch.setSelected(false);
+                                                                        }
+                                                                    });
+                                                            final AlertDialog alertD = alertDialogBuilderAttch.create();
+                                                            if (jsn.length() == 0) {
+                                                                ToastCustom.showToasty(context, "Customer Not Found", 3);
+                                                            } else {
+                                                                alertD.show();
+                                                                alertD.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
+                                                                    @Override
+                                                                    public void onClick(View v) {
+                                                                        String contactID = "";
+                                                                        String province = "";
+                                                                        String kabkot = "";
+                                                                        String kecamatan = "";
+                                                                        String kelurahan = "";
+                                                                        String postCode = "";
+                                                                        String name = "";
+                                                                        String address = "";
+                                                                        String provinceID = "";
+                                                                        String kabKotID = "";
+                                                                        String kecID = "";
+                                                                        String kelID = "";
+                                                                        String phoneNumb = "";
+
+                                                                        if (lvCustomerSearch.getCheckedItemPosition() < 0) {
+                                                                            ToastCustom.showToasty(context, "Pick customer first", 3);
+                                                                        } else {
+                                                                            int position = lvCustomerSearch.getCheckedItemPosition();
+                                                                            contactID = contentSearchResult.get(position).getTxtContactID();
+                                                                            province = contentSearchResult.get(position).getTxtProv();
+                                                                            kabkot = contentSearchResult.get(position).getTxtKabKot();
+                                                                            phoneNumb = contentSearchResult.get(position).getTxtListMed();
+                                                                            kecamatan = contentSearchResult.get(position).getTxtKec();
+                                                                            postCode = contentSearchResult.get(position).getTxtKodePos();
+                                                                            address = contentSearchResult.get(position).getTxtAlamat();
+                                                                            name = contentSearchResult.get(position).getTxtNama();
+                                                                            provinceID = contentSearchResult.get(position).getTxtProvID();
+                                                                            kabKotID = contentSearchResult.get(position).getTxtProvID();
+                                                                            kecID = contentSearchResult.get(position).getTxtKecID();
+                                                                            kelID = contentSearchResult.get(position).getTxtKel();
+                                                                            kelurahan = contentSearchResult.get(position).getTxtKel();
+                                                                            etMemberNo.setText(keyword);
+                                                                            etContactID.setText(contactID);
+                                                                            etPhoneNumb.setText(phoneNumb);
+//                                                                        spnPostCodeCustomer.setText(postCode);
+                                                                            etCustomerName.setText(name);
+                                                                            etAddress.setText(address);
+                                                                            List<String> categoriesPostCode = new ArrayList<String>();
+                                                                            String kodeposKelurahan = postCode + "-" + kelurahan;
+                                                                            categoriesPostCode.add(kodeposKelurahan);
+                                                                            HMKodePos.put(kodeposKelurahan, postCode);
+
+
+                                                                            SpinnerCustom.setAdapterSpinner(spnPostCodeCustomer, context, R.layout.custom_spinner, categoriesPostCode);
+                                                                            List<String> categoriesProv = new ArrayList<String>();
+                                                                            categoriesProv.add(province);
+                                                                            HMProvinceID.put(province, provinceID);
+                                                                            SpinnerCustom.setAdapterSpinner(spnProvinceCustomer, context, R.layout.custom_spinner, categoriesProv);
+
+                                                                            List<String> categoriesKabKot = new ArrayList<String>();
+                                                                            categoriesKabKot.add(kabkot);
+                                                                            HMKabKotID.put(kabkot, kabKotID);
+                                                                            SpinnerCustom.setAdapterSpinner(spnKabKotCustomer, context, R.layout.custom_spinner, categoriesKabKot);
+
+                                                                            List<String> categoriesKecamatan = new ArrayList<String>();
+                                                                            categoriesKecamatan.add(kecamatan);
+                                                                            HMKecID.put(kecamatan, kecID);
+                                                                            SpinnerCustom.setAdapterSpinner(spnKecamatanCustomer, context, R.layout.custom_spinner, categoriesKecamatan);
+
+                                                                            List<String> categoriesKelurahan = new ArrayList<String>();
+                                                                            categoriesKelurahan.add(kelurahan);
+                                                                            HMKel.put(kelurahan, kelurahan);
+                                                                            SpinnerCustom.setAdapterSpinner(spnKelurahanCustomer, context, R.layout.custom_spinner, categoriesKelurahan);
+
+                                                                            if (contentSearchResult.get(position).getTxtProv().equals("")){
+                                                                                ToastCustom.showToasty(context,"Data Invalid",2);
+                                                                            }else{
+                                                                                alertD.dismiss();
+                                                                            }
+
+
+                                                                        }
+
+                                                                    }
+                                                                });
+                                                            }
+
+                                                        }
+                                                    } else {
+                                                        ToastCustom.showToasty(context, warn, 2);
+                                                    }
+                                                } catch (JSONException e) {
+                                                    e.printStackTrace();
+                                                }
+
+
+                                                String a = "";
+                                            }
+                                        }
+                                    });
                                 }
 
+
+                            }
+                        });
+                        List<String> categories = new ArrayList<String>();
+//                    categories.add("Phone Number");
+                        categories.add(SPNMEMBERID);
+                        categories.add(SPNNAME);
+                        SpinnerCustom.setAdapterSpinner(spnOpsiSearchCustomer, context, R.layout.custom_spinner, categories);
+
+                        alertDialogBuilderAttch.setView(promptView);
+//                    alertDialogBuilderAttch.setMessage("this is attachment of customer dialog");
+                        alertDialogBuilderAttch
+                                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+
+                                    }
+                                })
+                                .setCancelable(false)
+                                .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog, int id) {
+                                        dialog.cancel();
+                                        cbAttach.setChecked(false);
+                                    }
+                                });
+                        final AlertDialog alertD = alertDialogBuilderAttch.create();
+                        alertD.show();
+                        alertD.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+
+
+                                try {
+                                    resJson.put("txtPropinsiID", "");
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                }
+                                String strLinkProvince = new clsHardCode().linkGetListPropinsi;
+
                                 final String mRequestBody = resJson.toString();
-                                new VolleyUtils().makeJsonObjectRequestWithToken(getActivity(), strLinkAPI, mRequestBody, access_token, "Please Wait...", new VolleyResponseListener() {
+                                new VolleyUtils().makeJsonObjectRequestWithToken(getActivity(), strLinkProvince, mRequestBody, access_token, "Please Wait...", new VolleyResponseListener() {
                                     @Override
                                     public void onError(String response) {
                                         ToastCustom.showToasty(context, response, 2);
@@ -1110,318 +1218,102 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                                                 int result = jsonObject.getInt("intResult");
                                                 String warn = jsonObject.getString("txtMessage");
                                                 if (result == 1) {
+
                                                     if (!jsonObject.getString("ListData").equals("null")) {
-                                                        LayoutInflater layoutInflater = LayoutInflater.from(context);
-                                                        final View promptView = layoutInflater.inflate(R.layout.popup_customer_search, null);
-
-                                                        final ListView lvCustomerSearch = (ListView) promptView.findViewById(R.id.lvCustSearchResult);
-                                                        final List<VMCustomers> contentSearchResult = new ArrayList<VMCustomers>();
-                                                        VMCustomers item = new VMCustomers();
-
                                                         JSONArray jsn = jsonObject.getJSONArray("ListData");
+
                                                         for (int n = 0; n < jsn.length(); n++) {
                                                             JSONObject object = jsn.getJSONObject(n);
-                                                            String txtContactID = object.getString("txtKontakID");
-                                                            String txtAlamat = object.getString("txtAlamat");
-                                                            String txtNama = object.getString("txtNama");
-                                                            String txtKabKot = object.getString("txtNamaKabKota");
-                                                            String txtProv = object.getString("txtNamaPropinsi");
-                                                            String txtjenisAlm = object.getString("JenisAlamat");
-                                                            String txtListMed = object.getString("txtListMedia");
-                                                            String txtKec = object.getString("txtNamaKecamatan");
-                                                            String txtKel = object.getString("txtNamaKelurahan");
-                                                            String txtNHDSiteID = object.getString("txtNHDSiteID");
-                                                            String txtProvID = object.getString("txtPropinsiID");
-                                                            String txtKABKotID = object.getString("txtKabKotaID");
-                                                            String txtKodePos = object.getString("txtKodePos");
-                                                            String txtKacamatan = object.getString("txtKecamatan");
-
-                                                            item = new VMCustomers();
-                                                            item.setTxtContactID(txtContactID);
-                                                            item.setTxtAlamat(txtAlamat);
-                                                            item.setTxtNama(txtNama);
-                                                            item.setTxtKabKot(txtKabKot);
-                                                            item.setTxtProv(txtProv);
-                                                            item.setTxtjenisAlm(txtjenisAlm);
-                                                            item.setTxtListMed(txtListMed);
-                                                            item.setTxtKec(txtKec);
-                                                            item.setTxtKel(txtKel);
-                                                            item.setTxtNHDSiteID(txtNHDSiteID);
-                                                            item.setTxtProvID(txtProvID);
-                                                            item.setTxtKABKotID(txtKABKotID);
-                                                            item.setTxtKodePos(txtKodePos);
-                                                            item.setTxtKecID(txtKacamatan);
-
-                                                            contentSearchResult.add(item);
+                                                            String ltxKeterangan = object.getString("ltxKeterangan");
+                                                            String txtNamaPropinsi = object.getString("txtNamaPropinsi");
+                                                            String txtPropinsiID = object.getString("txtPropinsiID");
+                                                            String txtNegaraID = object.getString("txtNegaraID");
+                                                            categoriesProv.add(txtNamaPropinsi);
+                                                            HMProvinceID.put(txtNamaPropinsi, txtPropinsiID);
                                                         }
-                                                        lvCustomerSearch.setAdapter(new CardAdapterCustomerSearch(context, contentSearchResult, Color.WHITE));
-                                                        final VMItems itemSelected = null;
-                                                        lvCustomerSearch.setSelection(0);
-                                                        lvCustomerSearch.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                                                            @Override
-                                                            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                                                                view.setSelected(true);
-
-                                                            }
-                                                        });
-                                                        AlertDialog.Builder alertDialogBuilderAttch = new AlertDialog.Builder(getActivity());
-                                                        alertDialogBuilderAttch.setView(promptView);
-//        alertDialogBuilderAttch.setMessage("this is attachment of customer dialog");
-                                                        alertDialogBuilderAttch
-                                                                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-                                                                    @Override
-                                                                    public void onClick(DialogInterface dialog, int which) {
-
-                                                                    }
-                                                                })
-                                                                .setCancelable(false)
-                                                                .setNegativeButton("No", new DialogInterface.OnClickListener() {
-                                                                    public void onClick(DialogInterface dialog, int id) {
-                                                                        dialog.cancel();
-                                                                        cbAttach.setChecked(false);
-                                                                        lvCustomerSearch.setSelected(false);
-                                                                    }
-                                                                });
-                                                        final AlertDialog alertD = alertDialogBuilderAttch.create();
-                                                        if (jsn.length() == 0) {
-                                                            ToastCustom.showToasty(context, "Customer Not Found", 3);
-                                                        } else {
-                                                            alertD.show();
-                                                            alertD.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
-                                                                @Override
-                                                                public void onClick(View v) {
-                                                                    String contactID = "";
-                                                                    String province = "";
-                                                                    String kabkot = "";
-                                                                    String kecamatan = "";
-                                                                    String kelurahan = "";
-                                                                    String postCode = "";
-                                                                    String name = "";
-                                                                    String address = "";
-                                                                    String provinceID = "";
-                                                                    String kabKotID = "";
-                                                                    String kecID = "";
-                                                                    String kelID = "";
-                                                                    String phoneNumb = "";
-
-                                                                    if (lvCustomerSearch.getCheckedItemPosition() < 0) {
-                                                                        ToastCustom.showToasty(context, "Pick customer first", 3);
-                                                                    } else {
-                                                                        int position = lvCustomerSearch.getCheckedItemPosition();
-                                                                        contactID = contentSearchResult.get(position).getTxtContactID();
-                                                                        province = contentSearchResult.get(position).getTxtProv();
-                                                                        kabkot = contentSearchResult.get(position).getTxtKabKot();
-                                                                        phoneNumb = contentSearchResult.get(position).getTxtListMed();
-                                                                        kecamatan = contentSearchResult.get(position).getTxtKec();
-                                                                        postCode = contentSearchResult.get(position).getTxtKodePos();
-                                                                        address = contentSearchResult.get(position).getTxtAlamat();
-                                                                        name = contentSearchResult.get(position).getTxtNama();
-                                                                        provinceID = contentSearchResult.get(position).getTxtProvID();
-                                                                        kabKotID = contentSearchResult.get(position).getTxtProvID();
-                                                                        kecID = contentSearchResult.get(position).getTxtKecID();
-                                                                        kelID = contentSearchResult.get(position).getTxtKel();
-                                                                        kelurahan = contentSearchResult.get(position).getTxtKel();
-                                                                        etMemberNo.setText(keyword);
-                                                                        etContactID.setText(contactID);
-                                                                        etPhoneNumb.setText(phoneNumb);
-//                                                                        spnPostCodeCustomer.setText(postCode);
-                                                                        etCustomerName.setText(name);
-                                                                        etAddress.setText(address);
-                                                                        List<String> categoriesPostCode = new ArrayList<String>();
-                                                                        String kodeposKelurahan = postCode + "-" + kelurahan;
-                                                                        categoriesPostCode.add(kodeposKelurahan);
-                                                                        HMKodePos.put(kodeposKelurahan, postCode);
-
-
-                                                                        SpinnerCustom.setAdapterSpinner(spnPostCodeCustomer, context, R.layout.custom_spinner, categoriesPostCode);
-                                                                        List<String> categoriesProv = new ArrayList<String>();
-                                                                        categoriesProv.add(province);
-                                                                        HMProvinceID.put(province, provinceID);
-                                                                        SpinnerCustom.setAdapterSpinner(spnProvinceCustomer, context, R.layout.custom_spinner, categoriesProv);
-
-                                                                        List<String> categoriesKabKot = new ArrayList<String>();
-                                                                        categoriesKabKot.add(kabkot);
-                                                                        HMKabKotID.put(kabkot, kabKotID);
-                                                                        SpinnerCustom.setAdapterSpinner(spnKabKotCustomer, context, R.layout.custom_spinner, categoriesKabKot);
-
-                                                                        List<String> categoriesKecamatan = new ArrayList<String>();
-                                                                        categoriesKecamatan.add(kecamatan);
-                                                                        HMKecID.put(kecamatan, kecID);
-                                                                        SpinnerCustom.setAdapterSpinner(spnKecamatanCustomer, context, R.layout.custom_spinner, categoriesKecamatan);
-
-                                                                        List<String> categoriesKelurahan = new ArrayList<String>();
-                                                                        categoriesKelurahan.add(kelurahan);
-                                                                        HMKel.put(kelurahan, kelurahan);
-                                                                        SpinnerCustom.setAdapterSpinner(spnKelurahanCustomer, context, R.layout.custom_spinner, categoriesKelurahan);
-                                                                        alertD.dismiss();
-                                                                    }
-
-                                                                }
-                                                            });
-                                                        }
-
                                                     }
-                                                } else {
-                                                    ToastCustom.showToasty(context, warn, 2);
+                                                    if (etContactID.getText().toString().equals("")) {
+                                                        ToastCustom.showToasty(context, "Customer Empty", 3);
+                                                    } else {
+                                                        tvContactIDHeader.setText(etContactID.getText().toString());
+                                                        tvMemberNoHeader.setText(etMemberNo.getText().toString());
+                                                        tvCustomerNameHeader.setText(etCustomerName.getText().toString());
+                                                        tvPhoneNumb.setText(etPhoneNumb.getText().toString());
+
+                                                        String province = spnProvinceCustomer.getSelectedItem().toString();
+                                                        String kabKot = spnKabKotCustomer.getSelectedItem().toString();
+                                                        String kecamatan = spnKecamatanCustomer.getSelectedItem().toString();
+                                                        String kelurahan = spnKelurahanCustomer.getSelectedItem().toString();
+                                                        String postCode = spnPostCodeCustomer.getSelectedItem().toString();
+
+
+                                                        categoriesPostCode.add(postCode);
+                                                        SpinnerCustom.setAdapterSpinner(spnPostCodeAddOrder, context, R.layout.custom_spinner, categoriesPostCode);
+                                                        SpinnerCustom.selectedItemByText(context, spnPostCodeAddOrder, categoriesPostCode, postCode);
+
+
+                                                        SpinnerCustom.setAdapterSpinner(spnProvinceAddOrder, context, R.layout.custom_spinner, categoriesProv);
+                                                        SpinnerCustom.selectedItemByText(context, spnProvinceAddOrder, categoriesProv, province);
+
+                                                        categoriesKabKot.add(kabKot);
+                                                        SpinnerCustom.setAdapterSpinner(spnKabKotAddOrder, context, R.layout.custom_spinner, categoriesKabKot);
+                                                        SpinnerCustom.selectedItemByText(context, spnKabKotAddOrder, categoriesKabKot, kabKot);
+
+                                                        categoriesKecamatan.add(kecamatan);
+                                                        SpinnerCustom.setAdapterSpinner(spnKecamatanAddOrder, context, R.layout.custom_spinner, categoriesKecamatan);
+                                                        SpinnerCustom.selectedItemByText(context, spnKecamatanAddOrder, categoriesKecamatan, kecamatan);
+
+                                                        categoriesKelurahan.add(kelurahan);
+                                                        SpinnerCustom.setAdapterSpinner(spnKelurahanAddOrder, context, R.layout.custom_spinner, categoriesKelurahan);
+                                                        SpinnerCustom.selectedItemByText(context, spnKelurahanAddOrder, categoriesKelurahan, kelurahan);
+
+                                                        alertD.dismiss();
+                                                        lnCustomerDetail.setVisibility(View.VISIBLE);
+                                                        boolAttachCustomer = true;
+                                                    }
                                                 }
                                             } catch (JSONException e) {
-                                                e.printStackTrace();
+
                                             }
 
-
-                                            String a = "";
                                         }
                                     }
                                 });
+
+
                             }
-
-
-                        }
-                    });
-                    List<String> categories = new ArrayList<String>();
-//                    categories.add("Phone Number");
-                    categories.add(SPNMEMBERID);
-                    categories.add(SPNNAME);
-                    SpinnerCustom.setAdapterSpinner(spnOpsiSearchCustomer, context, R.layout.custom_spinner, categories);
-
-                    alertDialogBuilderAttch.setView(promptView);
-//                    alertDialogBuilderAttch.setMessage("this is attachment of customer dialog");
-                    alertDialogBuilderAttch
-                            .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-
-                                }
-                            })
-                            .setCancelable(false)
-                            .setNegativeButton("No", new DialogInterface.OnClickListener() {
-                                public void onClick(DialogInterface dialog, int id) {
-                                    dialog.cancel();
-                                    cbAttach.setChecked(false);
-                                }
-                            });
-                    final AlertDialog alertD = alertDialogBuilderAttch.create();
-                    alertD.show();
-                    alertD.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-
-
-                            try {
-                                resJson.put("txtPropinsiID", "");
-                            } catch (JSONException e) {
-                                e.printStackTrace();
-                            }
-                            String strLinkProvince = new clsHardCode().linkGetListPropinsi;
-
-                            final String mRequestBody = resJson.toString();
-                            new VolleyUtils().makeJsonObjectRequestWithToken(getActivity(), strLinkProvince, mRequestBody, access_token, "Please Wait...", new VolleyResponseListener() {
-                                @Override
-                                public void onError(String response) {
-                                    ToastCustom.showToasty(context, response, 2);
-                                }
-
-                                @Override
-                                public void onResponse(String response, Boolean status, String strErrorMsg) {
-                                    if (response != null) {
-                                        JSONObject jsonObject = null;
-                                        try {
-                                            jsonObject = new JSONObject(response);
-                                            int result = jsonObject.getInt("intResult");
-                                            String warn = jsonObject.getString("txtMessage");
-                                            if (result == 1) {
-
-                                                if (!jsonObject.getString("ListData").equals("null")) {
-                                                    JSONArray jsn = jsonObject.getJSONArray("ListData");
-
-                                                    for (int n = 0; n < jsn.length(); n++) {
-                                                        JSONObject object = jsn.getJSONObject(n);
-                                                        String ltxKeterangan = object.getString("ltxKeterangan");
-                                                        String txtNamaPropinsi = object.getString("txtNamaPropinsi");
-                                                        String txtPropinsiID = object.getString("txtPropinsiID");
-                                                        String txtNegaraID = object.getString("txtNegaraID");
-                                                        categoriesProv.add(txtNamaPropinsi);
-                                                        HMProvinceID.put(txtNamaPropinsi, txtPropinsiID);
-                                                    }
-                                                }
-                                                if (etContactID.getText().toString().equals("")) {
-                                                    ToastCustom.showToasty(context, "Customer Empty", 3);
-                                                } else {
-                                                    tvContactIDHeader.setText(etContactID.getText().toString());
-                                                    tvMemberNoHeader.setText(etMemberNo.getText().toString());
-                                                    tvCustomerNameHeader.setText(etCustomerName.getText().toString());
-                                                    tvPhoneNumb.setText(etPhoneNumb.getText().toString());
-
-                                                    String province = spnProvinceCustomer.getSelectedItem().toString();
-                                                    String kabKot = spnKabKotCustomer.getSelectedItem().toString();
-                                                    String kecamatan = spnKecamatanCustomer.getSelectedItem().toString();
-                                                    String kelurahan = spnKelurahanCustomer.getSelectedItem().toString();
-                                                    String postCode = spnPostCodeCustomer.getSelectedItem().toString();
-
-
-                                                    categoriesPostCode.add(postCode);
-                                                    SpinnerCustom.setAdapterSpinner(spnPostCodeAddOrder, context, R.layout.custom_spinner, categoriesPostCode);
-                                                    SpinnerCustom.selectedItemByText(context, spnPostCodeAddOrder, categoriesPostCode, postCode);
-
-
-                                                    SpinnerCustom.setAdapterSpinner(spnProvinceAddOrder, context, R.layout.custom_spinner, categoriesProv);
-                                                    SpinnerCustom.selectedItemByText(context, spnProvinceAddOrder, categoriesProv, province);
-
-                                                    categoriesKabKot.add(kabKot);
-                                                    SpinnerCustom.setAdapterSpinner(spnKabKotAddOrder, context, R.layout.custom_spinner, categoriesKabKot);
-                                                    SpinnerCustom.selectedItemByText(context, spnKabKotAddOrder, categoriesKabKot, kabKot);
-
-                                                    categoriesKecamatan.add(kecamatan);
-                                                    SpinnerCustom.setAdapterSpinner(spnKecamatanAddOrder, context, R.layout.custom_spinner, categoriesKecamatan);
-                                                    SpinnerCustom.selectedItemByText(context, spnKecamatanAddOrder, categoriesKecamatan, kecamatan);
-
-                                                    categoriesKelurahan.add(kelurahan);
-                                                    SpinnerCustom.setAdapterSpinner(spnKelurahanAddOrder, context, R.layout.custom_spinner, categoriesKelurahan);
-                                                    SpinnerCustom.selectedItemByText(context, spnKelurahanAddOrder, categoriesKelurahan, kelurahan);
-
-                                                    alertD.dismiss();
-                                                    lnCustomerDetail.setVisibility(View.VISIBLE);
-                                                    boolAttachCustomer = true;
-                                                }
-                                            }
-                                        } catch (JSONException e) {
-
-                                        }
-
-                                    }
-                                }
-                            });
-
-
-                        }
-                    });
-                } else {
-                    lnCustomerDetail.setVisibility(View.GONE);
-                    tvContactIDHeader.setText("");
-                    tvMemberNoHeader.setText("");
-                    tvCustomerNameHeader.setText("");
-                    tvPhoneNumb.setText("");
-                    categoriesPostCode.add("");
-                    categoriesPostCode = new ArrayList<>();
-                    SpinnerCustom.setAdapterSpinner(spnPostCodeAddOrder, context, R.layout.custom_spinner, categoriesPostCode);
+                        });
+                    } else {
+                        lnCustomerDetail.setVisibility(View.GONE);
+                        tvContactIDHeader.setText("");
+                        tvMemberNoHeader.setText("");
+                        tvCustomerNameHeader.setText("");
+                        tvPhoneNumb.setText("");
+                        categoriesPostCode.add("");
+                        categoriesPostCode = new ArrayList<>();
+                        SpinnerCustom.setAdapterSpinner(spnPostCodeAddOrder, context, R.layout.custom_spinner, categoriesPostCode);
 //                    SpinnerCustom.selectedItemByText(context, spnPostCodeAddOrder, categoriesPostCode, "");
 
-                    categoriesProv = new ArrayList<>();
-                    SpinnerCustom.setAdapterSpinner(spnProvinceAddOrder, context, R.layout.custom_spinner, categoriesProv);
+                        categoriesProv = new ArrayList<>();
+                        SpinnerCustom.setAdapterSpinner(spnProvinceAddOrder, context, R.layout.custom_spinner, categoriesProv);
 //                    SpinnerCustom.selectedItemByText(context, spnProvinceAddOrder, categoriesProv, "");
 
-                    categoriesKabKot = new ArrayList<>();
-                    SpinnerCustom.setAdapterSpinner(spnKabKotAddOrder, context, R.layout.custom_spinner, categoriesKabKot);
+                        categoriesKabKot = new ArrayList<>();
+                        SpinnerCustom.setAdapterSpinner(spnKabKotAddOrder, context, R.layout.custom_spinner, categoriesKabKot);
 //                    SpinnerCustom.selectedItemByText(context, spnKabKotAddOrder, categoriesKabKot, "");
 
-                    categoriesKecamatan = new ArrayList<>();
-                    SpinnerCustom.setAdapterSpinner(spnKecamatanAddOrder, context, R.layout.custom_spinner, categoriesKecamatan);
+                        categoriesKecamatan = new ArrayList<>();
+                        SpinnerCustom.setAdapterSpinner(spnKecamatanAddOrder, context, R.layout.custom_spinner, categoriesKecamatan);
 //                    SpinnerCustom.selectedItemByText(context, spnKecamatanAddOrder, categoriesKecamatan, "");
 
-                    categoriesKelurahan = new ArrayList<>();
-                    SpinnerCustom.setAdapterSpinner(spnKelurahanAddOrder, context, R.layout.custom_spinner, categoriesKelurahan);
+                        categoriesKelurahan = new ArrayList<>();
+                        SpinnerCustom.setAdapterSpinner(spnKelurahanAddOrder, context, R.layout.custom_spinner, categoriesKelurahan);
 //                    SpinnerCustom.selectedItemByText(context, spnKelurahanAddOrder, categoriesKelurahan, "");
+                    }
+                }else{
+                    boolRestore = false;
                 }
+
             }
         });
 
@@ -1453,7 +1345,7 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
         SpinnerCustom.setAdapterSpinner(spnKecamatanAddOrder, context, R.layout.custom_spinner, categoriesKecamatan);
         SpinnerCustom.selectedItemByText(context, spnKecamatanAddOrder, categoriesProvince, "Kelapa Gading");*/
         if (cbWalkIn.isChecked()){
-            cbAttach.setChecked(false);
+//            cbAttach.setChecked(false);
             lnCustomerDetail.setVisibility(View.GONE);
         }
         return v;
@@ -1815,6 +1707,7 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                         draft.setTxtKontakID("");
                     }
                     draft.setTxtRemarks(remarks);
+                    draft.setIntStatus(0);
                     new clsDraftRepo(context).createOrUpdate(draft);
                 } else {
                     draft = new clsDraft();
@@ -1878,6 +1771,7 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                         draft.setTxtKelurahanID(kelID);
                         draft.setTxtPostCode(postCode);
                         draft.setTxtAddress(address);
+                        draft.setIntStatus(0);
                     }
                     draft.setTxtRemarks(remarks);
                     new clsDraftRepo(context).createOrUpdate(draft);
@@ -1946,7 +1840,6 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                         resJson.put("txtNoSo", draft.getTxtNoSO());
                     }
 
-                    resJson.put("txtSourceOrder", draft.getTxtSoSource());
 
                     SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
                     String currentDateandTime = sdf.format(new Date());
@@ -1963,6 +1856,10 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                     }
 
                     resJson.put("txtAgentName", draft.getTxtAgentName());
+                    resJson.put("txtPickUpLocationName", "");
+                    resJson.put("txtAgentName", draft.getTxtAgentName());
+                    resJson.put("txtSourceOrder", draft.getTxtSoSource());
+                    resJson.put("txtSourceOrderName", "");
 
                     String walkin = "";
                     if (draft.isBoolWalkin()) {
@@ -1975,12 +1872,12 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                         }
                         resJson.put("dtDelivery", txtDeliverSche);
                         resJson.put("intWalkIn", walkin);
-                        resJson.put("intDeliveryBy", deliverBy);
+                        resJson.put("intDeliveryBy", "0");
                         resJson.put("txtDeliveryBy", dataLogin.getTxtNamaInstitusi());
-                        resJson.put("txtCustomer", dataDefault.getTxtNama());
-                        resJson.put("txtCustomerName", dataDefault.getTxtKontakID());
+                        resJson.put("txtCustomer", dataDefault.getTxtKontakID());
+                        resJson.put("txtCustomerName", dataDefault.getTxtNama());
 
-                        resJson.put("txtPickUpLocation", dataDefault.getTxtNamaPropinsi());
+                        resJson.put("txtPickUpLocation", draft.getTxtOrderLocation());
                         resJson.put("txtKelurahanID", dataDefault.getTxtNamaKelurahan());
                         resJson.put("txtKelurahanName", dataDefault.getTxtNamaKelurahan());
 
@@ -2001,14 +1898,14 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                         walkin = "0";
                         resJson.put("dtDelivery", txtDeliverSche);
                         resJson.put("intWalkIn", walkin);
-                        resJson.put("intDeliveryBy", deliverBy);
+                        resJson.put("intDeliveryBy", "1");
                         resJson.put("txtDeliveryBy", dataLogin.getTxtNamaInstitusi());
 
                         resJson.put("txtPickUpLocation", draft.getTxtProvince());
                         resJson.put("txtKelurahanID", draft.getTxtKelurahanID());
                         resJson.put("txtKelurahanName", draft.getTxtKelurahan());
 
-                        resJson.put("txtCustomer", draft.getTxtKontakID());
+                        resJson.put("txtCustomer", draft.getTxtContactID());
                         resJson.put("txtCustomerName", draft.getTxtCustomerName());
                         resJson.put("txtPickUpLocation", draft.getTxtProvince());
                         resJson.put("txtPropinsiID", String.valueOf(draft.getTxtProvinceID()));
@@ -2059,7 +1956,7 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                                             int resultan = new clsDraftRepo(context).update(draft);
                                             if (resultan > -1){
                                                 Log.d("Update","Berhasil");
-                                                ToastCustom.showToasty(context,"Save done",2);
+                                                ToastCustom.showToasty(context,"Save done",1);
                                             }else{
                                                 ToastCustom.showToasty(context,"failed to save",2);
                                             }
@@ -2655,7 +2552,7 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                         final JSONObject resJsoni = new JSONObject();
                         JSONArray jsonProducti = new Helper().writeJSONSaveData(context, draft, contentLibs);
                         try {
-                            resJson.put("txtNewId", draft.getGuiId());
+                            resJsoni.put("txtNewId", draft.getGuiId());
                             String strNO = draft.getTxtNoSO();
                             if (strNO.equals("Generated by system")) {
                                 resJsoni.put("txtNoSo", "");
@@ -2694,8 +2591,8 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                                 resJsoni.put("intWalkIn", walkin);
                                 resJsoni.put("intDeliveryBy", deliverBy);
                                 resJsoni.put("txtDeliveryBy", dataLogin.getTxtNamaInstitusi());
-                                resJsoni.put("txtCustomer", dataDefault.getTxtNama());
-                                resJsoni.put("txtCustomerName", dataDefault.getTxtKontakID());
+                                resJsoni.put("txtCustomer", dataDefault.getTxtKontakID());
+                                resJsoni.put("txtCustomerName", dataDefault.getTxtNama());
 
                                 resJsoni.put("txtPickUpLocation", dataDefault.getTxtNamaPropinsi());
                                 resJsoni.put("txtKelurahanID", dataDefault.getTxtNamaKelurahan());
@@ -2716,7 +2613,7 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                                 resJsoni.put("Detail", jsonProducti);
                             } else {
                                 walkin = "0";
-                                resJsoni.put("dtDelivery", "");
+                                resJsoni.put("dtDelivery", txtDeliverSche);
                                 resJsoni.put("intWalkIn", walkin);
                                 resJsoni.put("intDeliveryBy", deliverBy);
                                 resJsoni.put("txtDeliveryBy", dataLogin.getTxtNamaInstitusi());
@@ -2777,6 +2674,7 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                                                     if (resultan > -1){
                                                         Log.d("Update","Berhasil");
                                                         ToastCustom.showToasty(context,"Save done",2);
+                                                        btnPreview.performClick();
                                                     }else{
                                                         ToastCustom.showToasty(context,"failed to save",2);
                                                     }
@@ -2789,10 +2687,6 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                                     }catch (JSONException ex){
                                         String x = ex.getMessage();
                                     }
-
-                                    new clsProductDraftRepo(context).clearAllData();
-                                    new clsDraftRepo(context).clearAllData();
-                                    new clsProductDraftRepo(context).clearAllData();
 
                                     String a = "";
                                 }
@@ -2823,7 +2717,7 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                 }
                 if (saveDraftResult) {
                     ToastCustom.showToasty(context, "Berhasil menyimpan draft", 1);
-                    btnPreview.performClick();
+
                 }
 
             }
@@ -3142,7 +3036,7 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                                                                     etBonusPoint.setText(txtDecBonus);
                                                                     etBasedPoint.setText(txtBasePoint);
                                                                 }
-                                                                etQtySearch.setFocusable(true);
+                                                                etQtySearch.requestFocus();
                                                             }
                                                         }
                                                     } catch (JSONException e) {
@@ -3288,6 +3182,3 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
         ToastCustom.showToasty(context,"Tst",2);
     }
 }
-
-
-//kodingan terakhir 23/03/2018

@@ -1,6 +1,7 @@
 package com.kalbenutritionals.kalcaremobie.Data.adapter;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.support.v7.widget.CardView;
 import android.view.View;
 import android.view.ViewGroup;
@@ -54,12 +55,18 @@ public class CardAdapterListSo extends BaseAdapter {
         holder.tv_name.setText(item.getTxtCustomerName());
         holder.cardView.setCardBackgroundColor(color);
         holder.noSo.setText(item.getTxtNoSo());
+        holder.status.setText(item.getTxtStatus());
+        if (item.getTxtStatus().equals("APPROVED")){
+            holder.status.setTextColor(Color.GREEN);
+        }else{
+            holder.status.setTextColor(Color.GRAY);
+        }
         return convertView;
     }
 
     class ViewHolder {
         ImageView iv_icon;
-        TextView tv_name, noSo;
+        TextView tv_name, noSo, status;
         CardView cardView;
 
         public ViewHolder(View view) {
@@ -67,6 +74,7 @@ public class CardAdapterListSo extends BaseAdapter {
             tv_name = (TextView) view.findViewById(R.id.tv_name);
             cardView = (CardView) view.findViewById(R.id.cdv_list);
             noSo = (TextView) view.findViewById(R.id.tvNoSo);
+            status = (TextView) view.findViewById(R.id.tvStatus);
 
             iv_icon.setVisibility(View.GONE);
             view.setTag(this);

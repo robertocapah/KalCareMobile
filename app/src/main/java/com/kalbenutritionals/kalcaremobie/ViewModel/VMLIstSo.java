@@ -7,6 +7,7 @@ package com.kalbenutritionals.kalcaremobie.ViewModel;
 public class VMLIstSo {
     String txtNewId;
     String txtNoSo;
+    String txtCustomerId;
     String txtCustomerName;
     String dtDateGenerateSO;
     String dtDate;
@@ -26,6 +27,14 @@ public class VMLIstSo {
     String txtKecamatanName;
     String txtKelurahanName;
     String txtRemarks;
+
+    public String getTxtCustomerId() {
+        return txtCustomerId;
+    }
+
+    public void setTxtCustomerId(String txtCustomerId) {
+        this.txtCustomerId = txtCustomerId;
+    }
 
     public String getTxtPropinsiName() {
         return txtPropinsiName;

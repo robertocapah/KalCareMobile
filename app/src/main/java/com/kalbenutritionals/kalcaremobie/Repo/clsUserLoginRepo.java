@@ -11,6 +11,7 @@ import java.sql.SQLException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -54,6 +55,37 @@ public class clsUserLoginRepo implements crud {
             if (data != null){
                 dataLogin = data;
             }
+
+        }
+
+//        }
+        return dataLogin;
+    }
+    public clsUserLogin getDataLoginToday(Context context){
+        clsUserLoginRepo repo = new clsUserLoginRepo(context);
+        clsUserLogin dataLogin =null;
+        DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+        Calendar cal = Calendar.getInstance();
+        String now = dateFormat.format(cal.getTime()).toString();
+
+//        if(repo.CheckLoginNow()){
+        List<clsUserLogin> listData= null;
+        try {
+            listData = helper.getLoginDao().queryForAll();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        for (clsUserLogin data : listData){
+            Date dtLogin = data.getDtLogin();
+            String txtDtlogin = dateFormat.format(dtLogin);
+            if (txtDtlogin.equals(now)){
+                dataLogin = data;
+            }else{
+                dataLogin = null;
+            }
+            /*if (data != null){
+                dataLogin = data;
+            }*/
 
         }
 

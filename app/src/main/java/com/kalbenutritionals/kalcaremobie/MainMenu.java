@@ -219,7 +219,7 @@ public class MainMenu extends AppCompatActivity implements GoogleApiClient.Conne
             e.printStackTrace();
         }
         tvUsername.setText(new clsActivity().greetings() + dataLogin.getNmUser().toString());
-        tvEmail.setText("yourEmail@email.com");
+        tvEmail.setText(dataLogin.getTxtNamaInstitusi());
 
         /*String linkAPI = new mConfigRepo(getApplicationContext()).API_menu;
         try {

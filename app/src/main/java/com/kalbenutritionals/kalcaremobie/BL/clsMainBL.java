@@ -26,7 +26,7 @@ public class clsMainBL {
 //        if(repo.CheckLoginNow()){
         clsUserLogin DataLogin = null;
         try {
-            DataLogin = (clsUserLogin) login.getDataLogin(context);
+            DataLogin = (clsUserLogin) login.getDataLoginToday(context);
         } catch (Exception e) {
             e.printStackTrace();
         }

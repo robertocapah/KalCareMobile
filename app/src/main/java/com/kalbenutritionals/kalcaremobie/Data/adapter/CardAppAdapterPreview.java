@@ -66,6 +66,7 @@ public class CardAppAdapterPreview extends BaseAdapter {
         holder.tvintQtyAvailable.setText(String.valueOf(item.getQtyAvailable()));
         holder.tvtxtPartnerName.setText(String.valueOf(item.getPartnerName()));
         holder.tvtxtPartnerAddress.setText(String.valueOf(item.getPartnerAddress()));
+        holder.tvtxtPartnerPhone.setText(item.getPartnerPhone());
 
         return convertView;
     }
@@ -84,6 +85,7 @@ public class CardAppAdapterPreview extends BaseAdapter {
             tvtxtPartnerAddress = (TextView) view.findViewById(R.id.tvPartnerAddress);
             iv_icon = (ImageView) view.findViewById(com.kalbe.mobiledevknlibs.R.id.iv_icon);
             cardView = (CardView) view.findViewById(R.id.cdv_list);
+            tvtxtPartnerPhone = (TextView) view.findViewById(R.id.tvPartnerPhone);
             iv_icon.setVisibility(View.GONE);
 
             view.setTag(this);

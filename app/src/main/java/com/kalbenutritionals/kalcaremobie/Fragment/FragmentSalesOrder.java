@@ -22,6 +22,8 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 
 import com.kalbe.mobiledevknlibs.Toast.ToastCustom;
+import com.kalbenutritionals.kalcaremobie.Common.clsDraft;
+import com.kalbenutritionals.kalcaremobie.Common.clsProductDraft;
 import com.kalbenutritionals.kalcaremobie.Common.clsToken;
 import com.kalbenutritionals.kalcaremobie.Common.clsUserLogin;
 import com.kalbenutritionals.kalcaremobie.Data.Helper;
@@ -44,6 +46,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -133,7 +137,6 @@ public class FragmentSalesOrder extends Fragment {
             public void onClick(View v) {
                 new clsProductDraftRepo(context).clearAllData();
                 new clsDraftRepo(context).clearAllData();
-                new clsProductDraftRepo(context).clearAllData();
                 FragmentAddOrder fragmentAddOrder = new FragmentAddOrder();
                 FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
                 fragmentTransaction.replace(R.id.frame, fragmentAddOrder,"Fragment_AddOrder");
@@ -184,6 +187,7 @@ public class FragmentSalesOrder extends Fragment {
                                         String intDeliveryBy = object.getString("intDeliveryBy");
                                         String txtDeliveryBy = object.getString("txtDeliveryBy");
                                         String txtCustomer = object.getString("txtCustomer");
+                                        String txtCustomerName = object.getString("txtCustomerName");
                                         String txtDelivery = object.getString("txtDelivery");
                                         String txtPropinsiID = object.getString("txtPropinsiID");
                                         String txtPropinsiName = object.getString("txtPropinsiName");
@@ -208,7 +212,8 @@ public class FragmentSalesOrder extends Fragment {
                                         data.setTxtAgentName(txtAgentName);
                                         data.setTxtStatus(txtStatus_code);
                                         data.setIntStatus(intStatus);
-                                        data.setTxtCustomerName(txtCustomer);
+                                        data.setTxtCustomerName(txtCustomerName);
+                                        data.setTxtCustomerId(txtCustomer);
                                         data.setTxtNewId(txtNewId);
                                         data.setDtDateGenerateSO(txtGenerateNoSo);
                                         data.setDtDateGenerateSO(dtDateGenerateSO);
@@ -387,14 +392,204 @@ public class FragmentSalesOrder extends Fragment {
 
 
                                             }else{
-                                                FragmentAddOrder fragmentAddOrder = new FragmentAddOrder();
-                                                Bundle arguments = new Bundle();
-                                                arguments.putString( "noSO" , itemSelected.getTxtNoSo());
-                                                fragmentAddOrder.setArguments(arguments);
-                                                FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
-                                                fragmentTransaction.replace(R.id.frame, fragmentAddOrder, "Fragment_AddOrder");
+                                               /* new clsProductDraftRepo(context).clearAllData();
+                                                new clsDraftRepo(context).clearAllData();*/
 
-                                                fragmentTransaction.commit();
+
+                                                final String strLinkAPI = new clsHardCode().linkGetDataDetailSalesOrderMobile;
+                                                final JSONObject resJsonRestore = new JSONObject();
+                                                SimpleDateFormat sdfRestore = new SimpleDateFormat("yyyy-MM-dd");
+                                                Date dtLoginData = dataLogin.getDtLogin();
+                                                String currentDateandTime = sdfRestore.format(dtLoginData);
+                                                try {
+                                                    resJsonRestore.put("txtAgentName", dataLogin.getNmUser());
+                                                    resJsonRestore.put("dtDate", currentDateandTime);
+                                                    resJsonRestore.put("txtNoSo", itemSelected.getTxtNoSo());
+
+                                                } catch (JSONException e) {
+                                                    e.printStackTrace();
+                                                }
+                                                final String mRequestBodyRestore = resJsonRestore.toString();
+                                                    new VolleyUtils().makeJsonObjectRequestWithToken(getActivity(), strLinkAPI, mRequestBodyRestore, access_token, "Please Wait...", new VolleyResponseListener() {
+                                                        @Override
+                                                        public void onError(String response) {
+                                                            ToastCustom.showToasty(context, response, 2);
+                                                        }
+
+                                                        @Override
+                                                        public void onResponse(String response, Boolean status, String strErrorMsg) {
+                                                            if (response != null) {
+                                                                JSONObject jsonObject = null;
+                                                                try {
+                                                                    jsonObject = new JSONObject(response);
+                                                                    int result = jsonObject.getInt("intResult");
+                                                                    String warn = jsonObject.getString("txtMessage");
+                                                                    if (result == 1) {
+                                                                        if (!jsonObject.getString("ListData").equals("null")) {
+                                                                            JSONArray jsn = jsonObject.getJSONArray("ListData");
+
+                                                                            JSONObject objData = jsn.getJSONObject(0).getJSONObject("DataSalesOrder");
+
+                                                                            String txtNewIdSO = objData.getString("txtNewId");
+                                                                            String txtNoSo = objData.getString("txtNoSo");
+                                                                            String txtGenerateNoSo = objData.getString("txtGenerateNoSo");
+                                                                            String dtDateGenerateSO = objData.getString("dtDateGenerateSO");
+                                                                            String dtDate = objData.getString("dtDate");
+                                                                            String txtSourceOrder = objData.getString("txtSourceOrder");
+                                                                            String dtDelivery = objData.getString("dtDelivery");
+                                                                            String txtAgentName = objData.getString("txtAgentName");
+                                                                            String txtPickUpLocation = objData.getString("txtPickUpLocation");
+                                                                            String intWalkIn = objData.getString("intWalkIn");
+                                                                            String intDeliveryBy = objData.getString("intDeliveryBy");
+                                                                            String txtDeliveryBy = objData.getString("txtDeliveryBy");
+                                                                            String txtCustomer = objData.getString("txtCustomer");
+                                                                            String txtCustomerName = objData.getString("txtCustomerName");
+                                                                            String txtDelivery = objData.getString("txtDelivery");
+                                                                            String txtPropinsiID = objData.getString("txtPropinsiID");
+                                                                            String txtPropinsiName = objData.getString("txtPropinsiName");
+                                                                            String txtKabupatenKotaID = objData.getString("txtKabupatenKotaID");
+                                                                            String txtKabupatenKotaName = objData.getString("txtKabupatenKotaName");
+                                                                            String txtKecamatanID = objData.getString("txtKecamatanID");
+                                                                            String txtKecamatanName = objData.getString("txtKecamatanName");
+                                                                            String txtKelurahanID = objData.getString("txtKelurahanID");
+                                                                            String txtKelurahanName = objData.getString("txtKelurahanName");
+                                                                            String txtRemarks = objData.getString("txtRemarks");
+                                                                            String txtDeviceId = objData.getString("txtDeviceId");
+                                                                            String intStatus = objData.getString("intStatus");
+                                                                            String txtStatus_code = objData.getString("txtStatus_code");
+                                                                            String txtKodePos = objData.getString("txtKodePos");
+
+                                                                            new clsProductDraftRepo(context).clearAllData();
+                                                                            new clsDraftRepo(context).clearAllData();
+
+                                                                            clsDraft draft = new clsDraft();
+                                                                            draft.setGuiId(txtNewIdSO);
+                                                                            draft.setTxtSOStatus(txtStatus_code);
+                                                                            draft.setIntStatus(Integer.parseInt(intStatus));
+                                                                            draft.setTxtSoSource(txtSourceOrder);
+                                                                            draft.setTxtAgentName(txtAgentName);
+                                                                            draft.setTxtNoSO(txtNoSo);
+//                                    draft.setTxtContactID();
+                                                                            draft.setTxtOrderLocation(txtPickUpLocation);
+
+                                                                            JSONObject objDataUserInfo = jsn.getJSONObject(0).getJSONObject("dtclsUserInfo");
+                                                                            String txtKontakID = objDataUserInfo.getString("txtKontakID");
+                                                                            String txtMemberID = objDataUserInfo.getString("txtMemberID");
+                                                                            String txtPhoneNo = objDataUserInfo.getString("txtListMedia");
+
+                                                                            DateFormat dateFormati = new SimpleDateFormat("yyyy-MM-dd");
+                                                                            if (!dtDate.equals("")) {
+                                                                                Date dtdtDate = null;
+                                                                                try {
+                                                                                    dtdtDate = dateFormati.parse(dtDate);
+                                                                                    draft.setDtSODate(dtdtDate);
+                                                                                } catch (ParseException e) {
+                                                                                    e.printStackTrace();
+                                                                                }
+                                                                            }
+                                                                            if (!dtDelivery.equals("")) {
+                                                                                Date dtdtDate = null;
+                                                                                try {
+                                                                                    dtdtDate = dateFormati.parse(dtDelivery);
+                                                                                    draft.setDtDeliverySche(dtdtDate);
+                                                                                } catch (ParseException e) {
+                                                                                    e.printStackTrace();
+                                                                                }
+                                                                            }
+                                                                            if(intWalkIn.equals("1")){
+                                                                                draft.setBoolWalkin(true);
+
+                                                                            }else{
+                                                                                draft.setBoolWalkin(false);
+                                                                            }
+                                                                            if (intDeliveryBy.equals("1")){
+                                                                                draft.setBoolAttachCustomer(true);
+                                                                            }else{
+                                                                                draft.setBoolAttachCustomer(false);
+                                                                            }
+                                                                            draft.setTxtPostCode(txtKodePos);
+                                                                            draft.setTxtAgentName(txtDeliveryBy);
+                                                                            draft.setTxtRemarks(txtRemarks);
+                                                                            draft.setTxtCustomerName(txtCustomerName);
+                                                                            draft.setTxtContactID(txtKontakID);
+                                                                            draft.setTxtKontakID(txtKontakID);
+                                                                            draft.setTxtMemberID(txtMemberID);
+                                                                            draft.setTxtPhoneNumber(txtPhoneNo);
+
+                                                                            draft.setTxtAddress(txtDelivery);
+                                                                            draft.setTxtProvinceID(txtPropinsiID);
+                                                                            draft.setTxtProvince(txtPropinsiName);
+                                                                            draft.setTxtKabKotID(txtKabupatenKotaID);
+                                                                            draft.setTxtKabKot(txtKabupatenKotaName);
+                                                                            draft.setTxtKecamatanID(txtKecamatanID);
+                                                                            draft.setTxtKecamatan(txtKecamatanName);
+                                                                            draft.setTxtKelurahanID(txtKelurahanID);
+                                                                            draft.setTxtKelurahan(txtKelurahanName);
+                                                                            draft.setIntStatus(0);
+                                                                            new clsDraftRepo(context).createOrUpdate(draft);
+
+                                                                            if(jsn.length()>0){
+                                                                                JSONArray arrayData = jsn.getJSONObject(0).getJSONArray("ListDataDetail");
+                                                                                for (int n = 0; n < arrayData.length(); n++) {
+                                                                                    JSONObject obj = arrayData.getJSONObject(n);
+                                                                                    String txtNewId = obj.getString("txtNewId");
+                                                                                    String txtProductCode = obj.getString("txtProductCode");
+                                                                                    String txtProductName = obj.getString("txtProductName");
+                                                                                    String intQty = obj.getString("intQty");
+                                                                                    String decPrice = obj.getString("decPrice");
+                                                                                    String decDiscount = obj.getString("decDiscount");
+                                                                                    String decTotalPrice = obj.getString("decTotalPrice");
+                                                                                    String decTaxAmount = obj.getString("decTaxAmount");
+                                                                                    String decNetPrice = obj.getString("decNetPrice");
+                                                                                    String decBasePoint = obj.getString("decBasePoint");
+                                                                                    String decTotalBasePoint = obj.getString("decTotalBasePoint");
+                                                                                    String decBonusPoint = obj.getString("decBonusPoint");
+                                                                                    String txtNoSO = obj.getString("txtNoSO");
+
+                                                                                    clsProductDraft itemsDraft = new clsProductDraft();
+                                                                                    itemsDraft.setTxtDraftGUI(txtNewIdSO);
+                                                                                    itemsDraft.setTxtProductDraftGUI(txtNewId);
+                                                                                    itemsDraft.setTxtItemCode(txtProductCode);
+                                                                                    itemsDraft.setTxtItemName(txtProductName);
+                                                                                    double dblQty = Double.parseDouble(intQty);
+                                                                                    int intQtyf = (int) dblQty;
+                                                                                    itemsDraft.setIntQty(intQtyf);
+                                                                                    itemsDraft.setDblPrice(Double.parseDouble(decPrice));
+                                                                                    itemsDraft.setDblItemDiscount(Double.parseDouble(decDiscount));
+                                                                                    itemsDraft.setDblTotalPrice(Double.parseDouble(decTotalPrice));
+                                                                                    itemsDraft.setDblItemTax(Double.parseDouble(decTaxAmount));
+                                                                                    itemsDraft.setDblNetPrice(Double.parseDouble(decNetPrice));
+                                                                                    itemsDraft.setTxtBasedPoint(decBasePoint);
+                                                                                    itemsDraft.setTxtBonusPoint(decBonusPoint);
+                                                                                    new clsProductDraftRepo(context).createOrUpdate(itemsDraft);
+
+                                                                                }
+                                                                            }else{
+                                                                            }
+
+                                                                            FragmentAddOrder fragmentAddOrder = new FragmentAddOrder();
+                                                                            Bundle arguments = new Bundle();
+                                                                            arguments.putString( "noSO" , "");
+                                                                            fragmentAddOrder.setArguments(arguments);
+                                                                            FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
+                                                                            fragmentTransaction.replace(R.id.frame, fragmentAddOrder, "Fragment_AddOrder");
+
+                                                                            fragmentTransaction.commit();
+                                                                        }
+                                                                    }else{
+                                                                        ToastCustom.showToasty(context,warn, 2);
+
+                                                                    }
+                                                                }catch (JSONException ex){
+                                                                    String x = ex.getMessage();
+                                                                }
+                                                            }
+
+                                                        }
+                                                    });
+
+
+
                                             }
 
                                         }

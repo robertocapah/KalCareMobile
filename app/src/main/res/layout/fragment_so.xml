@@ -47,7 +47,7 @@
         android:layout_width="wrap_content"
         android:id="@+id/fabAdd"
         android:layout_height="wrap_content"
-        android:src="@drawable/ic_profile_black"
+        android:src="@drawable/ic_plus_one"
         android:gravity="bottom|end" />
     </LinearLayout>
 </RelativeLayout>
