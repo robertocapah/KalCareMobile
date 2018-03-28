@@ -28,6 +28,7 @@ import com.kalbenutritionals.kalcaremobie.Data.Helper;
 import com.kalbenutritionals.kalcaremobie.Data.VolleyResponseListener;
 import com.kalbenutritionals.kalcaremobie.Data.VolleyUtils;
 import com.kalbenutritionals.kalcaremobie.Data.adapter.CardAdapterListSo;
+import com.kalbenutritionals.kalcaremobie.Data.adapter.CardAppAdapter;
 import com.kalbenutritionals.kalcaremobie.Data.adapter.ListViewCustom;
 import com.kalbenutritionals.kalcaremobie.Data.clsHardCode;
 import com.kalbenutritionals.kalcaremobie.Fragment.dummy.DummyContent.DummyItem;
@@ -236,7 +237,7 @@ public class FragmentSalesOrder extends Fragment {
                                                 LayoutInflater layoutInflater = LayoutInflater.from(context);
                                                 AlertDialog.Builder alertDialogBuilderAttch = new AlertDialog.Builder(getActivity());
                                                 final View promptView = layoutInflater.inflate(R.layout.popup_preview_approved, null);
-                                                ListView lvPreview = (ListView) promptView.findViewById(R.id.lvItemPrev);
+                                                final ListView lvPreview = (ListView) promptView.findViewById(R.id.lvItemPrev);
                                                 TextView tvSOStatusPrev = (TextView) promptView.findViewById(R.id.tvSOStatusPrev);
                                                 TextView tvSoDatePrev = (TextView) promptView.findViewById(R.id.tvSoDatePrev);
                                                 TextView tvSOSourcePrev = (TextView) promptView.findViewById(R.id.tvSOSourcePrev);
@@ -353,17 +354,14 @@ public class FragmentSalesOrder extends Fragment {
                                                                             contentItems.add(item);
                                                                         }
 
+                                                                        lvPreview.setAdapter(new CardAppAdapter(context, contentItems, Color.WHITE));
 
                                                                         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
                                                                         alertDialogBuilder.setView(promptView);
                                                                         alertDialogBuilder.setTitle("Detail Transaction");
                                                                         alertDialogBuilder
                                                                                 .setCancelable(false)
-                                                                                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                                                                                    public void onClick(DialogInterface dialog, int id) {
-                                                                                        dialog.cancel();
-                                                                                    }
-                                                                                }).setPositiveButton("Oke", new DialogInterface.OnClickListener() {
+                                                                                .setPositiveButton("Oke", new DialogInterface.OnClickListener() {
                                                                             public void onClick(DialogInterface dialog, int id) {
 
                                                                             }

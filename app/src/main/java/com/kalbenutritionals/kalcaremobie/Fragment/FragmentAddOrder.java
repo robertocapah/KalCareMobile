@@ -583,7 +583,8 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                 final String mRequestBody = resJson.toString();
 //                lt.setText("Retrieving data Kabupaten Kota...");
 //                lt.show();
-                new VolleyUtils().makeJsonObjectRequestWithToken(getActivity(), strLinkSpnProvince, mRequestBody, access_token, "Please Wait...", new VolleyResponseListener() {
+
+               new VolleyUtils().makeJsonObjectRequestWithToken(getActivity(), strLinkSpnProvince, mRequestBody, access_token, "Please Wait...", new VolleyResponseListener() {
                     @Override
                     public void onError(String response) {
                         ToastCustom.showToasty(context, response, 2);
@@ -1403,23 +1404,23 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                     categoriesPostCode.add("");
                     categoriesPostCode = new ArrayList<>();
                     SpinnerCustom.setAdapterSpinner(spnPostCodeAddOrder, context, R.layout.custom_spinner, categoriesPostCode);
-                    SpinnerCustom.selectedItemByText(context, spnPostCodeAddOrder, categoriesPostCode, "");
+//                    SpinnerCustom.selectedItemByText(context, spnPostCodeAddOrder, categoriesPostCode, "");
 
                     categoriesProv = new ArrayList<>();
                     SpinnerCustom.setAdapterSpinner(spnProvinceAddOrder, context, R.layout.custom_spinner, categoriesProv);
-                    SpinnerCustom.selectedItemByText(context, spnProvinceAddOrder, categoriesProv, "");
+//                    SpinnerCustom.selectedItemByText(context, spnProvinceAddOrder, categoriesProv, "");
 
                     categoriesKabKot = new ArrayList<>();
                     SpinnerCustom.setAdapterSpinner(spnKabKotAddOrder, context, R.layout.custom_spinner, categoriesKabKot);
-                    SpinnerCustom.selectedItemByText(context, spnKabKotAddOrder, categoriesKabKot, "");
+//                    SpinnerCustom.selectedItemByText(context, spnKabKotAddOrder, categoriesKabKot, "");
 
                     categoriesKecamatan = new ArrayList<>();
                     SpinnerCustom.setAdapterSpinner(spnKecamatanAddOrder, context, R.layout.custom_spinner, categoriesKecamatan);
-                    SpinnerCustom.selectedItemByText(context, spnKecamatanAddOrder, categoriesKecamatan, "");
+//                    SpinnerCustom.selectedItemByText(context, spnKecamatanAddOrder, categoriesKecamatan, "");
 
                     categoriesKelurahan = new ArrayList<>();
                     SpinnerCustom.setAdapterSpinner(spnKelurahanAddOrder, context, R.layout.custom_spinner, categoriesKelurahan);
-                    SpinnerCustom.selectedItemByText(context, spnKelurahanAddOrder, categoriesKelurahan, "");
+//                    SpinnerCustom.selectedItemByText(context, spnKelurahanAddOrder, categoriesKelurahan, "");
                 }
             }
         });
@@ -2645,6 +2646,8 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                         }
                     }
                 });
+            }else{
+                
             }
 
         } else {
