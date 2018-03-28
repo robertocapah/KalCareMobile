@@ -2560,8 +2560,6 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                                 resJsoni.put("txtNoSo", draft.getTxtNoSO());
                             }
 
-                            resJsoni.put("txtSourceOrder", draft.getTxtSoSource());
-
                             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
                             String currentDateandTime = sdf.format(new Date());
                             resJsoni.put("dtDate", currentDateandTime);
@@ -2575,7 +2573,11 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                             if (draft.getDtDeliverySche() != null) {
                                 txtDeliverSche = sdf.format(draft.getDtDeliverySche());
                             }
-
+                            resJson.put("txtAgentName", draft.getTxtAgentName());
+                            resJson.put("txtPickUpLocationName", "");
+                            resJson.put("txtAgentName", draft.getTxtAgentName());
+                            resJson.put("txtSourceOrder", draft.getTxtSoSource());
+                            resJson.put("txtSourceOrderName", "");
                             resJsoni.put("txtAgentName", draft.getTxtAgentName());
 
                             String walkin = "";
