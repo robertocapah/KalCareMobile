@@ -2073,9 +2073,9 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                                 String x = ex.getMessage();
                             }
 
-                            new clsProductDraftRepo(context).clearAllData();
+                            /*new clsProductDraftRepo(context).clearAllData();
                             new clsDraftRepo(context).clearAllData();
-                            new clsProductDraftRepo(context).clearAllData();
+                            new clsProductDraftRepo(context).clearAllData();*/
 
                             String a = "";
                         }
@@ -2823,7 +2823,9 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                 }
                 if (saveDraftResult) {
                     ToastCustom.showToasty(context, "Berhasil menyimpan draft", 1);
+                    btnPreview.performClick();
                 }
+
             }
 
         } else {

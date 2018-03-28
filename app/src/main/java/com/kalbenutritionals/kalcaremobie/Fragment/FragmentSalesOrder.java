@@ -33,6 +33,8 @@ import com.kalbenutritionals.kalcaremobie.Data.adapter.ListViewCustom;
 import com.kalbenutritionals.kalcaremobie.Data.clsHardCode;
 import com.kalbenutritionals.kalcaremobie.Fragment.dummy.DummyContent.DummyItem;
 import com.kalbenutritionals.kalcaremobie.R;
+import com.kalbenutritionals.kalcaremobie.Repo.clsDraftRepo;
+import com.kalbenutritionals.kalcaremobie.Repo.clsProductDraftRepo;
 import com.kalbenutritionals.kalcaremobie.Repo.clsTokenRepo;
 import com.kalbenutritionals.kalcaremobie.Repo.clsUserLoginRepo;
 import com.kalbenutritionals.kalcaremobie.ViewModel.VMItems;
@@ -129,6 +131,9 @@ public class FragmentSalesOrder extends Fragment {
         fabAdd.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                new clsProductDraftRepo(context).clearAllData();
+                new clsDraftRepo(context).clearAllData();
+                new clsProductDraftRepo(context).clearAllData();
                 FragmentAddOrder fragmentAddOrder = new FragmentAddOrder();
                 FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
                 fragmentTransaction.replace(R.id.frame, fragmentAddOrder,"Fragment_AddOrder");
