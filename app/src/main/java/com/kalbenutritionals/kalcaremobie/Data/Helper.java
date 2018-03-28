@@ -103,7 +103,7 @@ public class Helper {
             String guiid = new Helper().GenerateGuid();
             JSONObject jsnItem = new JSONObject();
             clsProductDraft product = new clsProductDraft();
-            product.setTxtDraftGUI(draft.getGuiId());
+            product.setTxtDraftGUI(item.getGuiid());
             product.setTxtProductDraftGUI(guiid);
             product.setTxtItemName(item.getItemName());
             product.setTxtItemCode(item.getItemCode());

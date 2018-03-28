@@ -2624,7 +2624,7 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                                 resJsoni.put("txtKelurahanID", draft.getTxtKelurahanID());
                                 resJsoni.put("txtKelurahanName", draft.getTxtKelurahan());
 
-                                resJsoni.put("txtCustomer", draft.getTxtKontakID());
+                                resJsoni.put("txtCustomer", draft.getTxtContactID());
                                 resJsoni.put("txtCustomerName", draft.getTxtCustomerName());
                                 resJsoni.put("txtPickUpLocation", draft.getTxtProvince());
                                 resJsoni.put("txtPropinsiID", String.valueOf(draft.getTxtProvinceID()));
@@ -2670,9 +2670,9 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                                                     String intStatus = object.getString("intStatus");
                                                     String txtStatus = object.getString("txtStatus");
                                                     draft.setTxtNoSO(txtNoSO);
-                                                    draft.setIntStatus(Integer.parseInt(intStatus));
+                                                    draft.setIntStatus(0);
                                                     draft.setTxtSOStatus(txtStatus);
-                                                    int resultan = new clsDraftRepo(context).update(draft);
+                                                    int resultan = new clsDraftRepo(context).createOrUpdate(draft);
                                                     if (resultan > -1){
                                                         Log.d("Update","Berhasil");
                                                         ToastCustom.showToasty(context,"Save done",2);
