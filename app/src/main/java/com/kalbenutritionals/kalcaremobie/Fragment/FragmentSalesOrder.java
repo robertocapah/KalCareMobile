@@ -237,25 +237,25 @@ public class FragmentSalesOrder extends Fragment {
                                         public void onItemClick(AdapterView<?> parent, final View view, int position, long id) {
                                             VMLIstSo itemSelected = null;
                                             itemSelected = contentLibs.get(position);
-                                            if (itemSelected.getTxtStatus().equals("APPROVED")){
+                                            if (!itemSelected.getTxtStatus().equals("DRAFT")){
                                                 ToastCustom.showToasty(context,"Transaction Approved",1);
                                                 final String strLinkAPIApproved = new clsHardCode().linkGetDataDetailSalesOrderMobile;
                                                 final JSONObject resJsonpApproved = new JSONObject();
-                                                final String mRequestBodyApproved = resJsonpApproved.toString();
+
                                                 String currentDateandTimeApproved = sdf.format(dtLoginData);
 
                                                 LayoutInflater layoutInflater = LayoutInflater.from(context);
                                                 AlertDialog.Builder alertDialogBuilderAttch = new AlertDialog.Builder(getActivity());
                                                 final View promptView = layoutInflater.inflate(R.layout.popup_preview_approved, null);
                                                 final ListView lvPreview = (ListView) promptView.findViewById(R.id.lvItemPrev);
-                                                TextView tvSOStatusPrev = (TextView) promptView.findViewById(R.id.tvSOStatusPrev);
-                                                TextView tvSoDatePrev = (TextView) promptView.findViewById(R.id.tvSoDatePrev);
-                                                TextView tvSOSourcePrev = (TextView) promptView.findViewById(R.id.tvSOSourcePrev);
-                                                TextView tvAgentNamePrev = (TextView) promptView.findViewById(R.id.tvAgentNamePrev);
-                                                TextView tvOrderLocationPrev = (TextView) promptView.findViewById(R.id.tvOrderLocationPrev);
-                                                TextView tvDeliveryByPrev = (TextView) promptView.findViewById(R.id.tvDeliveryByPrev);
-                                                TextView tvDeliverySchedulePrev = (TextView) promptView.findViewById(R.id.tvDeliverySchedulePrev);
-                                                TextView tvRemarksPreview = (TextView) promptView.findViewById(R.id.tvRemarksPreview);
+                                                final TextView tvSOStatusPrev = (TextView) promptView.findViewById(R.id.tvSOStatusPrev);
+                                                final TextView tvSoDatePrev = (TextView) promptView.findViewById(R.id.tvSoDatePrev);
+                                                final TextView tvSOSourcePrev = (TextView) promptView.findViewById(R.id.tvSOSourcePrev);
+                                                final TextView tvAgentNamePrev = (TextView) promptView.findViewById(R.id.tvAgentNamePrev);
+                                                final TextView tvOrderLocationPrev = (TextView) promptView.findViewById(R.id.tvOrderLocationPrev);
+                                                final TextView tvDeliveryByPrev = (TextView) promptView.findViewById(R.id.tvDeliveryByPrev);
+                                                final TextView tvDeliverySchedulePrev = (TextView) promptView.findViewById(R.id.tvDeliverySchedulePrev);
+                                                final TextView tvRemarksPreview = (TextView) promptView.findViewById(R.id.tvRemarksPreview);
                                                 final TextView tvPaymentMethod = (TextView) promptView.findViewById(R.id.tvPaymentMethod);
 
                                                 final TextView etCustomerNamePrev = (TextView) promptView.findViewById(R.id.etCustomerNamePrev);
@@ -265,11 +265,12 @@ public class FragmentSalesOrder extends Fragment {
                                                 final TextView tvProvinceCustomerPrev = (TextView) promptView.findViewById(R.id.tvProvinceCustomerPrev);
                                                 final TextView tvCityCustomerPrev = (TextView) promptView.findViewById(R.id.tvCityCustomerPrev);
                                                 final TextView tvRegionCustomerPrev = (TextView) promptView.findViewById(R.id.tvRegionCustomerPrev);
+                                                final TextView tvKelurahanCustomerPrev = (TextView) promptView.findViewById(R.id.tvKelurahanCustomerPrev);
                                                 TextView tvHideCustPrev = (TextView) promptView.findViewById(R.id.tvHideCustPrev);
 
 
                                                 final LinearLayout lnAttacedCust = (LinearLayout) promptView.findViewById(R.id.lnAttacedCust);
-                                                TextView tvCustomerPrev = (TextView) promptView.findViewById(R.id.tvCustomerPrev);
+                                                final TextView tvCustomerPrev = (TextView) promptView.findViewById(R.id.tvCustomerPrev);
 
 
 
@@ -282,6 +283,7 @@ public class FragmentSalesOrder extends Fragment {
                                                 } catch (JSONException e) {
                                                     e.printStackTrace();
                                                 }
+                                                final String mRequestBodyApproved = resJsonpApproved.toString();
                                                 new VolleyUtils().makeJsonObjectRequestWithToken(getActivity(), strLinkAPIApproved, mRequestBodyApproved, access_token, "Please Wait...", new VolleyResponseListener() {
                                                     @Override
                                                     public void onError(String response) {
@@ -316,7 +318,7 @@ public class FragmentSalesOrder extends Fragment {
                                                                         String txtDeliveryBy = objData.getString("txtDeliveryBy");
                                                                         String txtCustomer = objData.getString("txtCustomer");
                                                                         String txtDelivery = objData.getString("txtDelivery");
-                                                                        String txtPropinsiID = objData.getString("txtPropinsiID");
+                                                                        String txtPrfopinsiID = objData.getString("txtPropinsiID");
                                                                         String txtPropinsiName = objData.getString("txtPropinsiName");
                                                                         String txtKabupatenKotaID = objData.getString("txtKabupatenKotaID");
                                                                         String txtKabupatenKotaName = objData.getString("txtKabupatenKotaName");
@@ -324,11 +326,36 @@ public class FragmentSalesOrder extends Fragment {
                                                                         String txtKecamatanName = objData.getString("txtKecamatanName");
                                                                         String txtKelurahanID = objData.getString("txtKelurahanID");
                                                                         String txtKelurahanName = objData.getString("txtKelurahanName");
+                                                                        String txtKodePos = objData.getString("txtKodePos");
                                                                         String txtRemarks = objData.getString("txtRemarks");
                                                                         String txtDeviceId = objData.getString("txtDeviceId");
                                                                         String intStatus = objData.getString("intStatus");
                                                                         String txtStatus_code = objData.getString("txtStatus_code");
 
+                                                                        tvSOSourcePrev.setText(txtSourceOrder);
+                                                                        tvSoDatePrev.setText(dtDate);
+                                                                        tvSOStatusPrev.setText(txtStatus_code);
+                                                                        tvDeliverySchedulePrev.setText(dtDelivery);
+                                                                        tvAgentNamePrev.setText(txtAgentName);
+                                                                        tvOrderLocationPrev.setText(txtPickUpLocation);
+                                                                        tvRemarksPreview.setText(txtRemarks);
+                                                                        tvDeliveryByPrev.setText(txtDeliveryBy);
+                                                                        tvCustomerPrev.setText(txtPickUpLocation);
+
+                                                                        if (intDeliveryBy.equals("1")){
+                                                                            tvCustomerPrev.setText("Customer Detail");
+                                                                            etCustomerNamePrev.setText(txtCustomer);
+//                                                                            etContactIDPrev.setText();
+                                                                            lnAttacedCust.setVisibility(View.VISIBLE);
+                                                                            tvProvinceCustomerPrev.setText(txtPropinsiName);
+                                                                            tvCityCustomerPrev.setText(txtKabupatenKotaName);
+                                                                            tvRegionCustomerPrev.setText(txtKecamatanName);
+                                                                            tvKelurahanCustomerPrev.setText(txtKelurahanName);
+                                                                            tvPostCodeCustomerPrev.setText(txtKodePos);
+
+                                                                        }else{
+                                                                            lnAttacedCust.setVisibility(View.GONE);
+                                                                        }
 
                                                                         JSONArray arrayData = jsn.getJSONObject(0).getJSONArray("ListDataDetail");
                                                                         final List<VMItems> contentItems = new ArrayList<VMItems>();
@@ -354,7 +381,9 @@ public class FragmentSalesOrder extends Fragment {
                                                                             item.setPrice(Double.parseDouble(decPrice));
 //                                                                            item.setProductCategory(HMtxtProductCategory.get(itemCodeAdd));
                                                                             item.setBasePoint(decBasePoint);
-                                                                            item.setQty(Integer.parseInt(intQty));
+                                                                            double dbQty = Double.parseDouble(intQty);
+                                                                            int intQtyi = (int) dbQty;
+                                                                            item.setQty(intQtyi);
                                                                             item.setDiscount(Double.parseDouble(decDiscount));
                                                                             item.setTotalPrice(Double.parseDouble(decTotalPrice));
                                                                             item.setTaxAmount(Double.parseDouble(decTaxAmount));
@@ -515,6 +544,7 @@ public class FragmentSalesOrder extends Fragment {
                                                                             draft.setTxtKontakID(txtKontakID);
                                                                             draft.setTxtMemberID(txtMemberID);
                                                                             draft.setTxtPhoneNumber(txtPhoneNo);
+                                                                            draft.setTxtMemberID(txtMemberID);
 
                                                                             draft.setTxtAddress(txtDelivery);
                                                                             draft.setTxtProvinceID(txtPropinsiID);
