@@ -322,7 +322,6 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                 tvCustomerNameHeader.setText(txtCustomerName);
                 tvContactIDHeader.setText(txtKontakId);
                 tvPhoneNumb.setText(txtPhoneNum);
-                tvMemberNoHeader.setText(txtMemberId);
                 etAddress.setText(txtAddress);
                 cbWalkIn.setChecked(false);
                 String postCode = draft.getTxtPostCode() + "-" + draft.getTxtKelurahan();
@@ -497,29 +496,6 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                                             categoriesKabKot.add(txtNamaKabKot);
                                             HMKabKotID.put(txtNamaKabKot, txtKabKotID);
                                         }
-                                        if (!boolAttachCustomer) {
-                                            SpinnerCustom.setAdapterSpinner(spnKabKotAddOrder, context, R.layout.custom_spinner, categoriesKabKot);
-                                            categoriesKecamatan.add(STRSPINNEROPT);
-                                            HMKecID.put(STRSPINNEROPT, "0");
-                                            SpinnerCustom.setAdapterSpinner(spnKecamatanAddOrder, context, R.layout.custom_spinner, categoriesKecamatan);
-                                            SpinnerCustom.selectedItemByText(context, spnKecamatanAddOrder, categoriesKecamatan, STRSPINNEROPT);
-
-                                            categoriesKelurahan.add(STRSPINNEROPT);
-                                            HMKel.put(STRSPINNEROPT, "0");
-                                            SpinnerCustom.setAdapterSpinner(spnKelurahanAddOrder, context, R.layout.custom_spinner, categoriesKelurahan);
-                                            SpinnerCustom.selectedItemByText(context, spnKelurahanAddOrder, categoriesKelurahan, STRSPINNEROPT);
-
-                                            categoriesPostCode.add(STRSPINNEROPT);
-                                            HMKodePos.put(STRSPINNEROPT, "0");
-                                            SpinnerCustom.setAdapterSpinner(spnPostCodeAddOrder, context, R.layout.custom_spinner, categoriesPostCode);
-                                            SpinnerCustom.selectedItemByText(context, spnPostCodeAddOrder, categoriesPostCode, STRSPINNEROPT);
-
-                                        } else {
-                                            boolAttachCustomer = false;
-                                            SpinnerCustom.selectedItemByText(context, spnKabKotAddOrder, categoriesKabKot, STRSPINNEROPT);
-
-                                        }
-
                                         spnKabKotAddOrder.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                                             @Override
                                             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
@@ -578,83 +554,7 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                                                                                 spnKecamatanAddOrder.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                                                                                     @Override
                                                                                     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                                                                                        if (categoriesKecamatan.size() > 0) {
-                                                                                            String KecName = categoriesKecamatan.get(position).toString();
-                                                                                            String kecID = HMKecID.get(KecName);
-                                                                                            if (!kecID.equals("0")) {
-                                                                                                final JSONObject resJson = new JSONObject();
-                                                                                                try {
-                                                                                                    resJson.put("txtKecamatanID", KecName);
-                                                                                                } catch (JSONException e) {
-                                                                                                    e.printStackTrace();
-                                                                                                }
-                                                                                                String strLinkSpnKel = new clsHardCode().linkGetListKelurahan;
-
-                                                                                                final String mRequestBody = resJson.toString();
-//                        lt.setText("Retrieving data Kelurahan...");
-                                                                                                //volley untuk ambil kelurahan dan kode pos
-                                                                                                new VolleyUtils().makeJsonObjectRequestWithTokenWithoutProgressD(getActivity(), strLinkSpnKel, mRequestBody, access_token, "Please Wait...", new VolleyResponseListener() {
-                                                                                                    @Override
-                                                                                                    public void onError(String response) {
-                                                                                                        ToastCustom.showToasty(context, response, 2);
-//                                lt.hide();
-                                                                                                    }
-
-                                                                                                    @Override
-                                                                                                    public void onResponse(String response, Boolean status, String strErrorMsg) {
-                                                                                                        if (response != null) {
-                                                                                                            JSONObject jsonObject = null;
-                                                                                                            try {
-                                                                                                                jsonObject = new JSONObject(response);
-                                                                                                                int result = jsonObject.getInt("intResult");
-                                                                                                                String warn = jsonObject.getString("txtMessage");
-                                                                                                                if (result == 1) {
-
-                                                                                                                    if (!jsonObject.getString("ListData").equals("null")) {
-                                                                                                                        JSONArray jsn = jsonObject.getJSONArray("ListData");
-                                                                                                                        categoriesKelurahan = new ArrayList<String>();
-                                                                                                                        categoriesKelurahan.add(STRSPINNEROPT);
-                                                                                                                        HMKel.put(STRSPINNEROPT, "0");
-
-                                                                                                                        categoriesPostCode = new ArrayList<String>();
-                                                                                                                        categoriesPostCode.add(STRSPINNEROPT);
-                                                                                                                        HMKodePos.put(STRSPINNEROPT, "0");
-
-                                                                                                                        for (int n = 0; n < jsn.length(); n++) {
-                                                                                                                            JSONObject object = jsn.getJSONObject(n);
-                                                                                                                            String txtNamaKelurahan = object.getString("txtNamaKelurahan");
-                                                                                                                            String txtKodePosID = object.getString("txtKodePosID");
-                                                                                                                            categoriesKelurahan.add(txtNamaKelurahan);
-                                                                                                                            HMKel.put(txtNamaKelurahan, txtNamaKelurahan);
-                                                                                                                            categoriesPostCode.add(txtKodePosID + "-" + txtNamaKelurahan);
-                                                                                                                            HMKodePos.put(txtKodePosID + "-" + txtNamaKelurahan, txtKodePosID);
-                                                                                                                        }
-
-                                                                                                                        SpinnerCustom.setAdapterSpinner(spnKelurahanAddOrder, context, R.layout.custom_spinner, categoriesKelurahan);
-                                                                                                                        SpinnerCustom.setAdapterSpinner(spnPostCodeAddOrder, context, R.layout.custom_spinner, categoriesPostCode);
-                                                                                                                        if (draft != null) {
-                                                                                                                            SpinnerCustom.selectedItemByText(context, spnKelurahanAddOrder, categoriesKelurahan, draft.getTxtKelurahan());
-                                                                                                                            SpinnerCustom.selectedItemByText(context, spnPostCodeAddOrder, categoriesPostCode, draft.getTxtPostCode() + "-" + draft.getTxtKelurahan());
-                                                                                                                        } else {
-                                                                                                                            SpinnerCustom.selectedItemByText(context, spnKelurahanAddOrder, categoriesKelurahan, STRSPINNEROPT);
-                                                                                                                            SpinnerCustom.selectedItemByText(context, spnPostCodeAddOrder, categoriesPostCode, STRSPINNEROPT);
-                                                                                                                        }
-//                                                lt.success();
-                                                                                                                    }
-                                                                                                                }
-                                                                                                            } catch (JSONException e) {
-
-                                                                                                            }
-
-                                                                                                        }
-                                                                                                    }
-                                                                                                });
-                                                                                            } else {
-                                                                                                SpinnerCustom.selectedItemByText(context, spnKelurahanAddOrder, categoriesKelurahan, STRSPINNEROPT);
-                                                                                                SpinnerCustom.selectedItemByText(context, spnPostCodeAddOrder, categoriesPostCode, STRSPINNEROPT);
-                                                                                            }
-                                                                                        }
-
+                                                                                        spinnerKecamatan(position);
                                                                                     }
 
                                                                                     @Override
@@ -708,6 +608,30 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
 
                                             }
                                         });
+                                        if (!boolAttachCustomer) {
+                                            SpinnerCustom.setAdapterSpinner(spnKabKotAddOrder, context, R.layout.custom_spinner, categoriesKabKot);
+                                            categoriesKecamatan.add(STRSPINNEROPT);
+                                            HMKecID.put(STRSPINNEROPT, "0");
+                                            SpinnerCustom.setAdapterSpinner(spnKecamatanAddOrder, context, R.layout.custom_spinner, categoriesKecamatan);
+                                            SpinnerCustom.selectedItemByText(context, spnKecamatanAddOrder, categoriesKecamatan, STRSPINNEROPT);
+
+                                            categoriesKelurahan.add(STRSPINNEROPT);
+                                            HMKel.put(STRSPINNEROPT, "0");
+                                            SpinnerCustom.setAdapterSpinner(spnKelurahanAddOrder, context, R.layout.custom_spinner, categoriesKelurahan);
+                                            SpinnerCustom.selectedItemByText(context, spnKelurahanAddOrder, categoriesKelurahan, STRSPINNEROPT);
+
+                                            categoriesPostCode.add(STRSPINNEROPT);
+                                            HMKodePos.put(STRSPINNEROPT, "0");
+                                            SpinnerCustom.setAdapterSpinner(spnPostCodeAddOrder, context, R.layout.custom_spinner, categoriesPostCode);
+                                            SpinnerCustom.selectedItemByText(context, spnPostCodeAddOrder, categoriesPostCode, STRSPINNEROPT);
+
+                                        } else {
+//                                            boolAttachCustomer = false;
+                                            SpinnerCustom.selectedItemByText(context, spnKabKotAddOrder, categoriesKabKot, STRSPINNEROPT);
+
+                                        }
+
+
                                         if (draft != null && draft.getTxtKabKot() != null) {
                                             SpinnerCustom.selectedItemByText(context, spnKabKotAddOrder, categoriesKabKot, draft.getTxtKabKot());
                                         } else {
@@ -982,6 +906,7 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                         final EditText etContactID = (EditText) promptView.findViewById(R.id.etContactID);
                         final EditText etPhoneNumb = (EditText) promptView.findViewById(R.id.etPhoneNumb);
                         final EditText etMemberNo = (EditText) promptView.findViewById(R.id.etMemberNo);
+                        final TextView tvMemberNo = (TextView) promptView.findViewById(R.id.tvMemberNo);
                         final EditText etCustomerName = (EditText) promptView.findViewById(R.id.etCustomerName);
 //                    final EditText spnPostCodeCustomer = (EditText) promptView.findViewById(R.id.etPostCodeCustomer);
                         final Spinner spnPostCodeCustomer = (Spinner) promptView.findViewById(R.id.spnPostCodeCustomer);
@@ -1139,6 +1064,9 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                                                                             kecID = contentSearchResult.get(position).getTxtKecID();
                                                                             kelID = contentSearchResult.get(position).getTxtKel();
                                                                             kelurahan = contentSearchResult.get(position).getTxtKel();
+                                                                            if(!spnOpsiSearchCustomer.getSelectedItem().toString().equals(SPNMEMBERID)){
+                                                                                tvMemberNo.setText("Phone Number");
+                                                                            }
                                                                             etMemberNo.setText(keyword);
                                                                             etContactID.setText(contactID);
                                                                             etPhoneNumb.setText(phoneNumb);
@@ -1172,7 +1100,7 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                                                                             HMKel.put(kelurahan, kelurahan);
                                                                             SpinnerCustom.setAdapterSpinner(spnKelurahanCustomer, context, R.layout.custom_spinner, categoriesKelurahan);
 
-                                                                            if (contentSearchResult.get(position).getTxtProv().equals("")) {
+                                                                            if (contactID.equals("")&&province.equals("")&&kabkot.equals("")&&phoneNumb.equals("")&&kecamatan.equals("")&&kelurahan.equals("")&&postCode.equals("")) {
                                                                                 ToastCustom.showToasty(context, "Data Invalid", 2);
                                                                             } else {
                                                                                 alertD.dismiss();
@@ -1347,6 +1275,7 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                         categoriesKelurahan = new ArrayList<>();
                         SpinnerCustom.setAdapterSpinner(spnKelurahanAddOrder, context, R.layout.custom_spinner, categoriesKelurahan);
 //                    SpinnerCustom.selectedItemByText(context, spnKelurahanAddOrder, categoriesKelurahan, "");
+                        cbWalkIn.setChecked(true);
                     }
                 } else {
                     boolRestore = false;
@@ -1862,6 +1791,9 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
 
     @OnClick(R.id.btnSaveDraft)
     public void onBtnSaveDraftClicked() {
+        saveBtnSaved();
+    }
+    public void saveBtnSaved(){
         boolean saveDraftResult = false;
         try {
             final clsDraft draft = new clsDraftRepo(context).findByBitActive();
@@ -1992,7 +1924,7 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                                             String intStatus = object.getString("intStatus");
                                             String txtStatus = object.getString("txtStatus");
                                             draft.setTxtNoSO(txtNoSO);
-                                            draft.setIntStatus(Integer.parseInt(intStatus));
+                                            draft.setIntStatus(0);
                                             draft.setTxtSOStatus(txtStatus);
                                             int resultan = new clsDraftRepo(context).update(draft);
                                             if (resultan > -1) {
@@ -2011,31 +1943,10 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                                 String x = ex.getMessage();
                             }
 
-                            /*new clsProductDraftRepo(context).clearAllData();
-                            new clsDraftRepo(context).clearAllData();
-                            new clsProductDraftRepo(context).clearAllData();*/
-
                             String a = "";
                         }
                     }
                 });
-                /*new clsProductDraftRepo(context).clearAllData();
-                for (VMItems item : contentLibs) {
-                    String guiid = new Helper().GenerateGuid();
-                    clsProductDraft product = new clsProductDraft();
-                    product.setTxtDraftGUI(draft.getGuiId());
-                    product.setTxtProductDraftGUI(guiid);
-                    product.setTxtItemName(item.getItemName());
-                    product.setTxtItemCode(item.getItemCode());
-                    product.setDblItemDiscount(item.getDiscount());
-                    product.setDblPrice(item.getPrice());
-                    product.setDblNetPrice(item.getNetPrice());
-                    product.setIntQty(item.getQty());
-                    product.setDblItemTax(item.getTaxAmount());
-                    product.setDblTotalPrice(item.getTotalPrice());
-                    new clsProductDraftRepo(context).createOrUpdate(product);
-                    saveDraftResult = true;
-                }*/
             }
         } catch (SQLException e) {
             saveDraftResult = false;
@@ -2045,12 +1956,91 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
         if (saveDraftResult) {
             ToastCustom.showToasty(context, "Berhasil menyimpan draft", 1);
         }
-    }
+    };
 
     @OnClick(R.id.btnAdd)
     public void onBtnAddClicked() {
 
 
+    }
+
+    private void spinnerKecamatan(int position){
+        if (categoriesKecamatan.size() > 0) {
+            String KecName = categoriesKecamatan.get(position).toString();
+            String kecID = HMKecID.get(KecName);
+            if (!kecID.equals("0")) {
+                final JSONObject resJson = new JSONObject();
+                try {
+                    resJson.put("txtKecamatanID", KecName);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                String strLinkSpnKel = new clsHardCode().linkGetListKelurahan;
+
+                final String mRequestBody = resJson.toString();
+//                        lt.setText("Retrieving data Kelurahan...");
+                //volley untuk ambil kelurahan dan kode pos
+                new VolleyUtils().makeJsonObjectRequestWithTokenWithoutProgressD(getActivity(), strLinkSpnKel, mRequestBody, access_token, "Please Wait...", new VolleyResponseListener() {
+                    @Override
+                    public void onError(String response) {
+                        ToastCustom.showToasty(context, response, 2);
+//                                lt.hide();
+                    }
+
+                    @Override
+                    public void onResponse(String response, Boolean status, String strErrorMsg) {
+                        if (response != null) {
+                            JSONObject jsonObject = null;
+                            try {
+                                jsonObject = new JSONObject(response);
+                                int result = jsonObject.getInt("intResult");
+                                String warn = jsonObject.getString("txtMessage");
+                                if (result == 1) {
+
+                                    if (!jsonObject.getString("ListData").equals("null")) {
+                                        JSONArray jsn = jsonObject.getJSONArray("ListData");
+                                        categoriesKelurahan = new ArrayList<String>();
+                                        categoriesKelurahan.add(STRSPINNEROPT);
+                                        HMKel.put(STRSPINNEROPT, "0");
+
+                                        categoriesPostCode = new ArrayList<String>();
+                                        categoriesPostCode.add(STRSPINNEROPT);
+                                        HMKodePos.put(STRSPINNEROPT, "0");
+
+                                        for (int n = 0; n < jsn.length(); n++) {
+                                            JSONObject object = jsn.getJSONObject(n);
+                                            String txtNamaKelurahan = object.getString("txtNamaKelurahan");
+                                            String txtKodePosID = object.getString("txtKodePosID");
+                                            categoriesKelurahan.add(txtNamaKelurahan);
+                                            HMKel.put(txtNamaKelurahan, txtNamaKelurahan);
+                                            categoriesPostCode.add(txtKodePosID + "-" + txtNamaKelurahan);
+                                            HMKodePos.put(txtKodePosID + "-" + txtNamaKelurahan, txtKodePosID);
+                                        }
+
+                                        SpinnerCustom.setAdapterSpinner(spnKelurahanAddOrder, context, R.layout.custom_spinner, categoriesKelurahan);
+                                        SpinnerCustom.setAdapterSpinner(spnPostCodeAddOrder, context, R.layout.custom_spinner, categoriesPostCode);
+                                        if (draft != null) {
+                                            SpinnerCustom.selectedItemByText(context, spnKelurahanAddOrder, categoriesKelurahan, draft.getTxtKelurahan());
+                                            SpinnerCustom.selectedItemByText(context, spnPostCodeAddOrder, categoriesPostCode, draft.getTxtPostCode() + "-" + draft.getTxtKelurahan());
+                                        } else {
+                                            SpinnerCustom.selectedItemByText(context, spnKelurahanAddOrder, categoriesKelurahan, STRSPINNEROPT);
+                                            SpinnerCustom.selectedItemByText(context, spnPostCodeAddOrder, categoriesPostCode, STRSPINNEROPT);
+                                        }
+//                                                lt.success();
+                                    }
+                                }
+                            } catch (JSONException e) {
+
+                            }
+
+                        }
+                    }
+                });
+            } else {
+                SpinnerCustom.selectedItemByText(context, spnKelurahanAddOrder, categoriesKelurahan, STRSPINNEROPT);
+                SpinnerCustom.selectedItemByText(context, spnPostCodeAddOrder, categoriesPostCode, STRSPINNEROPT);
+            }
+        }
     }
 
     private void reset() {
@@ -2587,159 +2577,167 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                     }
                 });
             } else {
-                boolean saveDraftResult = false;
-                try {
-                    final clsDraft draft = new clsDraftRepo(context).findByBitActive();
-                    if (draft != null) {
-                        final String strLinkAPIi = new clsHardCode().linkSaveDataSalesOrder;
-                        final JSONObject resJsoni = new JSONObject();
-                        JSONArray jsonProducti = new Helper().writeJSONSaveData(context, draft, contentLibs);
-                        try {
-                            resJsoni.put("txtNewId", draft.getGuiId());
-                            String strNO = draft.getTxtNoSO();
-                            if (strNO.equals("Generated by system")) {
-                                resJsoni.put("txtNoSo", "");
-                            } else {
-                                resJsoni.put("txtNoSo", draft.getTxtNoSO());
-                            }
+                saveDataPreview();
+            }
 
-                            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-                            String currentDateandTime = sdf.format(new Date());
-                            resJsoni.put("dtDate", currentDateandTime);
-                            String txtDeliverSche = "";
-                            String deliverBy = "";
-                            if (draft.isBoolAttachCustomer()) {
-                                deliverBy = "1";
-                            } else {
-                                deliverBy = "0";
-                            }
-                            if (draft.getDtDeliverySche() != null) {
-                                txtDeliverSche = sdf.format(draft.getDtDeliverySche());
-                            }
-                            resJsoni.put("txtAgentName", draft.getTxtAgentName());
-                            resJsoni.put("txtPickUpLocationName", "");
-                            resJsoni.put("txtAgentName", draft.getTxtAgentName());
+        } else {
+            ToastCustom.showToasty(context, "List empty !", 4);
+        }
+    }
+    public void saveDataPreview(){
+        boolean saveDraftResult = false;
+        try {
+            final clsDraft draft = new clsDraftRepo(context).findByBitActive();
+            if (draft != null) {
+                final String strLinkAPIi = new clsHardCode().linkSaveDataSalesOrder;
+                final JSONObject resJsoni = new JSONObject();
+                JSONArray jsonProducti = new Helper().writeJSONSaveData(context, draft, contentLibs);
+                try {
+                    resJsoni.put("txtNewId", draft.getGuiId());
+                    String strNO = draft.getTxtNoSO();
+                    if (strNO.equals("Generated by system")) {
+                        resJsoni.put("txtNoSo", "");
+                    } else {
+                        resJsoni.put("txtNoSo", draft.getTxtNoSO());
+                    }
+
+                    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+                    String currentDateandTime = sdf.format(new Date());
+                    resJsoni.put("dtDate", currentDateandTime);
+                    String txtDeliverSche = "";
+                    String deliverBy = "";
+                    if (draft.isBoolAttachCustomer()) {
+                        deliverBy = "1";
+                    } else {
+                        deliverBy = "0";
+                    }
+                    if (draft.getDtDeliverySche() != null) {
+                        txtDeliverSche = sdf.format(draft.getDtDeliverySche());
+                    }
+                    resJsoni.put("txtAgentName", draft.getTxtAgentName());
+                    resJsoni.put("txtPickUpLocationName", "");
+                    resJsoni.put("txtAgentName", draft.getTxtAgentName());
 
 //                            resJsoni.put("txtSourceOrder", draft.getTxtSoSource());
 
-                            resJsoni.put("txtSourceOrder", data.getTxtSumberDataID());
-                            resJsoni.put("txtSourceOrderName", "");
-                            resJsoni.put("txtAgentName", draft.getTxtAgentName());
+                    resJsoni.put("txtSourceOrder", data.getTxtSumberDataID());
+                    resJsoni.put("txtSourceOrderName", "");
+                    resJsoni.put("txtAgentName", draft.getTxtAgentName());
 
-                            String walkin = "";
-                            if (draft.isBoolWalkin()) {
-                                walkin = "1";
-                                clsCustomerData dataDefault = new clsCustomerData();
-                                try {
-                                    dataDefault = new clsCustomerDataRepo(context).findOne();
-                                } catch (SQLException e) {
-                                    e.printStackTrace();
-                                }
-                                resJsoni.put("dtDelivery", txtDeliverSche);
-                                resJsoni.put("intWalkIn", walkin);
-                                resJsoni.put("intDeliveryBy", deliverBy);
-                                resJsoni.put("txtDeliveryBy", dataLogin.getTxtNamaInstitusi());
-                                resJsoni.put("txtCustomer", dataDefault.getTxtKontakID());
-                                resJsoni.put("txtCustomerName", dataDefault.getTxtNama());
-
-                                resJsoni.put("txtPickUpLocation", dataDefault.getTxtNamaPropinsi());
-                                resJsoni.put("txtKelurahanID", dataDefault.getTxtNamaKelurahan());
-                                resJsoni.put("txtKelurahanName", dataDefault.getTxtNamaKelurahan());
-
-                                resJsoni.put("txtPropinsiID", dataDefault.getTxtPropinsiID());
-                                resJsoni.put("txtPropinsiName", dataDefault.getTxtNamaPropinsi());
-                                resJsoni.put("txtKabKotaID", dataDefault.getTxtKabKotaID());
-                                resJsoni.put("txtKabupatenKotaName", dataDefault.getTxtNamaKabKota());
-                                resJsoni.put("txtKecamatanID", dataDefault.getTxtKecamatan());
-                                resJsoni.put("txtKecamatanName", dataDefault.getTxtKecamatan());
-                                resJsoni.put("txtKodePos", dataDefault.getTxtKodePos());
-                                resJsoni.put("txtDelivery", dataDefault.getTxtAlamat());
-                                resJsoni.put("txtRemarks", draft.getTxtRemarks());
-                                resJsoni.put("txtDeviceId", deviceInfo.getModel());
-                                resJsoni.put("txtUser", dataLogin.getNmUser());
-                                resJsoni.put("txtStatusDoc", "0");
-                                resJsoni.put("Detail", jsonProducti);
-                            } else {
-                                walkin = "0";
-                                resJsoni.put("dtDelivery", txtDeliverSche);
-                                resJsoni.put("intWalkIn", walkin);
-                                resJsoni.put("intDeliveryBy", deliverBy);
-                                resJsoni.put("txtDeliveryBy", dataLogin.getTxtNamaInstitusi());
-
-                                resJsoni.put("txtPickUpLocation", draft.getTxtProvince());
-                                resJsoni.put("txtKelurahanID", draft.getTxtKelurahanID());
-                                resJsoni.put("txtKelurahanName", draft.getTxtKelurahan());
-
-                                resJsoni.put("txtCustomer", draft.getTxtContactID());
-                                resJsoni.put("txtCustomerName", draft.getTxtCustomerName());
-                                resJsoni.put("txtPickUpLocation", draft.getTxtProvince());
-                                resJsoni.put("txtPropinsiID", String.valueOf(draft.getTxtProvinceID()));
-                                resJsoni.put("txtPropinsiName", draft.getTxtProvince());
-                                resJsoni.put("txtKabKotaID", String.valueOf(draft.getTxtKabKotID()));
-                                resJsoni.put("txtKabupatenKotaName", draft.getTxtKabKot());
-                                resJsoni.put("txtKecamatanID", String.valueOf(draft.getTxtKecamatanID()));
-                                resJsoni.put("txtKecamatanName", draft.getTxtKecamatan());
-                                resJsoni.put("txtKodePos", draft.getTxtPostCode());
-                                resJsoni.put("txtDelivery", draft.getTxtAddress());
-                                resJsoni.put("txtRemarks", draft.getTxtRemarks());
-                                resJsoni.put("txtDeviceId", deviceInfo.getModel());
-                                resJsoni.put("txtUser", dataLogin.getNmUser());
-                                resJsoni.put("txtStatusDoc", "0");
-                                resJsoni.put("Detail", jsonProducti);
-                            }
-
-                        } catch (JSONException e) {
+                    String walkin = "";
+                    if (draft.isBoolWalkin()) {
+                        walkin = "1";
+                        clsCustomerData dataDefault = new clsCustomerData();
+                        try {
+                            dataDefault = new clsCustomerDataRepo(context).findOne();
+                        } catch (SQLException e) {
                             e.printStackTrace();
                         }
-                        final String mRequestBodyi = resJsoni.toString();
-                        new VolleyUtils().makeJsonObjectRequestWithToken(getActivity(), strLinkAPIi, mRequestBodyi, access_token, "Please Wait...", new VolleyResponseListener() {
-                            @Override
-                            public void onError(String response) {
-                                ToastCustom.showToasty(context, response, 2);
-                            }
+                        resJsoni.put("dtDelivery", txtDeliverSche);
+                        resJsoni.put("intWalkIn", walkin);
+                        resJsoni.put("intDeliveryBy", deliverBy);
+                        resJsoni.put("txtDeliveryBy", dataLogin.getTxtNamaInstitusi());
+                        resJsoni.put("txtCustomer", dataDefault.getTxtKontakID());
+                        resJsoni.put("txtCustomerName", dataDefault.getTxtNama());
 
-                            @Override
-                            public void onResponse(String response, Boolean status, String strErrorMsg) {
-                                if (response != null) {
+                        resJsoni.put("txtPickUpLocation", dataDefault.getTxtNamaPropinsi());
+                        resJsoni.put("txtKelurahanID", dataDefault.getTxtNamaKelurahan());
+                        resJsoni.put("txtKelurahanName", dataDefault.getTxtNamaKelurahan());
 
-                                    JSONObject jsonObject = null;
-                                    try {
-                                        jsonObject = new JSONObject(response);
-                                        int result = jsonObject.getInt("intResult");
-                                        String warn = jsonObject.getString("txtMessage");
-                                        if (result == 1) {
-                                            if (!jsonObject.getString("ListData").equals("null")) {
-                                                JSONArray jsn = jsonObject.getJSONArray("ListData");
-                                                for (int n = 0; n < jsn.length(); n++) {
-                                                    JSONObject object = jsn.getJSONObject(n);
-                                                    String txtNoSO = object.getString("txtNoSO");
-                                                    String intStatus = object.getString("intStatus");
-                                                    String txtStatus = object.getString("txtStatus");
-                                                    draft.setTxtNoSO(txtNoSO);
-                                                    draft.setIntStatus(0);
-                                                    draft.setTxtSOStatus(txtStatus);
-                                                    int resultan = new clsDraftRepo(context).createOrUpdate(draft);
-                                                    if (resultan > -1) {
-                                                        Log.d("Update", "Berhasil");
-                                                        ToastCustom.showToasty(context, "Save done", 1);
-                                                        btnPreview.performClick();
-                                                    } else {
-                                                        ToastCustom.showToasty(context, "failed to save", 2);
-                                                    }
-                                                }
+                        resJsoni.put("txtPropinsiID", dataDefault.getTxtPropinsiID());
+                        resJsoni.put("txtPropinsiName", dataDefault.getTxtNamaPropinsi());
+                        resJsoni.put("txtKabKotaID", dataDefault.getTxtKabKotaID());
+                        resJsoni.put("txtKabupatenKotaName", dataDefault.getTxtNamaKabKota());
+                        resJsoni.put("txtKecamatanID", dataDefault.getTxtKecamatan());
+                        resJsoni.put("txtKecamatanName", dataDefault.getTxtKecamatan());
+                        resJsoni.put("txtKodePos", dataDefault.getTxtKodePos());
+                        resJsoni.put("txtDelivery", dataDefault.getTxtAlamat());
+                        resJsoni.put("txtRemarks", draft.getTxtRemarks());
+                        resJsoni.put("txtDeviceId", deviceInfo.getModel());
+                        resJsoni.put("txtUser", dataLogin.getNmUser());
+                        resJsoni.put("txtStatusDoc", "0");
+                        resJsoni.put("Detail", jsonProducti);
+                    } else {
+                        walkin = "0";
+                        resJsoni.put("dtDelivery", txtDeliverSche);
+                        resJsoni.put("intWalkIn", walkin);
+                        resJsoni.put("intDeliveryBy", deliverBy);
+                        resJsoni.put("txtDeliveryBy", dataLogin.getTxtNamaInstitusi());
+
+                        resJsoni.put("txtPickUpLocation", draft.getTxtProvince());
+                        resJsoni.put("txtKelurahanID", draft.getTxtKelurahanID());
+                        resJsoni.put("txtKelurahanName", draft.getTxtKelurahan());
+
+                        resJsoni.put("txtCustomer", draft.getTxtContactID());
+                        resJsoni.put("txtCustomerName", draft.getTxtCustomerName());
+                        resJsoni.put("txtPickUpLocation", draft.getTxtProvince());
+                        resJsoni.put("txtPropinsiID", String.valueOf(draft.getTxtProvinceID()));
+                        resJsoni.put("txtPropinsiName", draft.getTxtProvince());
+                        resJsoni.put("txtKabKotaID", String.valueOf(draft.getTxtKabKotID()));
+                        resJsoni.put("txtKabupatenKotaName", draft.getTxtKabKot());
+                        resJsoni.put("txtKecamatanID", String.valueOf(draft.getTxtKecamatanID()));
+                        resJsoni.put("txtKecamatanName", draft.getTxtKecamatan());
+                        resJsoni.put("txtKodePos", draft.getTxtPostCode());
+                        resJsoni.put("txtDelivery", draft.getTxtAddress());
+                        resJsoni.put("txtRemarks", draft.getTxtRemarks());
+                        resJsoni.put("txtDeviceId", deviceInfo.getModel());
+                        resJsoni.put("txtUser", dataLogin.getNmUser());
+                        resJsoni.put("txtStatusDoc", "0");
+                        resJsoni.put("Detail", jsonProducti);
+                    }
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                final String mRequestBodyi = resJsoni.toString();
+                new VolleyUtils().makeJsonObjectRequestWithToken(getActivity(), strLinkAPIi, mRequestBodyi, access_token, "Please Wait...", new VolleyResponseListener() {
+                    @Override
+                    public void onError(String response) {
+                        ToastCustom.showToasty(context, response, 2);
+                    }
+
+                    @Override
+                    public void onResponse(String response, Boolean status, String strErrorMsg) {
+                        if (response != null) {
+
+                            JSONObject jsonObject = null;
+                            try {
+                                jsonObject = new JSONObject(response);
+                                int result = jsonObject.getInt("intResult");
+                                String warn = jsonObject.getString("txtMessage");
+                                if (result == 1) {
+                                    if (!jsonObject.getString("ListData").equals("null")) {
+                                        JSONArray jsn = jsonObject.getJSONArray("ListData");
+                                        for (int n = 0; n < jsn.length(); n++) {
+                                            JSONObject object = jsn.getJSONObject(n);
+                                            String txtNoSO = object.getString("txtNoSO");
+                                            String intStatus = object.getString("intStatus");
+                                            String txtStatus = object.getString("txtStatus");
+                                            draft.setTxtNoSO(txtNoSO);
+                                            draft.setIntStatus(0);
+                                            draft.setTxtSOStatus(txtStatus);
+                                            int resultan = new clsDraftRepo(context).createOrUpdate(draft);
+                                            if (resultan > -1) {
+                                                Log.d("Update", "Berhasil");
+                                                ToastCustom.showToasty(context, "Save done", 1);
+                                                btnPreview.performClick();
+                                            } else {
+                                                ToastCustom.showToasty(context, "failed to save", 2);
                                             }
-                                        } else {
-                                            ToastCustom.showToasty(context, warn, 2);
-
                                         }
-                                    } catch (JSONException ex) {
-                                        String x = ex.getMessage();
                                     }
+                                } else {
+                                    ToastCustom.showToasty(context, warn, 2);
 
-                                    String a = "";
                                 }
+                            } catch (JSONException ex) {
+                                String x = ex.getMessage();
                             }
-                        });
+
+                            String a = "";
+                        }
+                    }
+                });
                 /*new clsProductDraftRepo(context).clearAllData();
                 for (VMItems item : contentLibs) {
                     String guiid = new Helper().GenerateGuid();
@@ -2757,21 +2755,15 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                     new clsProductDraftRepo(context).createOrUpdate(product);
                     saveDraftResult = true;
                 }*/
-                    }
-                } catch (SQLException e) {
-                    saveDraftResult = false;
-                    e.printStackTrace();
-                    ToastCustom.showToasty(context, "Failed" + e.getMessage(), 2);
-                }
-                if (saveDraftResult) {
-                    ToastCustom.showToasty(context, "Berhasil menyimpan draft", 1);
-
-                }
-
             }
+        } catch (SQLException e) {
+            saveDraftResult = false;
+            e.printStackTrace();
+            ToastCustom.showToasty(context, "Failed" + e.getMessage(), 2);
+        }
+        if (saveDraftResult) {
+            ToastCustom.showToasty(context, "Berhasil menyimpan draft", 1);
 
-        } else {
-            ToastCustom.showToasty(context, "List empty !", 4);
         }
     }
 
