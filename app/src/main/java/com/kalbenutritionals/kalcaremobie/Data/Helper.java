@@ -137,7 +137,7 @@ public class Helper {
                 jsnItem.put("bitPromo","1");
                 jsnItem.put("intCampaignID","3");
                 jsnItem.put("txtProductCategory",item.getProductCategory());
-                jsnItem.put("txtDataId",draft.getGuiId());
+                jsnItem.put("txtDataId",item.getGuiid());
                 jsnItem.put("ProductCode",item.getItemCode());
                 jsnItem.put("ProductName",item.getItemName());
             } catch (JSONException e) {
