@@ -2230,6 +2230,7 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                                         final TextView etContactIDPrev = (TextView) promptView.findViewById(R.id.etContactIDPrev);
                                         final TextView etMemberNoPrev = (TextView) promptView.findViewById(R.id.etMemberNoPrev);
                                         final TextView tvPostCodeCustomerPrev = (TextView) promptView.findViewById(R.id.tvPostCodeCustomerPrev);
+                                        final TextView tvAddressCustomerPrev = (TextView) promptView.findViewById(R.id.tvAddressCustomerPrev);
                                         final TextView tvProvinceCustomerPrev = (TextView) promptView.findViewById(R.id.tvProvinceCustomerPrev);
                                         final TextView tvCityCustomerPrev = (TextView) promptView.findViewById(R.id.tvCityCustomerPrev);
                                         final TextView tvRegionCustomerPrev = (TextView) promptView.findViewById(R.id.tvRegionCustomerPrev);
@@ -2316,6 +2317,7 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                                             tvCityCustomerPrev.setText(spnKabKotAddOrder.getSelectedItem().toString());
                                             tvRegionCustomerPrev.setText(spnKecamatanAddOrder.getSelectedItem().toString());
                                             tvPostCodeCustomerPrev.setText(spnPostCodeAddOrder.getSelectedItem().toString());
+                                            tvAddressCustomerPrev.setText(etAddress.getText().toString());
                                             lnAttacedCust.setVisibility(View.VISIBLE);
                                             tvCustomerPrev.setOnClickListener(new View.OnClickListener() {
                                                 @Override
@@ -2328,6 +2330,7 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                                                     tvCityCustomerPrev.setText(spnKabKotAddOrder.getSelectedItem().toString());
                                                     tvRegionCustomerPrev.setText(spnKecamatanAddOrder.getSelectedItem().toString());
                                                     tvPostCodeCustomerPrev.setText(spnPostCodeAddOrder.getSelectedItem().toString());
+                                                    tvAddressCustomerPrev.setText(etAddress.getText().toString());
                                                 }
                                             });
 
@@ -2351,7 +2354,7 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                                         rvPreview.setItemAnimator(new DefaultItemAnimator());
                                         mAdapterItemPreview = new RVPreviewAdapter(context, contentLibsPreviewItem, Color.WHITE);
                                         rvPreview.setAdapter(mAdapterItemPreview);
-//                                        setListViewHeightBasedOnItems(lvPreview);
+                                        setListViewHeightBasedOnItems(lvPreview);
                                         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
                                         alertDialogBuilder.setView(promptView);
                                         alertDialogBuilder
