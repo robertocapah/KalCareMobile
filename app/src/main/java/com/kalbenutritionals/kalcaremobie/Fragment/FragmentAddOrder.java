@@ -14,6 +14,7 @@ import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -58,6 +59,7 @@ import com.kalbenutritionals.kalcaremobie.Data.adapter.ListViewCustom;
 import com.kalbenutritionals.kalcaremobie.Data.adapter.RVParentAdapter;
 import com.kalbenutritionals.kalcaremobie.Data.adapter.RVPreviewAdapter;
 import com.kalbenutritionals.kalcaremobie.Data.clsHardCode;
+import com.kalbenutritionals.kalcaremobie.DrawableClickListener;
 import com.kalbenutritionals.kalcaremobie.R;
 import com.kalbenutritionals.kalcaremobie.Repo.clsCustomerDataRepo;
 import com.kalbenutritionals.kalcaremobie.Repo.clsDraftRepo;
@@ -260,12 +262,32 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
     //    LoadToast lt = null;
     final static String STRSPINNEROPT = "--Choose one--"; // buat default spinner
 
+    String provinceCustomer = "";
+    String kabKotCustomer = "";
+    String kecamatanCustomer = "";
+    String kelurahanCustomer = "";
+    String postCodeCustomer = "";
+    ListView lvSearchResult;
+
+    String mRequestBodyCheckout = "";
+    String strLinkAPICheckout = "";
+    //pop up search item
+    EditText etQtySearch;
+    EditText etSearchOnPopUp;
+    EditText etDiscount;
+    EditText etPrice;
+    EditText etBonusPoint;
+    EditText etBasedPoint;
+
+    List<VMItems> contentSearchResult = new ArrayList<VMItems>();
+
     @Nullable
     @Override
     public View onCreateView(final LayoutInflater inflater, @Nullable final ViewGroup container, Bundle savedInstanceState) {
         v = inflater.inflate(R.layout.fragment_add_order, container, false);
         context = getActivity().getApplicationContext();
         unbinder = ButterKnife.bind(this, v);
+        addDefaultSpinnerAlamat();
         try {
             List<clsToken> dataToken = new clsTokenRepo(context).findAll();
 
@@ -304,6 +326,7 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                 etNoSo.setText(draft.getTxtNoSO());
             }
             if (!draft.isBoolWalkin()) {
+                getDataProvinsi();
                 String txtPropinsiID = draft.getTxtProvinceID();
                 String txtPropinsiName = draft.getTxtProvince();
                 String txtKabupatenKotaID = draft.getTxtKabKotID();
@@ -362,55 +385,7 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                 etDeliverySchedule.setText(txtDeliverSche);
             }
             if (draft.isBoolAttachCustomer()) {
-                final JSONObject resJson = new JSONObject();
-                try {
-                    resJson.put("txtPropinsiID", "");
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-                String strLinkProvince = new clsHardCode().linkGetListPropinsi;
-
-                final String mRequestBody = resJson.toString();
-                new VolleyUtils().makeJsonObjectRequestWithToken(getActivity(), strLinkProvince, mRequestBody, access_token, "Please Wait...", new VolleyResponseListener() {
-                    @Override
-                    public void onError(String response) {
-                        ToastCustom.showToasty(context, response, 2);
-                    }
-
-                    @Override
-                    public void onResponse(String response, Boolean status, String strErrorMsg) {
-                        if (response != null) {
-                            JSONObject jsonObject = null;
-                            try {
-                                jsonObject = new JSONObject(response);
-                                int result = jsonObject.getInt("intResult");
-                                String warn = jsonObject.getString("txtMessage");
-                                if (result == 1) {
-
-                                    if (!jsonObject.getString("ListData").equals("null")) {
-                                        JSONArray jsn = jsonObject.getJSONArray("ListData");
-
-                                        for (int n = 0; n < jsn.length(); n++) {
-                                            JSONObject object = jsn.getJSONObject(n);
-                                            String ltxKeterangan = object.getString("ltxKeterangan");
-                                            String txtNamaPropinsi = object.getString("txtNamaPropinsi");
-                                            String txtPropinsiID = object.getString("txtPropinsiID");
-                                            String txtNegaraID = object.getString("txtNegaraID");
-                                            categoriesProv.add(txtNamaPropinsi);
-                                            HMProvinceID.put(txtNamaPropinsi, txtPropinsiID);
-
-                                        }
-                                        SpinnerCustom.setAdapterSpinner(spnProvinceAddOrder, context, R.layout.custom_spinner, categoriesProv);
-                                        SpinnerCustom.selectedItemByText(context, spnProvinceAddOrder, categoriesProv, draft.getTxtProvince());
-                                    }
-                                }
-                            } catch (JSONException e) {
-
-                            }
-
-                        }
-                    }
-                });
+                getDataProvinsi();
 
                 lnCustomerDetail.setVisibility(View.VISIBLE);
                 cbAttach.setChecked(true);
@@ -544,13 +519,6 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                                                                                     categoriesKecamatan.add(txtNamaKecamatan);
                                                                                     HMKecID.put(txtNamaKecamatan, txtKecamatanID);
                                                                                 }
-                                                                                if (!boolAttachCustomer) {
-                                                                                    SpinnerCustom.setAdapterSpinner(spnKecamatanAddOrder, context, R.layout.custom_spinner, categoriesKecamatan);
-                                                                                } else {
-                                                                                    boolAttachCustomer = false;
-                                                                                }
-
-
                                                                                 spnKecamatanAddOrder.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                                                                                     @Override
                                                                                     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
@@ -562,14 +530,23 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
 
                                                                                     }
                                                                                 });
+                                                                                if (!boolAttachCustomer) {
+                                                                                    SpinnerCustom.setAdapterSpinner(spnKecamatanAddOrder, context, R.layout.custom_spinner, categoriesKecamatan);
+                                                                                } else {
+//                                                                                    boolAttachCustomer = false;
+                                                                                    SpinnerCustom.setAdapterSpinner(spnKecamatanAddOrder, context, R.layout.custom_spinner, categoriesKecamatan);
+                                                                                    SpinnerCustom.selectedItemByText(context, spnKecamatanAddOrder, categoriesKecamatan, kecamatanCustomer);
+                                                                                }
+
+
                                                                                 if (draft != null) {
                                                                                     SpinnerCustom.selectedItemByText(context, spnKecamatanAddOrder, categoriesKecamatan, draft.getTxtKecamatan());
                                                                                 } else {
-                                                                                    SpinnerCustom.selectedItemByText(context, spnKecamatanAddOrder, categoriesKecamatan, STRSPINNEROPT);
-                                                                                    categoriesKelurahan.add(STRSPINNEROPT);
-                                                                                    SpinnerCustom.selectedItemByText(context, spnKecamatanAddOrder, categoriesKelurahan, STRSPINNEROPT);
-                                                                                    categoriesPostCode.add(STRSPINNEROPT);
-                                                                                    SpinnerCustom.selectedItemByText(context, spnPostCodeAddOrder, categoriesPostCode, STRSPINNEROPT);
+//                                                                                    SpinnerCustom.selectedItemByText(context, spnKecamatanAddOrder, categoriesKecamatan, STRSPINNEROPT);
+//                                                                                    categoriesKelurahan.add(STRSPINNEROPT);
+//                                                                                    SpinnerCustom.selectedItemByText(context, spnKecamatanAddOrder, categoriesKelurahan, STRSPINNEROPT);
+//                                                                                    categoriesPostCode.add(STRSPINNEROPT);
+//                                                                                    SpinnerCustom.selectedItemByText(context, spnPostCodeAddOrder, categoriesPostCode, STRSPINNEROPT);
                                                                                 }
 
                                                                             }
@@ -582,20 +559,18 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                                                             }
                                                         });
                                                     } else {
-                                                        categoriesKecamatan.add(STRSPINNEROPT);
+                                                        categoriesKecamatan = new ArrayList<>();
+                                                        categoriesPostCode = new ArrayList<>();
+                                                        categoriesKelurahan = new ArrayList<>();
+                                                        addDefaultSpinnerAlamat();
                                                         SpinnerCustom.setAdapterSpinner(spnKecamatanAddOrder, context, R.layout.custom_spinner, categoriesKecamatan);
                                                         SpinnerCustom.selectedItemByText(context, spnKecamatanAddOrder, categoriesKecamatan, STRSPINNEROPT);
 
-                                                        SpinnerCustom.selectedItemByText(context, spnKelurahanAddOrder, categoriesPostCode, STRSPINNEROPT);
-                                                        SpinnerCustom.selectedItemByText(context, spnPostCodeAddOrder, categoriesPostCode, STRSPINNEROPT);
-
-                                                        categoriesKelurahan.add(STRSPINNEROPT);
-                                                        HMKel.put(STRSPINNEROPT, "0");
                                                         SpinnerCustom.setAdapterSpinner(spnKelurahanAddOrder, context, R.layout.custom_spinner, categoriesKelurahan);
                                                         SpinnerCustom.selectedItemByText(context, spnKelurahanAddOrder, categoriesKelurahan, STRSPINNEROPT);
 
-                                                        categoriesPostCode.add(STRSPINNEROPT);
-                                                        HMKodePos.put(STRSPINNEROPT, "0");
+//                                                        categoriesPostCode.add(STRSPINNEROPT);
+//                                                        HMKodePos.put(STRSPINNEROPT, "0");
                                                         SpinnerCustom.setAdapterSpinner(spnPostCodeAddOrder, context, R.layout.custom_spinner, categoriesPostCode);
                                                         SpinnerCustom.selectedItemByText(context, spnPostCodeAddOrder, categoriesPostCode, STRSPINNEROPT);
                                                     }
@@ -610,24 +585,25 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                                         });
                                         if (!boolAttachCustomer) {
                                             SpinnerCustom.setAdapterSpinner(spnKabKotAddOrder, context, R.layout.custom_spinner, categoriesKabKot);
-                                            categoriesKecamatan.add(STRSPINNEROPT);
-                                            HMKecID.put(STRSPINNEROPT, "0");
+//                                            categoriesKecamatan.add(STRSPINNEROPT);
+//                                            HMKecID.put(STRSPINNEROPT, "0");
                                             SpinnerCustom.setAdapterSpinner(spnKecamatanAddOrder, context, R.layout.custom_spinner, categoriesKecamatan);
                                             SpinnerCustom.selectedItemByText(context, spnKecamatanAddOrder, categoriesKecamatan, STRSPINNEROPT);
 
-                                            categoriesKelurahan.add(STRSPINNEROPT);
-                                            HMKel.put(STRSPINNEROPT, "0");
+//                                            categoriesKelurahan.add(STRSPINNEROPT);
+//                                            HMKel.put(STRSPINNEROPT, "0");
                                             SpinnerCustom.setAdapterSpinner(spnKelurahanAddOrder, context, R.layout.custom_spinner, categoriesKelurahan);
                                             SpinnerCustom.selectedItemByText(context, spnKelurahanAddOrder, categoriesKelurahan, STRSPINNEROPT);
 
-                                            categoriesPostCode.add(STRSPINNEROPT);
-                                            HMKodePos.put(STRSPINNEROPT, "0");
+//                                            categoriesPostCode.add(STRSPINNEROPT);
+//                                            HMKodePos.put(STRSPINNEROPT, "0");
                                             SpinnerCustom.setAdapterSpinner(spnPostCodeAddOrder, context, R.layout.custom_spinner, categoriesPostCode);
                                             SpinnerCustom.selectedItemByText(context, spnPostCodeAddOrder, categoriesPostCode, STRSPINNEROPT);
 
                                         } else {
 //                                            boolAttachCustomer = false;
-                                            SpinnerCustom.selectedItemByText(context, spnKabKotAddOrder, categoriesKabKot, STRSPINNEROPT);
+                                            SpinnerCustom.setAdapterSpinner(spnKabKotAddOrder, context, R.layout.custom_spinner, categoriesKabKot);
+                                            SpinnerCustom.selectedItemByText(context, spnKabKotAddOrder, categoriesKabKot, kabKotCustomer);
 
                                         }
 
@@ -635,7 +611,7 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                                         if (draft != null && draft.getTxtKabKot() != null) {
                                             SpinnerCustom.selectedItemByText(context, spnKabKotAddOrder, categoriesKabKot, draft.getTxtKabKot());
                                         } else {
-                                            SpinnerCustom.selectedItemByText(context, spnKabKotAddOrder, categoriesKabKot, STRSPINNEROPT);
+//                                            SpinnerCustom.selectedItemByText(context, spnKabKotAddOrder, categoriesKabKot, STRSPINNEROPT);
                                         }
 
                                     }
@@ -747,7 +723,7 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
             etAgentName.setText(data.getNmUser());
             etSOSource.setText(data.getTxtNamaInstitusi());
             etOrderLocation.setText(data.getTxtNamaInstitusi());
-            HMOutletCode.put(data.getTxtNamaInstitusi(),data.getTxtSumberDataID());
+            HMOutletCode.put(data.getTxtNamaInstitusi(), data.getTxtSumberDataID());
             SimpleDateFormat sdf = new SimpleDateFormat("dd MMM yyyy");
             String date = sdf.format(dtLoginData);
             etDate.setText(date);
@@ -1064,7 +1040,7 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                                                                             kecID = contentSearchResult.get(position).getTxtKecID();
                                                                             kelID = contentSearchResult.get(position).getTxtKel();
                                                                             kelurahan = contentSearchResult.get(position).getTxtKel();
-                                                                            if(!spnOpsiSearchCustomer.getSelectedItem().toString().equals(SPNMEMBERID)){
+                                                                            if (!spnOpsiSearchCustomer.getSelectedItem().toString().equals(SPNMEMBERID)) {
                                                                                 tvMemberNo.setText("Phone Number");
                                                                             }
                                                                             etMemberNo.setText(keyword);
@@ -1100,7 +1076,7 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                                                                             HMKel.put(kelurahan, kelurahan);
                                                                             SpinnerCustom.setAdapterSpinner(spnKelurahanCustomer, context, R.layout.custom_spinner, categoriesKelurahan);
 
-                                                                            if (contactID.equals("")&&province.equals("")&&kabkot.equals("")&&phoneNumb.equals("")&&kecamatan.equals("")&&kelurahan.equals("")&&postCode.equals("")) {
+                                                                            if (contactID.equals("") && province.equals("") && kabkot.equals("") && phoneNumb.equals("") && kecamatan.equals("") && kelurahan.equals("") && postCode.equals("")) {
                                                                                 ToastCustom.showToasty(context, "Data Invalid", 2);
                                                                             } else {
                                                                                 alertD.dismiss();
@@ -1167,7 +1143,7 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                                     e.printStackTrace();
                                 }
                                 String strLinkProvince = new clsHardCode().linkGetListPropinsi;
-
+//getDataProvinsi();
                                 final String mRequestBody = resJson.toString();
                                 new VolleyUtils().makeJsonObjectRequestWithToken(getActivity(), strLinkProvince, mRequestBody, access_token, "Please Wait...", new VolleyResponseListener() {
                                     @Override
@@ -1206,32 +1182,32 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                                                         tvCustomerNameHeader.setText(etCustomerName.getText().toString());
                                                         tvPhoneNumb.setText(etPhoneNumb.getText().toString());
 
-                                                        String province = spnProvinceCustomer.getSelectedItem().toString();
-                                                        String kabKot = spnKabKotCustomer.getSelectedItem().toString();
-                                                        String kecamatan = spnKecamatanCustomer.getSelectedItem().toString();
-                                                        String kelurahan = spnKelurahanCustomer.getSelectedItem().toString();
-                                                        String postCode = spnPostCodeCustomer.getSelectedItem().toString();
+                                                        provinceCustomer = spnProvinceCustomer.getSelectedItem().toString();
+                                                        kabKotCustomer = spnKabKotCustomer.getSelectedItem().toString();
+                                                        kecamatanCustomer = spnKecamatanCustomer.getSelectedItem().toString();
+                                                        kelurahanCustomer = spnKelurahanCustomer.getSelectedItem().toString();
+                                                        postCodeCustomer = spnPostCodeCustomer.getSelectedItem().toString();
 
 
-                                                        categoriesPostCode.add(postCode);
+                                                        categoriesPostCode.add(postCodeCustomer);
                                                         SpinnerCustom.setAdapterSpinner(spnPostCodeAddOrder, context, R.layout.custom_spinner, categoriesPostCode);
-                                                        SpinnerCustom.selectedItemByText(context, spnPostCodeAddOrder, categoriesPostCode, postCode);
+                                                        SpinnerCustom.selectedItemByText(context, spnPostCodeAddOrder, categoriesPostCode, postCodeCustomer);
 
 
                                                         SpinnerCustom.setAdapterSpinner(spnProvinceAddOrder, context, R.layout.custom_spinner, categoriesProv);
-                                                        SpinnerCustom.selectedItemByText(context, spnProvinceAddOrder, categoriesProv, province);
+                                                        SpinnerCustom.selectedItemByText(context, spnProvinceAddOrder, categoriesProv, provinceCustomer);
 
-                                                        categoriesKabKot.add(kabKot);
+                                                        categoriesKabKot.add(kabKotCustomer);
                                                         SpinnerCustom.setAdapterSpinner(spnKabKotAddOrder, context, R.layout.custom_spinner, categoriesKabKot);
-                                                        SpinnerCustom.selectedItemByText(context, spnKabKotAddOrder, categoriesKabKot, kabKot);
+                                                        SpinnerCustom.selectedItemByText(context, spnKabKotAddOrder, categoriesKabKot, kabKotCustomer);
 
-                                                        categoriesKecamatan.add(kecamatan);
+                                                        categoriesKecamatan.add(kecamatanCustomer);
                                                         SpinnerCustom.setAdapterSpinner(spnKecamatanAddOrder, context, R.layout.custom_spinner, categoriesKecamatan);
-                                                        SpinnerCustom.selectedItemByText(context, spnKecamatanAddOrder, categoriesKecamatan, kecamatan);
+                                                        SpinnerCustom.selectedItemByText(context, spnKecamatanAddOrder, categoriesKecamatan, kecamatanCustomer);
 
-                                                        categoriesKelurahan.add(kelurahan);
+                                                        categoriesKelurahan.add(kelurahanCustomer);
                                                         SpinnerCustom.setAdapterSpinner(spnKelurahanAddOrder, context, R.layout.custom_spinner, categoriesKelurahan);
-                                                        SpinnerCustom.selectedItemByText(context, spnKelurahanAddOrder, categoriesKelurahan, kelurahan);
+                                                        SpinnerCustom.selectedItemByText(context, spnKelurahanAddOrder, categoriesKelurahan, kelurahanCustomer);
 
                                                         alertD.dismiss();
                                                         lnCustomerDetail.setVisibility(View.VISIBLE);
@@ -1256,23 +1232,23 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                         tvCustomerNameHeader.setText("");
                         tvPhoneNumb.setText("");
                         categoriesPostCode.add("");
-                        categoriesPostCode = new ArrayList<>();
+//                        categoriesPostCode = new ArrayList<>();
                         SpinnerCustom.setAdapterSpinner(spnPostCodeAddOrder, context, R.layout.custom_spinner, categoriesPostCode);
 //                    SpinnerCustom.selectedItemByText(context, spnPostCodeAddOrder, categoriesPostCode, "");
 
-                        categoriesProv = new ArrayList<>();
+//                        categoriesProv = new ArrayList<>();
                         SpinnerCustom.setAdapterSpinner(spnProvinceAddOrder, context, R.layout.custom_spinner, categoriesProv);
 //                    SpinnerCustom.selectedItemByText(context, spnProvinceAddOrder, categoriesProv, "");
 
-                        categoriesKabKot = new ArrayList<>();
+//                        categoriesKabKot = new ArrayList<>();
                         SpinnerCustom.setAdapterSpinner(spnKabKotAddOrder, context, R.layout.custom_spinner, categoriesKabKot);
 //                    SpinnerCustom.selectedItemByText(context, spnKabKotAddOrder, categoriesKabKot, "");
 
-                        categoriesKecamatan = new ArrayList<>();
+//                        categoriesKecamatan = new ArrayList<>();
                         SpinnerCustom.setAdapterSpinner(spnKecamatanAddOrder, context, R.layout.custom_spinner, categoriesKecamatan);
 //                    SpinnerCustom.selectedItemByText(context, spnKecamatanAddOrder, categoriesKecamatan, "");
 
-                        categoriesKelurahan = new ArrayList<>();
+//                        categoriesKelurahan = new ArrayList<>();
                         SpinnerCustom.setAdapterSpinner(spnKelurahanAddOrder, context, R.layout.custom_spinner, categoriesKelurahan);
 //                    SpinnerCustom.selectedItemByText(context, spnKelurahanAddOrder, categoriesKelurahan, "");
                         cbWalkIn.setChecked(true);
@@ -1316,6 +1292,58 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
             lnCustomerDetail.setVisibility(View.GONE);
         }
         return v;
+    }
+
+    private void getDataProvinsi() {
+        final JSONObject resJson = new JSONObject();
+        try {
+            resJson.put("txtPropinsiID", "");
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        String strLinkProvince = new clsHardCode().linkGetListPropinsi;
+
+        final String mRequestBody = resJson.toString();
+        new VolleyUtils().makeJsonObjectRequestWithToken(getActivity(), strLinkProvince, mRequestBody, access_token, "Please Wait...", new VolleyResponseListener() {
+            @Override
+            public void onError(String response) {
+                ToastCustom.showToasty(context, response, 2);
+            }
+
+            @Override
+            public void onResponse(String response, Boolean status, String strErrorMsg) {
+                if (response != null) {
+                    JSONObject jsonObject = null;
+                    try {
+                        jsonObject = new JSONObject(response);
+                        int result = jsonObject.getInt("intResult");
+                        String warn = jsonObject.getString("txtMessage");
+                        if (result == 1) {
+
+                            if (!jsonObject.getString("ListData").equals("null")) {
+                                JSONArray jsn = jsonObject.getJSONArray("ListData");
+
+                                for (int n = 0; n < jsn.length(); n++) {
+                                    JSONObject object = jsn.getJSONObject(n);
+                                    String ltxKeterangan = object.getString("ltxKeterangan");
+                                    String txtNamaPropinsi = object.getString("txtNamaPropinsi");
+                                    String txtPropinsiID = object.getString("txtPropinsiID");
+                                    String txtNegaraID = object.getString("txtNegaraID");
+                                    categoriesProv.add(txtNamaPropinsi);
+                                    HMProvinceID.put(txtNamaPropinsi, txtPropinsiID);
+
+                                }
+                                SpinnerCustom.setAdapterSpinner(spnProvinceAddOrder, context, R.layout.custom_spinner, categoriesProv);
+                                SpinnerCustom.selectedItemByText(context, spnProvinceAddOrder, categoriesProv, draft.getTxtProvince());
+                            }
+                        }
+                    } catch (JSONException e) {
+
+                    }
+
+                }
+            }
+        });
     }
 
     @Override
@@ -1382,12 +1410,13 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
 
                                             item = new VMItems(promptView);
                                             item.setGuiid(new Helper().GenerateGuid());
-                                            item.setItemName(txtBrand);
-                                            item.setPrice(80000);
+                                            item.setItemName(txtProductDesc);
+//                                            item.setPrice(80000);
                                             item.setItemGroup(txtGroupProduct);
                                             item.setBarcode(txtProductBarcode);
                                             item.setItemCode(txtProductCode);
                                             item.setDesc(txtProductDesc);
+                                            item.setItemBrand(txtBrand);
 
                                             contentSearchResult.add(item);
 
@@ -1495,6 +1524,7 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                                                         VMItems itemResult = new VMItems(promptView);
                                                         int position = lvSearchResult.getCheckedItemPosition();
                                                         String itemNameAdd = contentSearchResult.get(position).getItemName();
+                                                        String itemBrandAdd = contentSearchResult.get(position).getItemBrand();
                                                         String itemCodeAdd = contentSearchResult.get(position).getItemCode();
                                                         String txtPrice = etPrice.getText().toString();
                                                         double itemPriceSearch = 0;
@@ -1523,6 +1553,7 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
 
                                                         VMItems item = new VMItems(promptView);
                                                         item.setItemName(itemNameAdd);
+                                                        item.setItemBrand(itemBrandAdd);
                                                         item.setItemCode(itemCodeAdd);
                                                         item.setProductCategory(HMtxtProductCategory.get(itemCodeAdd));
                                                         item.setPrice(itemPriceSearch);
@@ -1760,6 +1791,7 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                 for (clsProductDraft productDraft : itemsDraft) {
                     VMItems item = new VMItems(getView());
                     item.setItemName(productDraft.getTxtItemName());
+                    item.setItemBrand(productDraft.getTxtItemBrand());
                     item.setItemCode(productDraft.getTxtItemCode());
                     item.setProductCategory(productDraft.getTxtProductCategory());
                     item.setGuiid(productDraft.getTxtProductDraftGUI());
@@ -1793,7 +1825,8 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
     public void onBtnSaveDraftClicked() {
         saveBtnSaved();
     }
-    public void saveBtnSaved(){
+
+    public void saveBtnSaved() {
         boolean saveDraftResult = false;
         try {
             final clsDraft draft = new clsDraftRepo(context).findByBitActive();
@@ -1956,7 +1989,9 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
         if (saveDraftResult) {
             ToastCustom.showToasty(context, "Berhasil menyimpan draft", 1);
         }
-    };
+    }
+
+    ;
 
     @OnClick(R.id.btnAdd)
     public void onBtnAddClicked() {
@@ -1964,7 +1999,7 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
 
     }
 
-    private void spinnerKecamatan(int position){
+    private void spinnerKecamatan(int position) {
         if (categoriesKecamatan.size() > 0) {
             String KecName = categoriesKecamatan.get(position).toString();
             String kecID = HMKecID.get(KecName);
@@ -1999,13 +2034,13 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
 
                                     if (!jsonObject.getString("ListData").equals("null")) {
                                         JSONArray jsn = jsonObject.getJSONArray("ListData");
-                                        categoriesKelurahan = new ArrayList<String>();
-                                        categoriesKelurahan.add(STRSPINNEROPT);
-                                        HMKel.put(STRSPINNEROPT, "0");
+//                                        categoriesKelurahan = new ArrayList<String>();
+//                                        categoriesKelurahan.add(STRSPINNEROPT);
+//                                        HMKel.put(STRSPINNEROPT, "0");
 
-                                        categoriesPostCode = new ArrayList<String>();
-                                        categoriesPostCode.add(STRSPINNEROPT);
-                                        HMKodePos.put(STRSPINNEROPT, "0");
+//                                        categoriesPostCode = new ArrayList<String>();
+//                                        categoriesPostCode.add(STRSPINNEROPT);
+//                                        HMKodePos.put(STRSPINNEROPT, "0");
 
                                         for (int n = 0; n < jsn.length(); n++) {
                                             JSONObject object = jsn.getJSONObject(n);
@@ -2016,16 +2051,23 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                                             categoriesPostCode.add(txtKodePosID + "-" + txtNamaKelurahan);
                                             HMKodePos.put(txtKodePosID + "-" + txtNamaKelurahan, txtKodePosID);
                                         }
-
-                                        SpinnerCustom.setAdapterSpinner(spnKelurahanAddOrder, context, R.layout.custom_spinner, categoriesKelurahan);
-                                        SpinnerCustom.setAdapterSpinner(spnPostCodeAddOrder, context, R.layout.custom_spinner, categoriesPostCode);
-                                        if (draft != null) {
-                                            SpinnerCustom.selectedItemByText(context, spnKelurahanAddOrder, categoriesKelurahan, draft.getTxtKelurahan());
-                                            SpinnerCustom.selectedItemByText(context, spnPostCodeAddOrder, categoriesPostCode, draft.getTxtPostCode() + "-" + draft.getTxtKelurahan());
+                                        if (!boolAttachCustomer) {
+                                            SpinnerCustom.setAdapterSpinner(spnKelurahanAddOrder, context, R.layout.custom_spinner, categoriesKelurahan);
+                                            SpinnerCustom.setAdapterSpinner(spnPostCodeAddOrder, context, R.layout.custom_spinner, categoriesPostCode);
+                                            if (draft != null) {
+                                                SpinnerCustom.selectedItemByText(context, spnKelurahanAddOrder, categoriesKelurahan, draft.getTxtKelurahan());
+                                                SpinnerCustom.selectedItemByText(context, spnPostCodeAddOrder, categoriesPostCode, draft.getTxtPostCode() + "-" + draft.getTxtKelurahan());
+                                            } else {
+                                                SpinnerCustom.selectedItemByText(context, spnKelurahanAddOrder, categoriesKelurahan, STRSPINNEROPT);
+                                                SpinnerCustom.selectedItemByText(context, spnPostCodeAddOrder, categoriesPostCode, STRSPINNEROPT);
+                                            }
                                         } else {
-                                            SpinnerCustom.selectedItemByText(context, spnKelurahanAddOrder, categoriesKelurahan, STRSPINNEROPT);
-                                            SpinnerCustom.selectedItemByText(context, spnPostCodeAddOrder, categoriesPostCode, STRSPINNEROPT);
+                                            SpinnerCustom.selectedItemByText(context, spnKelurahanAddOrder, categoriesKelurahan, kelurahanCustomer);
+                                            SpinnerCustom.selectedItemByText(context, spnPostCodeAddOrder, categoriesPostCode, postCodeCustomer);
+                                            boolAttachCustomer = false;
                                         }
+
+
 //                                                lt.success();
                                     }
                                 }
@@ -2070,7 +2112,7 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
         }
         if (valid) {
 
-            final String strLinkAPI = new clsHardCode().linkCekValidasiDispatchPartner;
+            strLinkAPICheckout = new clsHardCode().linkCekValidasiDispatchPartner;
             final JSONObject resJson = new JSONObject();
             try {
                 draft = new clsDraftRepo(context).findByBitActive();
@@ -2161,10 +2203,11 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                 e.printStackTrace();
             }
 
-            final String mRequestBody = resJson.toString();
-
-            if (boolSavedDispatch) {
-                new VolleyUtils().makeJsonObjectRequestWithToken(getActivity(), strLinkAPI, mRequestBody, access_token, "Please Wait...", new VolleyResponseListener() {
+            mRequestBodyCheckout = resJson.toString();
+            saveDataPreview();
+            /*if (boolSavedDispatch) {
+//                checkout(strLinkAPI,mRequestBody);
+                *//*new VolleyUtils().makeJsonObjectRequestWithToken(getActivity(), strLinkAPI, mRequestBody, access_token, "Please Wait...", new VolleyResponseListener() {
                     @Override
                     public void onError(String response) {
                         ToastCustom.showToasty(context, response, 2);
@@ -2505,7 +2548,6 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                                                 }
 
                                                 final String mRequestBodyFinalCheckout = resJsonFinalCheckout.toString();
-                                                if (boolSaved) {
                                                     new VolleyUtils().makeJsonObjectRequestWithToken(getActivity(), strLinkAPIFinalCheckout, mRequestBodyFinalCheckout, access_token, "Please Wait...", new VolleyResponseListener() {
                                                         @Override
                                                         public void onError(String response) {
@@ -2530,7 +2572,6 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                                                                         alertD.dismiss();
                                                                         new clsProductDraftRepo(context).clearAllData();
                                                                         new clsDraftRepo(context).clearAllData();
-                                                                        new clsProductDraftRepo(context).clearAllData();
                                                                         ToastCustom.showToasty(context, "Checkout Completed", 1);
                                                                         FragmentSalesOrder SOFragment = new FragmentSalesOrder();
                                                                         FragmentTransaction fragmentTransactionSO = getActivity().getSupportFragmentManager().beginTransaction();
@@ -2549,9 +2590,6 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                                                             }
                                                         }
                                                     });
-                                                } else {
-                                                    ToastCustom.showToasty(context, "Please save first to get SO numbers", 3);
-                                                }
 
 
                                             }
@@ -2563,12 +2601,12 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                                                 alertD.dismiss();
                                             }
                                         });
-                                        /*btnCheckoutPrev.setOnClickListener(new View.OnClickListener() {
+                                        *//**//*btnCheckoutPrev.setOnClickListener(new View.OnClickListener() {
                                             @Override
                                             public void onClick(View v) {
 
                                             }
-                                        });*/
+                                        });*//**//*
                                     }
                                 }
                             } catch (Exception ex) {
@@ -2578,16 +2616,17 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
 
                         }
                     }
-                });
+                });*//*
             } else {
                 saveDataPreview();
-            }
+            }*/
 
         } else {
             ToastCustom.showToasty(context, "List empty !", 4);
         }
     }
-    public void saveDataPreview(){
+
+    public void saveDataPreview() {
         boolean saveDraftResult = false;
         try {
             final clsDraft draft = new clsDraftRepo(context).findByBitActive();
@@ -2723,7 +2762,9 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                                             if (resultan > -1) {
                                                 Log.d("Update", "Berhasil");
                                                 ToastCustom.showToasty(context, "Save done", 1);
-                                                btnPreview.performClick();
+//                                                btnPreview.performClick();
+                                                checkout(strLinkAPICheckout,mRequestBodyi);
+
                                             } else {
                                                 ToastCustom.showToasty(context, "failed to save", 2);
                                             }
@@ -2769,6 +2810,419 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
 
         }
     }
+    public void checkout(String strLinkAPI, String mRequestBody){
+        new VolleyUtils().makeJsonObjectRequestWithToken(getActivity(), strLinkAPI, mRequestBody, access_token, "Please Wait...", new VolleyResponseListener() {
+            @Override
+            public void onError(String response) {
+                ToastCustom.showToasty(context, response, 2);
+            }
+
+            @Override
+            public void onResponse(String response, Boolean status, String strErrorMsg) {
+                if (response != null) {
+                    JSONObject jsonObject = null;
+                    try {
+                        jsonObject = new JSONObject(response);
+                        int result = jsonObject.getInt("intResult");
+                        String warn = jsonObject.getString("txtMessage");
+                        if (result == 1) {
+                            if (!jsonObject.getString("ListData").equals("null")) {
+                                JSONArray jsn = jsonObject.getJSONArray("ListData");
+                                contentLibsPreviewItem = new ArrayList<>();
+                                for (int n = 0; n < jsn.length(); n++) {
+                                    JSONObject object = jsn.getJSONObject(n);
+                                    String txtQTY = object.getString("intQTY");
+                                    String decAmount = object.getString("decAmount");
+                                    String bitAvailable = object.getString("bitAvailable");
+                                    String intQtyAvailable = object.getString("intQtyAvailable");
+                                    String txtPartnerAddress = object.getString("txtPartnerAddress");
+                                    String txtPartnerID = object.getString("txtPartnerID");
+                                    String txtPartnerName = object.getString("txtPartnerName");
+                                    String txtPartnerPhone = object.getString("txtPartnerPhone");
+                                    String txtProductCode = object.getString("txtProductCode");
+                                    String txtProductDesc = object.getString("txtProductDesc");
+                                    String intPriority = object.getString("intPriority");
+                                    String intFlag = object.getString("intFlag");
+                                    VMItemsPreview item = new VMItemsPreview();
+                                    item.setPartnerAddress(txtPartnerAddress);
+                                    item.setPartnerName(txtPartnerName);
+                                    item.setProductCode(txtProductCode);
+                                    item.setProductName(txtProductDesc);
+                                    ;
+                                    item.setPartnerPhone(txtPartnerPhone);
+                                    item.setQtyAvailable(intQtyAvailable);
+                                    item.setQty(txtQTY);
+                                    item.setTxtIntFlag(intFlag);
+
+                                    contentLibsPreviewItem.add(item);
+                                }
+                                LayoutInflater layoutInflater = LayoutInflater.from(context);
+                                final View promptView = layoutInflater.inflate(R.layout.popup_preview, null);
+                                //            final View promptViewCustomer = layoutInflater.inflate(R.layout.popup_preview, null);
+                                ListView lvPreview = (ListView) promptView.findViewById(R.id.lvItemPrev);
+                                Button btnCancelPrev = (Button) promptView.findViewById(R.id.btnCancelPrev);
+//                                        Button btnCheckoutPrev = (Button) promptView.findViewById(R.id.btnCheckoutPrev);
+                                RecyclerView rvPreview = (RecyclerView) promptView.findViewById(R.id.rv_preview);
+
+                                TextView tvSOStatusPrev = (TextView) promptView.findViewById(R.id.tvSOStatusPrev);
+                                TextView tvSoDatePrev = (TextView) promptView.findViewById(R.id.tvSoDatePrev);
+                                TextView tvSOSourcePrev = (TextView) promptView.findViewById(R.id.tvSOSourcePrev);
+                                TextView tvAgentNamePrev = (TextView) promptView.findViewById(R.id.tvAgentNamePrev);
+                                TextView tvOrderLocationPrev = (TextView) promptView.findViewById(R.id.tvOrderLocationPrev);
+                                TextView tvDeliveryByPrev = (TextView) promptView.findViewById(R.id.tvDeliveryByPrev);
+                                TextView tvDeliverySchedulePrev = (TextView) promptView.findViewById(R.id.tvDeliverySchedulePrev);
+                                TextView tvRemarksPreview = (TextView) promptView.findViewById(R.id.tvRemarksPreview);
+                                final TextView tvPaymentMethod = (TextView) promptView.findViewById(R.id.tvPaymentMethod);
+
+                                final TextView etCustomerNamePrev = (TextView) promptView.findViewById(R.id.etCustomerNamePrev);
+                                final TextView etContactIDPrev = (TextView) promptView.findViewById(R.id.etContactIDPrev);
+                                final TextView etMemberNoPrev = (TextView) promptView.findViewById(R.id.etMemberNoPrev);
+                                final TextView tvPostCodeCustomerPrev = (TextView) promptView.findViewById(R.id.tvPostCodeCustomerPrev);
+                                final TextView tvAddressCustomerPrev = (TextView) promptView.findViewById(R.id.tvAddressCustomerPrev);
+                                final TextView tvProvinceCustomerPrev = (TextView) promptView.findViewById(R.id.tvProvinceCustomerPrev);
+                                final TextView tvCityCustomerPrev = (TextView) promptView.findViewById(R.id.tvCityCustomerPrev);
+                                final TextView tvRegionCustomerPrev = (TextView) promptView.findViewById(R.id.tvRegionCustomerPrev);
+                                TextView tvHideCustPrev = (TextView) promptView.findViewById(R.id.tvHideCustPrev);
+
+
+                                final LinearLayout lnAttacedCust = (LinearLayout) promptView.findViewById(R.id.lnAttacedCust);
+                                TextView tvCustomerPrev = (TextView) promptView.findViewById(R.id.tvCustomerPrev);
+
+
+                                String noSO = etNoSo.getText().toString();
+                                String soStatus = etSoStatus.getText().toString();
+                                String soDate = etDate.getText().toString();
+                                String soSource = etSOSource.getText().toString();
+                                String deliverySche = etDeliverySchedule.getText().toString();
+                                String agentName = etAgentName.getText().toString();
+                                String orderLocation = etOrderLocation.getText().toString();
+                                boolean deliverByWalkIn = cbWalkIn.isChecked();
+                                boolean attchCust = cbAttach.isChecked();
+                                String remarks = etRemarks.getText().toString();
+
+                                tvSOSourcePrev.setText(soSource);
+                                tvSoDatePrev.setText(soDate);
+                                tvDeliverySchedulePrev.setText(deliverySche);
+                                tvAgentNamePrev.setText(agentName);
+                                tvOrderLocationPrev.setText(orderLocation);
+
+                                tvPaymentMethod.setOnClickListener(new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View v) {
+                                        LayoutInflater layoutInflater = LayoutInflater.from(context);
+                                        final View promptView = layoutInflater.inflate(R.layout.popup_payment_method, null);
+                                        final RadioGroup rg = promptView.findViewById(R.id.radioGroup);
+                                        final RadioButton rbCash = (RadioButton) promptView.findViewById(R.id.radio_cash);
+                                        final RadioButton rbDebt = (RadioButton) promptView.findViewById(R.id.radio_debit);
+                                        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
+                                        alertDialogBuilder.setView(promptView);
+                                        alertDialogBuilder.setTitle("Payment Method");
+                                        alertDialogBuilder
+                                                .setCancelable(false)
+                                                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                                                    public void onClick(DialogInterface dialog, int id) {
+                                                        dialog.cancel();
+                                                    }
+                                                }).setPositiveButton("Oke", new DialogInterface.OnClickListener() {
+                                            public void onClick(DialogInterface dialog, int id) {
+
+                                            }
+                                        });
+                                        final AlertDialog alertD = alertDialogBuilder.create();
+                                        alertD.show();
+                                        alertD.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
+                                            @Override
+                                            public void onClick(View v) {
+                                                int selectedId = rg.getCheckedRadioButtonId();
+                                                if (rbCash.isChecked()) {
+                                                    tvPaymentMethod.setText("Cash");
+                                                    alertD.dismiss();
+                                                } else if (rbDebt.isChecked()) {
+                                                    tvPaymentMethod.setText("Debit");
+                                                    alertD.dismiss();
+                                                } else {
+                                                    ToastCustom.showToasty(context, "Please select payment method", 3);
+                                                }
+                                            }
+                                        });
+                                    }
+                                });
+
+                                if (deliverByWalkIn) {
+                                    tvDeliveryByPrev.setText("Walk-In");
+                                } else {
+                                    tvDeliveryByPrev.setText("Delivery Order");
+                                }
+
+                                tvRemarksPreview.setText(remarks);
+
+                                if (attchCust) {
+
+                                    etCustomerNamePrev.setText(tvCustomerNameHeader.getText().toString());
+                                    etContactIDPrev.setText(tvContactIDHeader.getText().toString());
+                                    etMemberNoPrev.setText(tvMemberNoHeader.getText().toString());
+                                    tvProvinceCustomerPrev.setText(spnProvinceAddOrder.getSelectedItem().toString());
+                                    tvCityCustomerPrev.setText(spnKabKotAddOrder.getSelectedItem().toString());
+                                    tvRegionCustomerPrev.setText(spnKecamatanAddOrder.getSelectedItem().toString());
+                                    tvPostCodeCustomerPrev.setText(spnPostCodeAddOrder.getSelectedItem().toString());
+                                    tvAddressCustomerPrev.setText(etAddress.getText().toString());
+                                    lnAttacedCust.setVisibility(View.VISIBLE);
+                                    tvCustomerPrev.setOnClickListener(new View.OnClickListener() {
+                                        @Override
+                                        public void onClick(View v) {
+                                            lnAttacedCust.setVisibility(View.VISIBLE);
+                                            etCustomerNamePrev.setText(tvCustomerNameHeader.getText().toString());
+                                            etContactIDPrev.setText(tvContactIDHeader.getText().toString());
+                                            etMemberNoPrev.setText(tvMemberNoHeader.getText().toString());
+                                            tvProvinceCustomerPrev.setText(spnProvinceAddOrder.getSelectedItem().toString());
+                                            tvCityCustomerPrev.setText(spnKabKotAddOrder.getSelectedItem().toString());
+                                            tvRegionCustomerPrev.setText(spnKecamatanAddOrder.getSelectedItem().toString());
+                                            tvPostCodeCustomerPrev.setText(spnPostCodeAddOrder.getSelectedItem().toString());
+                                            tvAddressCustomerPrev.setText(etAddress.getText().toString());
+                                        }
+                                    });
+
+                                    tvHideCustPrev.setOnClickListener(new View.OnClickListener() {
+                                        @Override
+                                        public void onClick(View v) {
+                                            lnAttacedCust.setVisibility(View.GONE);
+                                        }
+                                    });
+                                } else {
+                                    tvCustomerPrev.setText("KalCare Outlet");
+                                    tvCustomerPrev.setClickable(false);
+                                }
+                                tvCustomerPrev.setClickable(true);
+                                lnAttacedCust.setVisibility(View.GONE);
+
+
+                                lvPreview.setAdapter(new CardAppAdapterPreview(context, contentLibsPreviewItem, Color.WHITE));
+                                RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(context);
+                                rvPreview.setLayoutManager(mLayoutManager);
+                                rvPreview.setItemAnimator(new DefaultItemAnimator());
+                                mAdapterItemPreview = new RVPreviewAdapter(context, contentLibsPreviewItem, Color.WHITE);
+                                rvPreview.setAdapter(mAdapterItemPreview);
+                                setListViewHeightBasedOnItems(lvPreview);
+                                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
+                                alertDialogBuilder.setView(promptView);
+                                alertDialogBuilder
+                                        .setCancelable(false)
+                                        .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                                            public void onClick(DialogInterface dialog, int id) {
+                                                dialog.cancel();
+                                            }
+                                        }).setPositiveButton("Checkout", new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog, int id) {
+
+                                        if (cbWalkIn.isChecked()) {
+                                            dialog.cancel();
+
+                                        } else {
+                                            if (boolCustomerSet) {
+                                                ToastCustom.showToasty(context, "Checking out", 3);
+                                            } else {
+                                                ToastCustom.showToasty(context, "Attach customer first", 4);
+                                            }
+
+                                        }
+
+                                    }
+                                });
+                                final AlertDialog alertD = alertDialogBuilder.create();
+                                alertD.show();
+                                alertD.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View v) {
+                                        final String strLinkAPIFinalCheckout = new clsHardCode().linkCheckoutSalesOrder;
+                                        final JSONObject resJsonFinalCheckout = new JSONObject();
+                                        boolean boolSaved = true;
+                                        try {
+                                            draft = new clsDraftRepo(context).findByBitActive();
+                                        } catch (SQLException e) {
+                                            e.printStackTrace();
+                                        }
+                                        if (draft.getTxtNoSO().equals("Generated by system")) {
+                                            boolSaved = false;
+                                        }
+                                        JSONArray jsonProductCheckout = new Helper().writeJSONSaveData(context, draft, contentLibs);
+                                        try {
+//                                                resJsonFinalCheckout.put("txtNewId", draft.getGuiId());
+                                            String strNO = draft.getTxtNoSO();
+                                            if (strNO.equals("Generated by system")) {
+                                                resJsonFinalCheckout.put("txtOrderNo", "");
+                                            } else {
+                                                resJsonFinalCheckout.put("txtOrderNo", draft.getTxtNoSO());
+                                            }
+                                            clsCustomerData dataDefault = new clsCustomerData();
+                                            try {
+                                                dataDefault = new clsCustomerDataRepo(context).findOne();
+                                            } catch (SQLException e) {
+                                                e.printStackTrace();
+                                            }
+
+                                            resJsonFinalCheckout.put("txtSourceOrder", data.getTxtSumberDataID());
+//                                                    resJson.put("txtSourceOrder", data.getTxtSumberDataID());
+//                                                    resJson.put("txtSourceOrderName", draft.getTxtSoSource());
+
+                                            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+                                            String currentDateandTime = sdf.format(new Date());
+                                            resJsonFinalCheckout.put("dtDate", currentDateandTime);
+                                            String txtDeliverSche = "";
+                                            if (draft.getDtDeliverySche() != null) {
+                                                txtDeliverSche = sdf.format(draft.getDtDeliverySche());
+                                            }
+                                            resJsonFinalCheckout.put("dtDelivery", txtDeliverSche);
+                                            resJsonFinalCheckout.put("txtAgentName", draft.getTxtAgentName());
+
+                                            String walkin = "";
+                                            if (draft.isBoolWalkin()) {
+                                                walkin = "1";
+                                                resJsonFinalCheckout.put("txtAlamatKirim", dataDefault.getTxtAlamat());
+                                                resJsonFinalCheckout.put("txtCustPhone", dataLogin.getTxtPhoneNo());
+                                                resJsonFinalCheckout.put("txtCustName", dataDefault.getTxtNama());
+                                                resJsonFinalCheckout.put("txtKontakID", dataDefault.getTxtKontakID());
+                                                resJsonFinalCheckout.put("txtPickUpLocation", dataLogin.getTxtNamaInstitusi());
+
+                                                SimpleDateFormat sdfFinalCheckout = new SimpleDateFormat("yyyy-MM-dd");
+                                                if (draft.getDtDeliverySche() != null) {
+                                                    txtDeliverSche = sdf.format(draft.getDtDeliverySche());
+                                                }
+
+                                                resJsonFinalCheckout.put("dtKirim", txtDeliverSche);
+                                                resJsonFinalCheckout.put("txtKelurahanID", dataDefault.getTxtNamaKelurahan());
+                                                resJsonFinalCheckout.put("txtNamaKelurahan", dataDefault.getTxtNamaKelurahan());
+                                                resJsonFinalCheckout.put("txtPropinsiID", String.valueOf(dataDefault.getTxtPropinsiID()));
+                                                resJsonFinalCheckout.put("txtNamaPropinsi", dataDefault.getTxtNamaPropinsi());
+                                                resJsonFinalCheckout.put("txtKabKotaID", String.valueOf(dataDefault.getTxtKabKotaID()));
+                                                resJsonFinalCheckout.put("txtNamaKabKota", dataDefault.getTxtNamaKabKota());
+                                                resJsonFinalCheckout.put("txtKecamatanID", String.valueOf(dataDefault.getTxtKecamatan()));
+                                                resJsonFinalCheckout.put("txtNamaKecamatan", dataDefault.getTxtNamaKecamatan());
+                                                resJsonFinalCheckout.put("txtKodePos", dataDefault.getTxtKodePos());
+                                            } else {
+                                                walkin = "0";
+                                                resJsonFinalCheckout.put("txtCustName", draft.getTxtCustomerName());
+                                                resJsonFinalCheckout.put("txtAlamatKirim", draft.getTxtAddress());
+                                                resJsonFinalCheckout.put("txtCustPhone", draft.getTxtPhoneNumber());
+                                                resJsonFinalCheckout.put("txtCustName", draft.getTxtCustomerName());
+                                                resJsonFinalCheckout.put("txtKontakID", draft.getTxtKontakID());
+                                                resJsonFinalCheckout.put("txtPickUpLocation", draft.getTxtProvince());
+
+//                                                    SimpleDateFormat sdfFinalCheckout = new SimpleDateFormat("yyyy-MM-dd");
+                                                if (draft.getDtDeliverySche() != null) {
+                                                    txtDeliverSche = sdf.format(draft.getDtDeliverySche());
+                                                }
+
+                                                resJsonFinalCheckout.put("dtKirim", txtDeliverSche);
+                                                resJsonFinalCheckout.put("txtKelurahanID", draft.getTxtKelurahanID());
+                                                resJsonFinalCheckout.put("txtNamaKelurahan", draft.getTxtKelurahan());
+                                                resJsonFinalCheckout.put("txtPropinsiID", String.valueOf(draft.getTxtProvinceID()));
+                                                resJsonFinalCheckout.put("txtNamaPropinsi", draft.getTxtProvince());
+                                                resJsonFinalCheckout.put("txtKabKotaID", String.valueOf(draft.getTxtKabKotID()));
+                                                resJsonFinalCheckout.put("txtNamaKabKota", draft.getTxtKabKot());
+                                                resJsonFinalCheckout.put("txtKecamatanID", String.valueOf(draft.getTxtKecamatanID()));
+                                                resJsonFinalCheckout.put("txtNamaKecamatan", draft.getTxtKecamatan());
+                                                resJsonFinalCheckout.put("txtKodePos", draft.getTxtPostCode());
+                                            }
+                                            resJsonFinalCheckout.put("intWalkIn", walkin);
+
+                                            String deliverBy = "";
+                                            if (draft.isBoolAttachCustomer()) {
+                                                deliverBy = "1";
+                                            } else {
+                                                deliverBy = "0";
+                                            }
+                                            resJsonFinalCheckout.put("intNilaiPembulatan", 0);
+                                            resJsonFinalCheckout.put("txtPaymentMethodID", "");
+                                            resJsonFinalCheckout.put("txtMediaJasaID", "");
+                                            resJsonFinalCheckout.put("txtMediaJasaPaymentID", "");
+                                            resJsonFinalCheckout.put("txtCardNumber", "");
+                                            resJsonFinalCheckout.put("txtBCATraceNo", "");
+                                            resJsonFinalCheckout.put("txtUserID", dataLogin.getIdUser());
+                                            resJsonFinalCheckout.put("txtTeleID", dataLogin.getTxtTeleID());
+                                            resJsonFinalCheckout.put("txtUserID", dataLogin.getIdUser());
+                                            resJsonFinalCheckout.put("txtCodeID", dataLogin.getTxtCodeId());
+                                            resJsonFinalCheckout.put("txtCustomer", draft.getTxtCustomerName());
+
+                                            resJsonFinalCheckout.put("txtRemarkSO", draft.getTxtRemarks());
+                                            resJsonFinalCheckout.put("txtDeviceId", deviceInfo.getModel());
+                                            resJsonFinalCheckout.put("txtUser", dataLogin.getNmUser());
+                                            resJsonFinalCheckout.put("txtStatusDoc", "0");
+                                            resJsonFinalCheckout.put("Detail", jsonProductCheckout);
+                                        } catch (JSONException e) {
+                                            e.printStackTrace();
+                                        }
+
+                                        final String mRequestBodyFinalCheckout = resJsonFinalCheckout.toString();
+                                        new VolleyUtils().makeJsonObjectRequestWithToken(getActivity(), strLinkAPIFinalCheckout, mRequestBodyFinalCheckout, access_token, "Please Wait...", new VolleyResponseListener() {
+                                            @Override
+                                            public void onError(String response) {
+                                                ToastCustom.showToasty(context, response, 2);
+                                            }
+
+                                            @Override
+                                            public void onResponse(String response, Boolean status, String strErrorMsg) {
+                                                if (response != null) {
+                                                    JSONObject jsonObject = null;
+                                                    try {
+                                                        jsonObject = new JSONObject(response);
+                                                        int result = jsonObject.getInt("intResult");
+                                                        String warn = jsonObject.getString("txtMessage");
+                                                        if (result == 1) {
+                                                            if (!jsonObject.getString("ListData").equals("null")) {
+                                                                JSONArray jsn = jsonObject.getJSONArray("ListData");
+                                                                for (int n = 0; n < jsn.length(); n++) {
+
+                                                                }
+                                                            }
+                                                            alertD.dismiss();
+                                                            new clsProductDraftRepo(context).clearAllData();
+                                                            new clsDraftRepo(context).clearAllData();
+                                                            ToastCustom.showToasty(context, "Checkout Completed", 1);
+                                                            FragmentSalesOrder SOFragment = new FragmentSalesOrder();
+                                                            FragmentTransaction fragmentTransactionSO = getActivity().getSupportFragmentManager().beginTransaction();
+                                                            fragmentTransactionSO.replace(R.id.frame, SOFragment, "FragmentSalesOrder");
+                                                            fragmentTransactionSO.commit();
+
+
+                                                        } else {
+                                                            ToastCustom.showToasty(context, warn, 2);
+
+                                                        }
+                                                    } catch (JSONException ex) {
+                                                        String x = ex.getMessage();
+                                                    }
+                                                    String a = "";
+                                                }
+                                            }
+                                        });
+
+
+                                    }
+                                });
+
+                                btnCancelPrev.setOnClickListener(new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View v) {
+                                        alertD.dismiss();
+                                    }
+                                });
+                                        /*btnCheckoutPrev.setOnClickListener(new View.OnClickListener() {
+                                            @Override
+                                            public void onClick(View v) {
+
+                                            }
+                                        });*/
+                            }
+                        }
+                    } catch (Exception ex) {
+                        String exa = "sa";
+                    }
+
+
+                }
+            }
+        });
+    }
 
     public static boolean setListViewHeightBasedOnItems(ListView listView) {
 
@@ -2805,11 +3259,25 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
 
     public boolean addItem(VMItems item) {
         String itemCode = etItemCode.getText().toString();
-        String itemName = etItemName.getText().toString();
+        final String itemName = etItemName.getText().toString();
         boolean valid = true;
         if (valid) {
-
-            contentLibs.add(item);
+            boolean boolMatch = false;
+            int j = 0;
+            for (VMItems i : contentLibs) {
+                if (i.getItemName().equals(item.getItemName())) {
+                    int intQty = item.getQty();
+                    i.setQty(intQty);
+                    boolMatch = true;
+                    contentLibs.set(j, i);
+                }
+            }
+            if (!boolMatch) {
+                contentLibs.add(item);
+                ToastCustom.showToasty(context, "Item added", 3);
+            } else {
+                ToastCustom.showToasty(context, "Item on list updated", 3);
+            }
             lvItemAdd.setAdapter(new CardAppAdapter(context, contentLibs, Color.WHITE));
             RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(context);
             rvParent.setLayoutManager(mLayoutManager);
@@ -2907,27 +3375,246 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
             lvItemAdd.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
                 @Override
                 public boolean onItemLongClick(AdapterView<?> parent, View view, final int position, long id) {
-                    String productName = contentLibs.get(position).getItemName();
+                    final String productName = contentLibs.get(position).getItemName();
+                    final String itemGroup = contentLibs.get(position).getItemBrand();
+                    final String itemCode = contentLibs.get(position).getItemCode();
+                    final String itemBrand = contentLibs.get(position).getItemBrand();
+                    final String itemBarcode = contentLibs.get(position).getBarcode();
+                    final String itemDesc = contentLibs.get(position).getDesc();
+                    final Double itemPrice = contentLibs.get(position).getPrice();
+                    final Double itemDiscount = contentLibs.get(position).getDiscount();
+                    final String itemBasedPoint = contentLibs.get(position).getBasePoint();
+                    final String itemBonusPoint = contentLibs.get(position).getBonusPoint();
+                    final int intQty = contentLibs.get(position).getQty();
+
                     AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
-//                    alertDialogBuilder.setView(promptView);
-                    alertDialogBuilder.setMessage("Delete item " + productName + " from list?");
-                    alertDialogBuilder
-                            .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    contentLibs.remove(position);
-                                    lvItemAdd.setAdapter(new CardAppAdapter(context, contentLibs, Color.WHITE));
-                                    rvParent.setAdapter(new RVParentAdapter(context, contentLibs, Color.WHITE));
-                                }
-                            })
+
+                    alertDialogBuilder.setMessage("Action for " + productName + " ?");
+                    alertDialogBuilder.setPositiveButton("Delete", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            contentLibs.remove(position);
+                            lvItemAdd.setAdapter(new CardAppAdapter(context, contentLibs, Color.WHITE));
+                            rvParent.setAdapter(new RVParentAdapter(context, contentLibs, Color.WHITE));
+                        }
+                    })
                             .setCancelable(false)
-                            .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                            .setNegativeButton("Edit", new DialogInterface.OnClickListener() {
                                 public void onClick(DialogInterface dialog, int id) {
                                     dialog.cancel();
                                 }
-                            });
+                            }).setNeutralButton("Cancel", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+
+                        }
+                    });
                     final AlertDialog alertD = alertDialogBuilder.create();
                     alertD.show();
+                    alertD.getButton(DialogInterface.BUTTON_NEGATIVE).setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            LayoutInflater layoutInflater = LayoutInflater.from(context);
+                            final View promptView = layoutInflater.inflate(R.layout.popup_product_search, null);
+                            lvSearchResult = (ListView) promptView.findViewById(R.id.lvItemSearchResult);
+                            etQtySearch = (EditText) promptView.findViewById(R.id.etQty);
+                            etSearchOnPopUp = (EditText) promptView.findViewById(R.id.etItemName);
+                            etDiscount = (EditText) promptView.findViewById(R.id.etDiscount);
+                            etPrice = (EditText) promptView.findViewById(R.id.etPrice);
+                            etBonusPoint = (EditText) promptView.findViewById(R.id.etBonusPoint);
+                            etBasedPoint = (EditText) promptView.findViewById(R.id.etBasePoint);
+                            etSearchOnPopUp.setOnTouchListener(new DrawableClickListener.RightDrawableClickListener(etSearchOnPopUp) {
+                                @Override
+                                public boolean onDrawableClick() {
+//                                        ToastCustom.showToasty(context,"Toast bro",1);
+                                    refreshListItemSearch(promptView);
+                                    return false;
+                                }
+                            });
+                            etSearchOnPopUp.setOnKeyListener(new View.OnKeyListener() {
+                                @Override
+                                public boolean onKey(View v, int keyCode, KeyEvent event) {
+                                    if ((event.getAction() == KeyEvent.ACTION_DOWN) &&
+                                            (keyCode == KeyEvent.KEYCODE_ENTER)) {
+                                        refreshListItemSearch(promptView);
+                                        return true;
+                                    }
+                                    return false;
+                                }
+                            });
+                            contentSearchResult = new ArrayList<VMItems>();
+                            VMItems item = new VMItems(promptView);
+
+                            item = new VMItems(promptView);
+                            item.setItemName(productName);
+                            item.setGuiid(new Helper().GenerateGuid());
+//                                    item.setPrice(80000);
+                            item.setItemGroup(itemGroup);
+                            item.setBarcode(itemBarcode);
+                            item.setItemCode(itemCode);
+                            item.setDesc(itemDesc);
+                            item.setItemBrand(itemBrand);
+
+                            contentSearchResult.add(item);
+                            lvSearchResult.setAdapter(new CardAdapterSearchResult(context, contentSearchResult, Color.WHITE));
+
+                            lvSearchResult.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                                @Override
+                                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                                    view.setSelected(true);
+                                    getDetailItem(contentSearchResult, position);
+                                }
+                            });
+
+                            etQtySearch.setText(String.valueOf(intQty));
+                            etDiscount.setText(String.valueOf(itemDiscount));
+                            etPrice.setText(String.valueOf(itemPrice));
+                            etBasedPoint.setText(itemBasedPoint);
+                            etBonusPoint.setText(itemBonusPoint);
+
+                            AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
+                            alertDialogBuilder.setView(promptView);
+                            alertDialogBuilder
+                                    .setCancelable(false)
+                                    .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                                        public void onClick(DialogInterface dialog, int id) {
+                                            dialog.cancel();
+                                        }
+                                    }).setPositiveButton("Oke", new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int id) {
+
+                                }
+                            });
+                            final AlertDialog alertDi = alertDialogBuilder.create();
+                            alertDi.show();
+                            alertDi.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+
+                                    String stQtySearch = etQtySearch.getText().toString();
+                                    if (Integer.parseInt(stQtySearch) < 1) {
+                                        ToastCustom.showToasty(context, "Invalid Qty", 2);
+                                    } else {
+                                        if (lvSearchResult.getCheckedItemPosition() > -1) {
+                                            if (etQtySearch.getText().toString().equals("")) {
+                                                ToastCustom.showToasty(context, "Quantity Empty", 3);
+                                                etQtySearch.setBackgroundResource(R.drawable.bg_edtext_error_border);
+                                            } else {
+                                                Object checkedItem = lvSearchResult.getAdapter().getItem(lvSearchResult.getCheckedItemPosition());
+                                                VMItems itemResult = new VMItems(promptView);
+                                                int positionResult = lvSearchResult.getCheckedItemPosition();
+                                                String itemNameAdd = contentSearchResult.get(positionResult).getItemName();
+                                                String itemCodeAdd = contentSearchResult.get(positionResult).getItemCode();
+                                                String itemBrand = contentSearchResult.get(positionResult).getItemBrand();
+                                                String txtPrice = etPrice.getText().toString();
+                                                double itemPriceSearch = 0;
+                                                if (!txtPrice.equals("0")) {
+                                                    itemPriceSearch = Double.parseDouble(txtPrice);
+                                                }
+                                                String txtDisc = etDiscount.getText().toString();
+                                                double itemDiscount = 0;
+                                                if (!txtDisc.equals("0")) {
+                                                    itemDiscount = Double.parseDouble(txtDisc);
+                                                }
+                                                String itemQtyAdd = etQtySearch.getText().toString();
+
+                                                int itemQty = Integer.parseInt(itemQtyAdd);
+
+                                                Double itemTotalPrice = (itemPriceSearch * itemQty) - itemDiscount;
+
+                                                Double itemTaxAmount = itemTotalPrice * 0.1;
+
+                                                Double itemNetPrice = itemTotalPrice + itemTaxAmount;
+
+                                                String itemBasePoint = etBasedPoint.getText().toString();
+                                                String itemBonusPoint = etBonusPoint.getText().toString();
+
+                                                VMItems item = new VMItems(promptView);
+                                                item.setItemName(itemNameAdd);
+                                                item.setGuiid(new Helper().GenerateGuid());
+                                                item.setItemCode(itemCodeAdd);
+                                                item.setPrice(itemPriceSearch);
+                                                item.setItemBrand(itemBrand);
+                                                item.setProductCategory(HMtxtProductCategory.get(itemCodeAdd));
+                                                item.setBasePoint(itemBasePoint);
+                                                item.setQty(itemQty);
+                                                item.setDiscount(itemDiscount);
+                                                item.setTotalPrice(itemTotalPrice);
+                                                item.setTaxAmount(itemTaxAmount);
+                                                item.setNetPrice(itemNetPrice);
+                                                item.setBonusPoint(itemBonusPoint);
+
+                                                boolean boolMatch = false;
+                                                int j = 0;
+                                                for (VMItems i : contentLibs) {
+                                                    if (i.getItemName().equals(item.getItemName())) {
+                                                        boolMatch = true;
+                                                    }
+                                                }
+                                                if(boolMatch){
+                                                    ToastCustom.showToasty(context,"Product "+item.getItemName()+" has been in the list ",2);
+                                                }else{
+                                                    contentLibs.set(position, item);
+                                                    lvItemAdd.setAdapter(new CardAppAdapter(context, contentLibs, Color.WHITE));
+                                                    alertDi.dismiss();
+                                                    alertD.dismiss();
+
+                                                }
+
+
+
+//                                                boolean booladded = addItem(item);
+//                                                if (booladded) {
+//                                                    alertD.dismiss();
+//                                                } else {
+//                                                    ToastCustom.showToasty(context, "error system", 2);
+//                                                }
+                                            }
+
+                                        } else {
+                                            ToastCustom.showToasty(context, "Pick the item first", 4);
+                                        }
+                                    }
+
+
+                                }
+                            });
+                        }
+                    });
+                    alertD.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            AlertDialog.Builder alertDialogBuilderDelete = new AlertDialog.Builder(getActivity());
+                            alertDialogBuilderDelete.setMessage("Delete item " + productName + " from list?");
+                            alertDialogBuilderDelete
+                                    .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialog, int which) {
+
+                                        }
+                                    })
+                                    .setCancelable(false)
+                                    .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                                        public void onClick(DialogInterface dialog, int id) {
+                                            dialog.cancel();
+                                        }
+                                    });
+                            final AlertDialog alertDelete = alertDialogBuilderDelete.create();
+                            alertDelete.show();
+                            alertDelete.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    contentLibs.remove(position);
+                                    lvItemAdd.setAdapter(new CardAppAdapter(context, contentLibs, Color.WHITE));
+                                    rvParent.setAdapter(new RVParentAdapter(context, contentLibs, Color.WHITE));
+                                    alertDelete.dismiss();
+                                    alertD.dismiss();
+                                }
+                            });
+                        }
+                    });
+//                    alertDialogBuilder.setView(promptView);
+
                     return false;
                 }
             });
@@ -2988,12 +3675,23 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
 
                                 LayoutInflater layoutInflater = LayoutInflater.from(context);
                                 final View promptView = layoutInflater.inflate(R.layout.popup_product_search, null);
-                                final ListView lvSearchResult = (ListView) promptView.findViewById(R.id.lvItemSearchResult);
-                                final EditText etQtySearch = (EditText) promptView.findViewById(R.id.etQty);
-                                final EditText etDiscount = (EditText) promptView.findViewById(R.id.etDiscount);
-                                final EditText etPrice = (EditText) promptView.findViewById(R.id.etPrice);
-                                final EditText etBonusPoint = (EditText) promptView.findViewById(R.id.etBonusPoint);
-                                final EditText etBasedPoint = (EditText) promptView.findViewById(R.id.etBasePoint);
+                                lvSearchResult = (ListView) promptView.findViewById(R.id.lvItemSearchResult);
+                                etQtySearch = (EditText) promptView.findViewById(R.id.etQty);
+                                etSearchOnPopUp = (EditText) promptView.findViewById(R.id.etItemName);
+                                etDiscount = (EditText) promptView.findViewById(R.id.etDiscount);
+                                etPrice = (EditText) promptView.findViewById(R.id.etPrice);
+                                etBonusPoint = (EditText) promptView.findViewById(R.id.etBonusPoint);
+                                etBasedPoint = (EditText) promptView.findViewById(R.id.etBasePoint);
+
+                                etSearchOnPopUp.setOnTouchListener(new DrawableClickListener.RightDrawableClickListener(etSearchOnPopUp) {
+                                    @Override
+                                    public boolean onDrawableClick() {
+//                                        ToastCustom.showToasty(context,"Toast bro",1);
+                                        refreshListItemSearch(promptView);
+                                        return false;
+                                    }
+                                });
+                                onclickKeyEnter(etSearchOnPopUp, promptView);
 
                                 final List<VMItems> contentSearchResult = new ArrayList<VMItems>();
                                 VMItems item = new VMItems(promptView);
@@ -3010,13 +3708,14 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                                     String txtProductDesc = object.getString("txtProductDesc");
 
                                     item = new VMItems(promptView);
-                                    item.setItemName(txtBrand);
+                                    item.setItemName(txtProductDesc);
                                     item.setGuiid(new Helper().GenerateGuid());
 //                                    item.setPrice(80000);
                                     item.setItemGroup(txtGroupProduct);
                                     item.setBarcode(txtProductBarcode);
                                     item.setItemCode(txtProductCode);
                                     item.setDesc(txtProductDesc);
+                                    item.setItemBrand(txtBrand);
 
                                     contentSearchResult.add(item);
 
@@ -3028,68 +3727,7 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                                     @Override
                                     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                                         view.setSelected(true);
-                                        VMItems itemSelected = null;
-                                        itemSelected = contentSearchResult.get(position);
-                                        String txtGroupUser = itemSelected.getItemGroup();
-                                        String txtItemCode = itemSelected.getItemCode();
-                                        int Qty = itemSelected.getQty();
-                                        String intQty = String.valueOf(Qty);
-                                        String txtKontakID = dataLogin.getTxtKontakID();
-                                        String txtNoLangganan = "";
-                                        String intPeriodeLangganan = "0";
-                                        final String strLinkAPI = new clsHardCode().linkGetPrice;
-                                        final JSONObject resJson = new JSONObject();
-                                        try {
-                                            resJson.put("txtGroupUser", txtGroupUser);
-                                            resJson.put("txtItemCode", txtItemCode);
-                                            resJson.put("intQty", intQty);
-                                            resJson.put("txtKontakID", txtKontakID);
-                                            resJson.put("txtNoLangganan", txtNoLangganan);
-                                            resJson.put("intPeriodeLangganan", intPeriodeLangganan);
-                                        } catch (JSONException e) {
-                                            e.printStackTrace();
-                                        }
-
-                                        final String mRequestBody = resJson.toString();
-                                        new VolleyUtils().makeJsonObjectRequestWithToken(getActivity(), strLinkAPI, mRequestBody, access_token, "Please Wait...", new VolleyResponseListener() {
-                                            @Override
-                                            public void onError(String response) {
-                                                ToastCustom.showToasty(context, response, 2);
-                                            }
-
-                                            @Override
-                                            public void onResponse(String response, Boolean status, String strErrorMsg) {
-                                                JSONObject jsonObjectPrice = null;
-                                                if (response != null) {
-                                                    try {
-                                                        jsonObjectPrice = new JSONObject(response);
-                                                        int result = jsonObjectPrice.getInt("intResult");
-                                                        String warn = jsonObjectPrice.getString("txtMessage");
-                                                        if (result == 1) {
-                                                            if (!jsonObjectPrice.getString("ListData").equals("null")) {
-                                                                JSONArray jsn = jsonObjectPrice.getJSONArray("ListData");
-                                                                for (int n = 0; n < jsn.length(); n++) {
-                                                                    JSONObject object = jsn.getJSONObject(n);
-                                                                    String txtDiscount = object.getString("decDiscount");
-                                                                    String txtPrice = object.getString("decPriceList");
-                                                                    String txtBasePoint = object.getString("decBasePoint");
-                                                                    String txtDecBonus = object.getString("decBonus");
-                                                                    etDiscount.setText(txtDiscount);
-                                                                    etPrice.setText(txtPrice);
-                                                                    etBonusPoint.setText(txtDecBonus);
-                                                                    etBasedPoint.setText(txtBasePoint);
-                                                                }
-                                                                etQtySearch.requestFocus();
-                                                            }
-                                                        }
-                                                    } catch (JSONException e) {
-
-                                                    }
-
-                                                    String a = "";
-                                                }
-                                            }
-                                        });
+                                        getDetailItem(contentSearchResult, position);
                                     }
                                 });
                                 AlertDialog.Builder alertDialogBuilderAttch = new AlertDialog.Builder(getActivity());
@@ -3118,64 +3756,72 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                                     alertD.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
                                         @Override
                                         public void onClick(View v) {
-                                            if (lvSearchResult.getCheckedItemPosition() > -1) {
-                                                if (etQtySearch.getText().toString().equals("")) {
-                                                    ToastCustom.showToasty(context, "Quantity Empty", 3);
-                                                    etQtySearch.setBackgroundResource(R.drawable.bg_edtext_error_border);
-                                                } else {
-                                                    Object checkedItem = lvSearchResult.getAdapter().getItem(lvSearchResult.getCheckedItemPosition());
-                                                    VMItems itemResult = new VMItems(promptView);
-                                                    int position = lvSearchResult.getCheckedItemPosition();
-                                                    String itemNameAdd = contentSearchResult.get(position).getItemName();
-                                                    String itemCodeAdd = contentSearchResult.get(position).getItemCode();
-                                                    String txtPrice = etPrice.getText().toString();
-                                                    double itemPriceSearch = 0;
-                                                    if (!txtPrice.equals("0")) {
-                                                        itemPriceSearch = Double.parseDouble(txtPrice);
-                                                    }
-                                                    String txtDisc = etDiscount.getText().toString();
-                                                    double itemDiscount = 0;
-                                                    if (!txtDisc.equals("0")) {
-                                                        itemDiscount = Double.parseDouble(txtDisc);
-                                                    }
-                                                    String itemQtyAdd = etQtySearch.getText().toString();
-
-                                                    int itemQty = Integer.parseInt(itemQtyAdd);
-
-                                                    Double itemTotalPrice = (itemPriceSearch * itemQty) - itemDiscount;
-
-                                                    Double itemTaxAmount = itemTotalPrice * 0.1;
-
-                                                    Double itemNetPrice = itemTotalPrice + itemTaxAmount;
-
-                                                    String itemBasePoint = etBasedPoint.getText().toString();
-                                                    String itemBonusPoint = etBonusPoint.getText().toString();
-
-                                                    VMItems item = new VMItems(promptView);
-                                                    item.setItemName(itemNameAdd);
-                                                    item.setGuiid(new Helper().GenerateGuid());
-                                                    item.setItemCode(itemCodeAdd);
-                                                    item.setPrice(itemPriceSearch);
-                                                    item.setProductCategory(HMtxtProductCategory.get(itemCodeAdd));
-                                                    item.setBasePoint(itemBasePoint);
-                                                    item.setQty(itemQty);
-                                                    item.setDiscount(itemDiscount);
-                                                    item.setTotalPrice(itemTotalPrice);
-                                                    item.setTaxAmount(itemTaxAmount);
-                                                    item.setNetPrice(itemNetPrice);
-                                                    item.setBonusPoint(itemBonusPoint);
-
-                                                    boolean booladded = addItem(item);
-                                                    if (booladded) {
-                                                        alertD.dismiss();
-                                                    } else {
-                                                        ToastCustom.showToasty(context, "error system", 2);
-                                                    }
-                                                }
-
+                                            String stQtySearch = etQtySearch.getText().toString();
+                                            if (Integer.parseInt(stQtySearch) < 1) {
+                                                ToastCustom.showToasty(context, "Invalid Qty", 2);
                                             } else {
-                                                ToastCustom.showToasty(context, "Pick the item first", 4);
+                                                if (lvSearchResult.getCheckedItemPosition() > -1) {
+                                                    if (etQtySearch.getText().toString().equals("")) {
+                                                        ToastCustom.showToasty(context, "Quantity Empty", 3);
+                                                        etQtySearch.setBackgroundResource(R.drawable.bg_edtext_error_border);
+                                                    } else {
+                                                        Object checkedItem = lvSearchResult.getAdapter().getItem(lvSearchResult.getCheckedItemPosition());
+                                                        VMItems itemResult = new VMItems(promptView);
+                                                        int position = lvSearchResult.getCheckedItemPosition();
+                                                        String itemNameAdd = contentSearchResult.get(position).getItemName();
+                                                        String itemCodeAdd = contentSearchResult.get(position).getItemCode();
+                                                        String itemBrand = contentSearchResult.get(position).getItemBrand();
+                                                        String txtPrice = etPrice.getText().toString();
+                                                        double itemPriceSearch = 0;
+                                                        if (!txtPrice.equals("0")) {
+                                                            itemPriceSearch = Double.parseDouble(txtPrice);
+                                                        }
+                                                        String txtDisc = etDiscount.getText().toString();
+                                                        double itemDiscount = 0;
+                                                        if (!txtDisc.equals("0")) {
+                                                            itemDiscount = Double.parseDouble(txtDisc);
+                                                        }
+                                                        String itemQtyAdd = etQtySearch.getText().toString();
+
+                                                        int itemQty = Integer.parseInt(itemQtyAdd);
+
+                                                        Double itemTotalPrice = (itemPriceSearch * itemQty) - itemDiscount;
+
+                                                        Double itemTaxAmount = itemTotalPrice * 0.1;
+
+                                                        Double itemNetPrice = itemTotalPrice + itemTaxAmount;
+
+                                                        String itemBasePoint = etBasedPoint.getText().toString();
+                                                        String itemBonusPoint = etBonusPoint.getText().toString();
+
+                                                        VMItems item = new VMItems(promptView);
+                                                        item.setItemName(itemNameAdd);
+                                                        item.setGuiid(new Helper().GenerateGuid());
+                                                        item.setItemCode(itemCodeAdd);
+                                                        item.setPrice(itemPriceSearch);
+                                                        item.setItemBrand(itemBrand);
+                                                        item.setProductCategory(HMtxtProductCategory.get(itemCodeAdd));
+                                                        item.setBasePoint(itemBasePoint);
+                                                        item.setQty(itemQty);
+                                                        item.setDiscount(itemDiscount);
+                                                        item.setTotalPrice(itemTotalPrice);
+                                                        item.setTaxAmount(itemTaxAmount);
+                                                        item.setNetPrice(itemNetPrice);
+                                                        item.setBonusPoint(itemBonusPoint);
+
+                                                        boolean booladded = addItem(item);
+                                                        if (booladded) {
+                                                            alertD.dismiss();
+                                                        } else {
+                                                            ToastCustom.showToasty(context, "error system", 2);
+                                                        }
+                                                    }
+
+                                                } else {
+                                                    ToastCustom.showToasty(context, "Pick the item first", 4);
+                                                }
                                             }
+
                                         }
                                     });
                                 }
@@ -3190,6 +3836,176 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
             }
         });
 
+    }
+
+    private void getDetailItem(List<VMItems> contentSearchResult, int position) {
+        VMItems itemSelected = null;
+        itemSelected = contentSearchResult.get(position);
+        String txtGroupUser = itemSelected.getItemGroup();
+        final String txtItemCode = itemSelected.getItemCode();
+        int Qty = itemSelected.getQty();
+        String intQty = String.valueOf(Qty);
+        String txtKontakID = dataLogin.getTxtKontakID();
+        String txtNoLangganan = "";
+        String intPeriodeLangganan = "0";
+        final String strLinkAPI = new clsHardCode().linkGetPrice;
+        final JSONObject resJson = new JSONObject();
+        try {
+            resJson.put("txtGroupUser", txtGroupUser);
+            resJson.put("txtItemCode", txtItemCode);
+            resJson.put("intQty", intQty);
+            resJson.put("txtKontakID", txtKontakID);
+            resJson.put("txtNoLangganan", txtNoLangganan);
+            resJson.put("intPeriodeLangganan", intPeriodeLangganan);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        final String mRequestBody = resJson.toString();
+        new VolleyUtils().makeJsonObjectRequestWithToken(getActivity(), strLinkAPI, mRequestBody, access_token, "Please Wait...", new VolleyResponseListener() {
+            @Override
+            public void onError(String response) {
+                ToastCustom.showToasty(context, response, 2);
+            }
+
+            @Override
+            public void onResponse(String response, Boolean status, String strErrorMsg) {
+                JSONObject jsonObjectPrice = null;
+                if (response != null) {
+                    try {
+                        jsonObjectPrice = new JSONObject(response);
+                        int result = jsonObjectPrice.getInt("intResult");
+                        String warn = jsonObjectPrice.getString("txtMessage");
+                        if (result == 1) {
+                            if (!jsonObjectPrice.getString("ListData").equals("null")) {
+                                JSONArray jsn = jsonObjectPrice.getJSONArray("ListData");
+                                for (int n = 0; n < jsn.length(); n++) {
+                                    JSONObject object = jsn.getJSONObject(n);
+                                    String txtDiscount = object.getString("decDiscount");
+                                    String txtPrice = object.getString("decPriceList");
+                                    String txtBasePoint = object.getString("decBasePoint");
+                                    String txtDecBonus = object.getString("decBonus");
+                                    etDiscount.setText(txtDiscount);
+                                    etPrice.setText(txtPrice);
+                                    etBonusPoint.setText(txtDecBonus);
+                                    etBasedPoint.setText(txtBasePoint);
+                                    for (VMItems item : contentLibs) {
+                                        if (item.getItemCode().equals(txtItemCode)) {
+                                            etQtySearch.setText(String.valueOf(item.getQty()));
+                                        }
+                                    }
+                                }
+                                etQtySearch.requestFocus();
+                            }
+                        }
+                    } catch (JSONException e) {
+
+                    }
+
+                    String a = "";
+                }
+            }
+        });
+    }
+
+    private void onclickKeyEnter(EditText et, View v) {
+        etSearchOnPopUp.setOnKeyListener(new View.OnKeyListener() {
+            @Override
+            public boolean onKey(View v, int keyCode, KeyEvent event) {
+                if ((event.getAction() == KeyEvent.ACTION_DOWN) &&
+                        (keyCode == KeyEvent.KEYCODE_ENTER)) {
+                    refreshListItemSearch(v);
+                    return true;
+                }
+                return false;
+            }
+        });
+    }
+
+    private void refreshListItemSearch(final View promptView) {
+        String strLinkAPISearchOnPopUp = new clsHardCode().linkSearch;
+        String keywordOnPopUpSearch = etSearchOnPopUp.getText().toString();
+        final JSONObject resJson = new JSONObject();
+        try {
+            resJson.put("txtProductBarcode", "");
+            resJson.put("txtProductCode", "");
+            resJson.put("txtProductDesc", keywordOnPopUpSearch);
+//            resJson.put("txtRefreshToken", token);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        final String mRequestBody = resJson.toString();
+        new VolleyUtils().makeJsonObjectRequestWithToken(getActivity(), strLinkAPISearchOnPopUp, mRequestBody, access_token, "Please Wait...", new VolleyResponseListener() {
+            @Override
+            public void onError(String response) {
+                ToastCustom.showToasty(context, response, 2);
+            }
+
+            @Override
+            public void onResponse(String response, Boolean status, String strErrorMsg) {
+                if (response != null) {
+                    JSONObject jsonObject = null;
+                    try {
+                        jsonObject = new JSONObject(response);
+                        int result = jsonObject.getInt("intResult");
+                        String warn = jsonObject.getString("txtMessage");
+                        VMItems item = new VMItems(promptView);
+                        contentSearchResult = new ArrayList<VMItems>();
+                        if (result == 1) {
+                            if (!jsonObject.getString("ListData").equals("null")) {
+                                JSONArray jsn = jsonObject.getJSONArray("ListData");
+                                for (int n = 0; n < jsn.length(); n++) {
+                                    JSONObject object = jsn.getJSONObject(n);
+                                    String txtProductCategory = object.getString("txtProductCategory");
+                                    String txtBrand = object.getString("txtBrand");
+                                    String txtGroupProduct = object.getString("txtGroupProduct");
+                                    String txtProductBarcode = object.getString("txtProductBarcode");
+                                    String txtProductCode = object.getString("txtProductCode");
+                                    HMtxtProductCategory.put(txtProductCode, txtProductCategory);
+                                    String txtProductDesc = object.getString("txtProductDesc");
+
+                                    item = new VMItems(promptView);
+                                    item.setItemName(txtProductDesc);
+                                    item.setGuiid(new Helper().GenerateGuid());
+//                                    item.setPrice(80000);
+                                    item.setItemGroup(txtGroupProduct);
+                                    item.setBarcode(txtProductBarcode);
+                                    item.setItemCode(txtProductCode);
+                                    item.setDesc(txtProductDesc);
+                                    item.setItemBrand(txtBrand);
+
+                                    contentSearchResult.add(item);
+                                }
+                                lvSearchResult.setAdapter(new CardAdapterSearchResult(context, contentSearchResult, Color.WHITE));
+                                etDiscount.setText("");
+                                etPrice.setText("");
+                                etQtySearch.setText("");
+                                etBasedPoint.setText("");
+                                etBonusPoint.setText("");
+                            }
+                        } else {
+                            ToastCustom.showToasty(context, warn, 2);
+
+                        }
+                    } catch (JSONException ex) {
+                        String x = ex.getMessage();
+                    }
+                }
+            }
+        });
+    }
+
+    private void addDefaultSpinnerAlamat() {
+        categoriesProv.add(STRSPINNEROPT);
+        categoriesKabKot.add(STRSPINNEROPT);
+        categoriesKecamatan.add(STRSPINNEROPT);
+        categoriesKelurahan.add(STRSPINNEROPT);
+        categoriesPostCode.add(STRSPINNEROPT);
+        HMProvinceID.put(STRSPINNEROPT, "0");
+        HMKabKotID.put(STRSPINNEROPT, "0");
+        HMKecID.put(STRSPINNEROPT, "0");
+        HMKel.put(STRSPINNEROPT, "0");
+        HMKodePos.put(STRSPINNEROPT, "0");
     }
 
     @OnClick(R.id.etDeliverySchedule)

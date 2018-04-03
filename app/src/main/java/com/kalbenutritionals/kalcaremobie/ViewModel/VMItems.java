@@ -12,6 +12,7 @@ public class VMItems extends RecyclerView.ViewHolder {
     String productCategory;
     String itemCode;
     String itemName;
+    String itemBrand;
     String itemGroup;
     String desc;
     String barcode;
@@ -28,6 +29,13 @@ public class VMItems extends RecyclerView.ViewHolder {
         super(itemView);
     }
 
+    public String getItemBrand() {
+        return itemBrand;
+    }
+
+    public void setItemBrand(String itemBrand) {
+        this.itemBrand = itemBrand;
+    }
 
     public String getProductCategory() {
         return productCategory;

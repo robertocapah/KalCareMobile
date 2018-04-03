@@ -53,7 +53,7 @@ public class CardAdapterSearchResult extends BaseAdapter {
         CardAdapterSearchResult.ViewHolder holder = (CardAdapterSearchResult.ViewHolder) convertView.getTag();
         holder.tvItemName.setText(String.valueOf(item.getItemName()));
         holder.tvitemPrice.setText(String.valueOf(item.getPrice()));
-        holder.tvItemGroupName.setText(item.getItemGroup());
+        holder.tvItemGroupName.setText(item.getItemCode());
         holder.tvDesc.setText(item.getDesc());
         holder.cardView.setCardBackgroundColor(color);
         return convertView;
@@ -74,6 +74,7 @@ public class CardAdapterSearchResult extends BaseAdapter {
             cardView = (CardView) view.findViewById(R.id.cdv_list_product_search);
             iv_icon.setVisibility(View.GONE);
             tvitemPrice.setVisibility(View.GONE);
+            tvDesc.setVisibility(View.GONE);
 
             view.setTag(this);
         }

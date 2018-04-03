@@ -40,37 +40,13 @@
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:weightSum="2">
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_centerVertical="true"
-                        android:layout_marginLeft="10dp"
-                        android:layout_weight="1"
-                        android:text="Item code "
-                        android:textColor="@android:color/black" />
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:id="@+id/tvItemCode"
-                        android:layout_centerVertical="true"
-                        android:layout_marginLeft="10dp"
-                        android:layout_weight="1"
-                        android:text="Item code asdasddasdas"
-                        android:textColor="@android:color/black" />
-
-                </LinearLayout>
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
                     android:layout_weight="1">
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_centerVertical="true"
                         android:layout_marginLeft="10dp"
-                        android:layout_weight="1"
+                        android:layout_weight="3"
                         android:text="Item Name "
                         android:textColor="@android:color/black" />
                     <TextView
@@ -100,6 +76,30 @@
                         android:layout_centerVertical="true"
                         android:layout_marginLeft="10dp"
                         android:layout_weight="1"
+                        android:text="Item code "
+                        android:textColor="@android:color/black" />
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:id="@+id/tvItemCode"
+                        android:layout_centerVertical="true"
+                        android:layout_marginLeft="10dp"
+                        android:layout_weight="1"
+                        android:text=""
+                        android:textColor="@android:color/black" />
+
+                </LinearLayout>
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:weightSum="2">
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_centerVertical="true"
+                        android:layout_marginLeft="10dp"
+                        android:layout_weight="1"
                         android:text="Item Qty "
                         android:textColor="@android:color/black" />
                     <TextView
@@ -109,10 +109,16 @@
                         android:layout_marginLeft="10dp"
                         android:id="@+id/tvQty"
                         android:layout_weight="1"
-                        android:text="Item code asdasddasdas"
+                        android:text=""
                         android:textColor="@android:color/black" />
 
                 </LinearLayout>
+            </LinearLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:weightSum="2">
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -132,15 +138,9 @@
                         android:layout_marginLeft="10dp"
                         android:layout_weight="1"
                         android:id="@+id/tvPrice"
-                        android:text="Item code asdasddasdas"
+                        android:text="Item Price"
                         android:textColor="@android:color/black" />
                 </LinearLayout>
-            </LinearLayout>
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:weightSum="2">
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -161,10 +161,16 @@
                         android:layout_marginLeft="10dp"
                         android:id="@+id/tvDiscount"
                         android:layout_weight="1"
-                        android:text="Item code asdasddasdas"
+                        android:text="Item Discount"
                         android:textColor="@android:color/black" />
 
                 </LinearLayout>
+            </LinearLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:weightSum="2">
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -184,15 +190,9 @@
                         android:layout_centerVertical="true"
                         android:layout_marginLeft="10dp"
                         android:layout_weight="1"
-                        android:text="Item code asdasddasdas"
+                        android:text="Item Price"
                         android:textColor="@android:color/black" />
                 </LinearLayout>
-            </LinearLayout>
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:weightSum="2">
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -217,6 +217,12 @@
                         android:textColor="@android:color/black" />
 
                 </LinearLayout>
+            </LinearLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:weightSum="2">
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -236,15 +242,9 @@
                         android:layout_marginLeft="10dp"
                         android:id="@+id/tvNetPrice"
                         android:layout_weight="1"
-                        android:text="Item code asdasddasdas"
+                        android:text="Net Price"
                         android:textColor="@android:color/black" />
                 </LinearLayout>
-            </LinearLayout>
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:weightSum="2">
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -265,10 +265,16 @@
                         android:id="@+id/tvBasePoint"
                         android:layout_marginLeft="10dp"
                         android:layout_weight="1"
-                        android:text="Item code asdasddasdas"
+                        android:text="Base point"
                         android:textColor="@android:color/black" />
 
                 </LinearLayout>
+            </LinearLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:weightSum="2">
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -286,6 +292,28 @@
                         android:layout_height="wrap_content"
                         android:layout_centerVertical="true"
                         android:id="@+id/tvBonusPoint"
+                        android:layout_marginLeft="10dp"
+                        android:layout_weight="1"
+                        android:text="Bonus Point"
+                        android:textColor="@android:color/black" />
+                </LinearLayout>
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:visibility="invisible"
+                    android:layout_weight="1">
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_centerVertical="true"
+                        android:layout_marginLeft="10dp"
+                        android:layout_weight="1"
+                        android:text="Bonus Point "
+                        android:textColor="@android:color/black" />
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_centerVertical="true"
                         android:layout_marginLeft="10dp"
                         android:layout_weight="1"
                         android:text="Item code asdasddasdas"

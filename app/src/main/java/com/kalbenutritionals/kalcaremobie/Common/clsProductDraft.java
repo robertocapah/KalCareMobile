@@ -27,6 +27,8 @@ public class clsProductDraft implements Serializable {
     @DatabaseField
     private String txtItemName;
     @DatabaseField
+    private String txtItemBrand;
+    @DatabaseField
     private double dblPrice;
     @DatabaseField
     private double dblTotalPrice;
@@ -36,6 +38,14 @@ public class clsProductDraft implements Serializable {
     private String txtBonusPoint;
     @DatabaseField
     private double dblNetPrice;
+
+    public String getTxtItemBrand() {
+        return txtItemBrand;
+    }
+
+    public void setTxtItemBrand(String txtItemBrand) {
+        this.txtItemBrand = txtItemBrand;
+    }
 
     public String getTxtProductDraftGUI() {
         return txtProductDraftGUI;
