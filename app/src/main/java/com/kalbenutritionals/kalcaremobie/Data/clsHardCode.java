@@ -16,10 +16,12 @@ public class clsHardCode {
     public String txtPathApp= Environment.getExternalStorageDirectory()+ File.separator+"KalCareMobile"+File.separator+"app_database"+File.separator;
     public String dbName = "Kalcare.db";
     public String txtFolderData = Environment.getExternalStorageDirectory()+ File.separator+"Android"+File.separator+"data"+File.separator+"KalCareMobile"+File.separator+"image_Person"+File.separator;
+    public String txtPathUserData = Environment.getExternalStorageDirectory()+ File.separator+"Android"+File.separator+"data"+File.separator+"KalCareMobile"+File.separator;
 
     public String linkLogin = new mConfigRepo(context).API + "Login";
     public String linkToken = new mConfigRepo(context).APIToken;
     public String linkSearch = new mConfigRepo(context).API + "ListProdukKHD";
+    public String linkCheckingVersion = new mConfigRepo(context).API + "CheckVersion";
     public String linkSearchCustomer = new mConfigRepo(context).API + "SearchCustomer";
     public String linkGetPrice = new mConfigRepo(context).API + "PriceDanPointByItem";
     public String linkGetListPropinsi = new mConfigRepo(context).API + "ListPropinsi";
