@@ -15,15 +15,15 @@ import java.util.List;
 
 public class mConfigRepo {
     DatabaseHelper helper;
-    public String API = "http://10.171.10.28/WebAPI/NHD/";
-    public String APIToken = "http://10.171.10.28/WebAPI/token";
+    public String API = "http://10.171.10.19:8020/NHD/";
+    public String APIToken = "http://10.171.10.19:8020/token";
 
     public mConfigRepo(Context context) {
         DatabaseManager.init(context);
         helper = DatabaseManager.getInstance().getHelper();
     }
 
-    public Object findById(int value) throws SQLException {
+    public mConfigData findById(int value) throws SQLException {
         mConfigData item = null;
         try{
             item = helper.getmConfigDao().queryForId(value);
