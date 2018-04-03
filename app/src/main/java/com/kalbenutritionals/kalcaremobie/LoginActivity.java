@@ -10,9 +10,13 @@ import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.PowerManager;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.content.FileProvider;
 import android.telephony.TelephonyManager;
 import android.text.method.HideReturnsTransformationMethod;
 import android.text.method.PasswordTransformationMethod;
@@ -38,6 +42,8 @@ import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
+import com.android.volley.toolbox.HttpHeaderParser;
+import com.android.volley.toolbox.HurlStack;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.kalbe.mobiledevknlibs.Toast.ToastCustom;
@@ -62,7 +68,13 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
+import java.net.HttpURLConnection;
 import java.sql.SQLException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -72,6 +84,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.net.URL;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -116,6 +129,7 @@ public class LoginActivity extends Activity {
     mMenuRepo menuRepo;
     private PackageInfo pInfo = null;
     boolean boolTestingLogin = false;
+    ProgressDialog mProgressDialog;
 
     @Override
     public void onBackPressed() {
@@ -314,7 +328,9 @@ public class LoginActivity extends Activity {
                 alert.show();
             }
         });
+        checkingVersion();
     }
+
 
     private void popupSubmit() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -341,6 +357,7 @@ public class LoginActivity extends Activity {
         AlertDialog alert = builder.create();
         alert.show();
     }
+
 
     // sesuaikan username dan password dengan data di server
     private void login() {
@@ -545,6 +562,265 @@ public class LoginActivity extends Activity {
 
     }
 
+    // sesuaikan username dan password dengan data di server
+    private void checkingVersion() {
+        String strLinkAPI = new clsHardCode().linkCheckingVersion;
+        final JSONObject resJson = new JSONObject();
+        mConfigData dtApp=new mConfigData();
+        mConfigData dtUserName=new mConfigData();
+        try {
+            dtApp=new mConfigRepo(getApplicationContext()).findById(4);
+            dtUserName=new mConfigRepo(getApplicationContext()).findById(5);
+            try {
+                tokenRepo = new clsTokenRepo(getApplicationContext());
+                dataToken = (List<clsToken>) tokenRepo.findAll();
+                resJson.put("txtClientId", dtApp.txtDefaultValue);
+                resJson.put("txtUserid", dtUserName.txtDefaultValue);
+//            resJson.put("txtRefreshToken", token);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        final String mRequestBody = resJson.toString();
+        access_token = dataToken.get(0).getTxtUserToken();
+
+        makeJsonObjectRequestkf(LoginActivity.this, strLinkAPI, mRequestBody, access_token, "Mohon Tunggu Beberapa Saat untuk check version...", new VolleyResponseListener() {
+            @Override
+            public void onError(String response) {
+                ToastCustom.showToasty(getApplicationContext(), response, 2);
+            }
+
+            @Override
+            public void onResponse(String response, Boolean status, String strErrorMsg) {
+                if (response != null) {
+                    try {
+                        JSONObject jsonObject = new JSONObject(response);
+                        int result = jsonObject.getInt("intResult");
+                        String warn = jsonObject.getString("txtMessage");
+
+
+                        if (result == 0) {
+                            ToastCustom.showToasty(getApplicationContext(), " Invalid Username or Password", 2);
+                        } else {
+                            if (!jsonObject.getString("ListData").equals("null")) {
+                                JSONArray jsn = jsonObject.getJSONArray("ListData");
+
+                                JSONObject jsnObject = jsn.getJSONObject(0);
+                                String txtDataId = jsnObject.getString("txtDataId");
+                                String txtAppName = jsnObject.getString("txtAppName");
+                                String txtAppSecret = jsnObject.getString("txtAppSecret");
+                                String txtVersion = jsnObject.getString("txtVersion");
+                                String txtFileName = jsnObject.getString("txtFileName");
+                                String txtDomain = jsnObject.getString("txtDomain");
+                                if(pInfo.versionName.equals(txtVersion)==false){
+                                    mProgressDialog = new ProgressDialog(LoginActivity.this);
+                                    mProgressDialog.setMessage("Please Wait For Downloading File....");
+                                    mProgressDialog.setIndeterminate(true);
+                                    mProgressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+                                    mProgressDialog.setCancelable(false);
+
+                                    final DownloadTask downloadTask = new DownloadTask(LoginActivity.this);
+                                    downloadTask.execute(txtDomain+txtFileName);
+
+                                }
+
+//                            listMenu();
+                                /*
+                                Intent intent = new Intent(LoginActivity.this, MainMenu.class);
+                                finish();
+                                startActivity(intent);
+                                */
+                            }
+                        }
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        });
+
+    }
+
+    class InputStreamVolleyRequest extends Request<byte[]> {
+        private final Response.Listener<byte[]> mListener;
+        private Map<String, String> mParams;
+
+        //create a static map for directly accessing headers
+        public Map<String, String> responseHeaders ;
+
+        public InputStreamVolleyRequest(int method, String mUrl ,Response.Listener<byte[]> listener,
+                                        Response.ErrorListener errorListener, HashMap<String, String> params) {
+            // TODO Auto-generated constructor stub
+
+            super(method, mUrl, errorListener);
+            // this request would never use cache.
+            setShouldCache(false);
+            mListener = listener;
+            mParams=params;
+        }
+
+        @Override
+        protected Map<String, String> getParams()
+                throws com.android.volley.AuthFailureError {
+            return mParams;
+        };
+
+
+        @Override
+        protected void deliverResponse(byte[] response) {
+            mListener.onResponse(response);
+        }
+
+        @Override
+        protected Response<byte[]> parseNetworkResponse(NetworkResponse response) {
+
+            //Initialise local responseHeaders map with response headers received
+            responseHeaders = response.headers;
+
+            //Pass the response data here
+            return Response.success( response.data, HttpHeaderParser.parseCacheHeaders(response));
+        }
+    }
+
+    private class DownloadTask extends AsyncTask<String, Integer, String> {
+        private Context context;
+        private PowerManager.WakeLock mWakeLock;
+
+        DownloadTask(Context context) {
+            this.context = context;
+        }
+
+        @Override
+        protected String doInBackground(String... sUrl) {
+            InputStream input = null;
+            OutputStream output = null;
+            HttpURLConnection connection = null;
+            try {
+                URL url = new URL(sUrl[0]);
+                connection = (HttpURLConnection) url.openConnection();
+                connection.connect();
+
+                // expect HTTP 200 OK, so we don't mistakenly save error report
+                // instead of the file
+                if (connection.getResponseCode() != HttpURLConnection.HTTP_OK) {
+                    return "Server returned HTTP " + connection.getResponseCode()
+                            + " " + connection.getResponseMessage();
+                }
+
+                // this will be useful to display download percentage
+                // might be -1: server did not report the length
+                int fileLength = connection.getContentLength();
+
+                // download the file
+                input = connection.getInputStream();
+                String txtPath = new clsHardCode().txtPathUserData;
+                File mediaStorageDir = new File(txtPath);
+                // Create the storage directory if it does not exist
+                if (!mediaStorageDir.exists()) {
+                    if (!mediaStorageDir.mkdirs()) {
+                        return null;
+                    }
+                }
+                output = new FileOutputStream(txtPath + "kcm.apk");
+
+                byte data[] = new byte[4096];
+                long total = 0;
+                int count;
+                while ((count = input.read(data)) != -1) {
+                    // allow canceling with back button
+                    if (isCancelled()) {
+                        input.close();
+                        return null;
+                    }
+                    total += count;
+                    // publishing the progress....
+                    if (fileLength > 0) // only if total length is known
+                        publishProgress((int) (total * 100 / fileLength));
+                    output.write(data, 0, count);
+                }
+            } catch (Exception e) {
+                return e.toString();
+            } finally {
+                try {
+                    if (output != null)
+                        output.close();
+                    if (input != null)
+                        input.close();
+                } catch (IOException ignored) {
+                }
+
+                if (connection != null)
+                    connection.disconnect();
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            PowerManager pm = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
+            mWakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK,
+                    getClass().getName());
+            mWakeLock.acquire();
+            mProgressDialog.show();
+        }
+
+        @Override
+        protected void onProgressUpdate(Integer... progress) {
+            super.onProgressUpdate(progress);
+            mProgressDialog.setIndeterminate(false);
+            mProgressDialog.setMax(100);
+            mProgressDialog.setProgress(progress[0]);
+        }
+
+        @Override
+        protected void onPostExecute(String result) {
+            mWakeLock.release();
+            mProgressDialog.dismiss();
+            if (result != null)
+                ToastCustom.showToastDefault(context, "Download error: " + result);
+            else {
+                if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                    ToastCustom.showToastDefault(context, "File downloaded");
+                    try {
+                        Intent intent = new Intent(Intent.ACTION_INSTALL_PACKAGE);
+                        String txtPath = new clsHardCode().txtPathUserData + "kcm.apk";
+                        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+
+                        File file = new File(txtPath);
+                        Uri uri = FileProvider.getUriForFile(context, BuildConfig.APPLICATION_ID + ".provider", file);
+                        intent.setData(uri);
+
+                        startActivity(intent);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                } else {
+                    ToastCustom.showToastDefault(context, "File downloaded");
+                    Intent intent = new Intent(Intent.ACTION_VIEW);
+                    String txtPath = new clsHardCode().txtPathUserData + "kcm.apk";
+                    intent.setDataAndType(Uri.fromFile(new File(txtPath)), "application/vnd.android.package-archive");
+                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+
+                    if (Build.VERSION.SDK_INT >= 24) {
+                        intent.setDataAndType(FileProvider.getUriForFile(context, context.getApplicationContext().getPackageName() + ".provider", new File(txtPath)), "application/vnd.android.package-archive");
+                        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                    } else {
+                        intent.setDataAndType(Uri.fromFile(new File(txtPath)), "application/vnd.android.package-archive");
+                    }
+                    //intent.setDataAndType(Uri.fromFile(new File(txtPath)), "application/vnd.android.package-archive");
+
+                    startActivity(intent);
+                }
+            }
+        }
+    }
+
     private void requestToken() {
         String username = "";
         String strLinkAPI = new clsHardCode().linkToken;
@@ -628,7 +904,7 @@ public class LoginActivity extends Activity {
                     }
                     requestToken();
                 } else {
-                    popup();
+                    //popup();
                     finalDialog1.dismiss();
                 }
             }
