@@ -195,7 +195,9 @@ public class LoginActivity extends Activity {
             dataToken = (List<clsToken>) tokenRepo.findAll();
             if (dataToken.size() == 0) {
                 requestToken();
+
             } else {
+                checkingVersion();
                 llContent.setVisibility(View.VISIBLE);
                 llDisconnected.setVisibility(View.GONE);
             }
@@ -328,7 +330,7 @@ public class LoginActivity extends Activity {
                 alert.show();
             }
         });
-        checkingVersion();
+
     }
 
 
@@ -868,6 +870,7 @@ public class LoginActivity extends Activity {
                         llContent.setVisibility(View.VISIBLE);
                         llDisconnected.setVisibility(View.GONE);
                         Toast.makeText(getApplicationContext(), "Ready For Login", Toast.LENGTH_SHORT).show();
+                        checkingVersion();
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
