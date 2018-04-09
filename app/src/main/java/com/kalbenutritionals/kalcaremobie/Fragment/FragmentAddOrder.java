@@ -2657,13 +2657,14 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                         txtDeliverSche = sdf.format(draft.getDtDeliverySche());
                     }
                     resJsoni.put("txtAgentName", draft.getTxtAgentName());
-                    resJsoni.put("txtPickUpLocationName", "");
+                    resJsoni.put("txtPickUpLocationName", draft.getTxtOrderLocation());
+                    resJsoni.put("txtPickUpLocation", HMOutletCode.get(draft.getTxtOrderLocation()));
                     resJsoni.put("txtAgentName", draft.getTxtAgentName());
 
 //                            resJsoni.put("txtSourceOrder", draft.getTxtSoSource());
 
                     resJsoni.put("txtSourceOrder", data.getTxtSumberDataID());
-                    resJsoni.put("txtSourceOrderName", "");
+                    resJsoni.put("txtSourceOrderName", draft.getTxtSoSource());
                     resJsoni.put("txtAgentName", draft.getTxtAgentName());
 
                     String walkin = "";
@@ -2682,7 +2683,6 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                         resJsoni.put("txtCustomer", dataDefault.getTxtKontakID());
                         resJsoni.put("txtCustomerName", dataDefault.getTxtNama());
 
-                        resJsoni.put("txtPickUpLocation", dataDefault.getTxtNamaPropinsi());
                         resJsoni.put("txtKelurahanID", dataDefault.getTxtNamaKelurahan());
                         resJsoni.put("txtKelurahanName", dataDefault.getTxtNamaKelurahan());
 
@@ -2706,13 +2706,11 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                         resJsoni.put("intDeliveryBy", deliverBy);
                         resJsoni.put("txtDeliveryBy", dataLogin.getTxtNamaInstitusi());
 
-                        resJsoni.put("txtPickUpLocation", draft.getTxtProvince());
                         resJsoni.put("txtKelurahanID", draft.getTxtKelurahanID());
                         resJsoni.put("txtKelurahanName", draft.getTxtKelurahan());
 
                         resJsoni.put("txtCustomer", draft.getTxtContactID());
                         resJsoni.put("txtCustomerName", draft.getTxtCustomerName());
-                        resJsoni.put("txtPickUpLocation", draft.getTxtProvince());
                         resJsoni.put("txtPropinsiID", String.valueOf(draft.getTxtProvinceID()));
                         resJsoni.put("txtPropinsiName", draft.getTxtProvince());
                         resJsoni.put("txtKabKotaID", String.valueOf(draft.getTxtKabKotID()));
