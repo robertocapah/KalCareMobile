@@ -43,7 +43,6 @@ import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.HttpHeaderParser;
-import com.android.volley.toolbox.HurlStack;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.kalbe.mobiledevknlibs.Toast.ToastCustom;
@@ -75,6 +74,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
+import java.net.URL;
 import java.sql.SQLException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -84,7 +84,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.net.URL;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -908,6 +907,7 @@ public class LoginActivity extends Activity {
                     requestToken();
                 } else {
                     //popup();
+                    ToastCustom.showToasty(getApplicationContext(),"Network Error",2);
                     finalDialog1.dismiss();
                 }
             }

@@ -135,7 +135,7 @@ public class VolleyUtils {
             }
         };
         req.setRetryPolicy(new
-                DefaultRetryPolicy(60000,0,
+                DefaultRetryPolicy(600000,0,
 //                DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
                 DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
 

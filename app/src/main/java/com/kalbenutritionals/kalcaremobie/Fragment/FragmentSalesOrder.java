@@ -317,6 +317,7 @@ public class FragmentSalesOrder extends Fragment {
                                                                         String intDeliveryBy = objData.getString("intDeliveryBy");
                                                                         String txtDeliveryBy = objData.getString("txtDeliveryBy");
                                                                         String txtCustomer = objData.getString("txtCustomer");
+                                                                        String txtCustomerName = objData.getString("txtCustomerName");
                                                                         String txtDelivery = objData.getString("txtDelivery");
                                                                         String txtPrfopinsiID = objData.getString("txtPropinsiID");
                                                                         String txtPropinsiName = objData.getString("txtPropinsiName");
@@ -344,7 +345,7 @@ public class FragmentSalesOrder extends Fragment {
 
                                                                         if (intDeliveryBy.equals("1")){
                                                                             tvCustomerPrev.setText("Customer Detail");
-                                                                            etCustomerNamePrev.setText(txtCustomer);
+                                                                            etCustomerNamePrev.setText(txtCustomerName);
 //                                                                            etContactIDPrev.setText();
                                                                             lnAttacedCust.setVisibility(View.VISIBLE);
                                                                             tvProvinceCustomerPrev.setText(txtPropinsiName);
