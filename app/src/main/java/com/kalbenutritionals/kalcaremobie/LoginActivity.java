@@ -120,6 +120,8 @@ public class LoginActivity extends Activity {
     Button buttonRefreshApp;
     @BindView(R.id.txtVersionLogin)
     TextView txtVersionLogin;
+    @BindView(R.id.txtDomain)
+    TextView txtDomain;
     private int intSet = 1;
     int intProcesscancel = 0;
     List<clsToken> dataToken;
@@ -170,7 +172,8 @@ public class LoginActivity extends Activity {
         setContentView(R.layout.activity_login);
 
         ButterKnife.bind(this);
-
+        String strDomain = new mConfigRepo(getApplicationContext()).strDomain;
+        txtDomain.setText(strDomain);
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
 
         TelephonyManager tm = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
@@ -567,11 +570,11 @@ public class LoginActivity extends Activity {
     private void checkingVersion() {
         String strLinkAPI = new clsHardCode().linkCheckingVersion;
         final JSONObject resJson = new JSONObject();
-        mConfigData dtApp=new mConfigData();
-        mConfigData dtUserName=new mConfigData();
+        mConfigData dtApp = new mConfigData();
+        mConfigData dtUserName = new mConfigData();
         try {
-            dtApp=new mConfigRepo(getApplicationContext()).findById(4);
-            dtUserName=new mConfigRepo(getApplicationContext()).findById(5);
+            dtApp = new mConfigRepo(getApplicationContext()).findById(4);
+            dtUserName = new mConfigRepo(getApplicationContext()).findById(5);
             try {
                 tokenRepo = new clsTokenRepo(getApplicationContext());
                 dataToken = (List<clsToken>) tokenRepo.findAll();
@@ -618,7 +621,7 @@ public class LoginActivity extends Activity {
                                 String txtVersion = jsnObject.getString("txtVersion");
                                 String txtFileName = jsnObject.getString("txtFileName");
                                 String txtDomain = jsnObject.getString("txtDomain");
-                                if(pInfo.versionName.equals(txtVersion)==false){
+                                if (pInfo.versionName.equals(txtVersion) == false) {
                                     mProgressDialog = new ProgressDialog(LoginActivity.this);
                                     mProgressDialog.setMessage("Please Wait For Downloading File....");
                                     mProgressDialog.setIndeterminate(true);
@@ -626,7 +629,7 @@ public class LoginActivity extends Activity {
                                     mProgressDialog.setCancelable(false);
 
                                     final DownloadTask downloadTask = new DownloadTask(LoginActivity.this);
-                                    downloadTask.execute(txtDomain+txtFileName);
+                                    downloadTask.execute(txtDomain + txtFileName);
 
                                 }
 
@@ -652,9 +655,9 @@ public class LoginActivity extends Activity {
         private Map<String, String> mParams;
 
         //create a static map for directly accessing headers
-        public Map<String, String> responseHeaders ;
+        public Map<String, String> responseHeaders;
 
-        public InputStreamVolleyRequest(int method, String mUrl ,Response.Listener<byte[]> listener,
+        public InputStreamVolleyRequest(int method, String mUrl, Response.Listener<byte[]> listener,
                                         Response.ErrorListener errorListener, HashMap<String, String> params) {
             // TODO Auto-generated constructor stub
 
@@ -662,14 +665,16 @@ public class LoginActivity extends Activity {
             // this request would never use cache.
             setShouldCache(false);
             mListener = listener;
-            mParams=params;
+            mParams = params;
         }
 
         @Override
         protected Map<String, String> getParams()
-                throws com.android.volley.AuthFailureError {
+                throws AuthFailureError {
             return mParams;
-        };
+        }
+
+        ;
 
 
         @Override
@@ -684,7 +689,7 @@ public class LoginActivity extends Activity {
             responseHeaders = response.headers;
 
             //Pass the response data here
-            return Response.success( response.data, HttpHeaderParser.parseCacheHeaders(response));
+            return Response.success(response.data, HttpHeaderParser.parseCacheHeaders(response));
         }
     }
 
@@ -786,7 +791,7 @@ public class LoginActivity extends Activity {
             if (result != null)
                 ToastCustom.showToastDefault(context, "Download error: " + result);
             else {
-                if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                     ToastCustom.showToastDefault(context, "File downloaded");
                     try {
                         Intent intent = new Intent(Intent.ACTION_INSTALL_PACKAGE);
@@ -907,7 +912,7 @@ public class LoginActivity extends Activity {
                     requestToken();
                 } else {
                     //popup();
-                    ToastCustom.showToasty(getApplicationContext(),"Network Error",2);
+                    ToastCustom.showToasty(getApplicationContext(), "Network Error", 2);
                     finalDialog1.dismiss();
                 }
             }

@@ -64,6 +64,7 @@ import com.kalbenutritionals.kalcaremobie.Fragment.FragmentProfile;
 import com.kalbenutritionals.kalcaremobie.Fragment.FragmentSalesOrder;
 import com.kalbenutritionals.kalcaremobie.Repo.clsPhotoProfilRepo;
 import com.kalbenutritionals.kalcaremobie.Repo.clsUserLoginRepo;
+import com.kalbenutritionals.kalcaremobie.Repo.mConfigRepo;
 import com.kalbenutritionals.kalcaremobie.Repo.mMenuRepo;
 
 import java.io.ByteArrayOutputStream;
@@ -106,7 +107,7 @@ public class MainMenu extends AppCompatActivity implements GoogleApiClient.Conne
     final int PIC_CROP_PROFILE = 5;
     private static ByteArrayOutputStream output = new ByteArrayOutputStream();
 
-    private TextView tvUsername, tvEmail;
+    private TextView tvUsername, tvEmail, tvDomain;
     CircleImageView ivProfile;
     private Uri uriImage, selectedImage;
 
@@ -166,6 +167,7 @@ public class MainMenu extends AppCompatActivity implements GoogleApiClient.Conne
         ivProfile = (CircleImageView) vwHeader.findViewById(R.id.profile_image);
         tvUsername = (TextView) vwHeader.findViewById(R.id.username);
         tvEmail = (TextView) vwHeader.findViewById(R.id.email);
+        tvDomain = (TextView) vwHeader.findViewById(R.id.domain);
 
         // ATTENTION: This "addApi(AppIndex.API)"was auto-generated to implement the App Indexing API.
         // See https://g.co/AppIndexing/AndroidStudio for more information.
@@ -220,6 +222,8 @@ public class MainMenu extends AppCompatActivity implements GoogleApiClient.Conne
         }
         tvUsername.setText(new clsActivity().greetings() + dataLogin.getNmUser().toString());
         tvEmail.setText(dataLogin.getTxtNamaInstitusi());
+        String txtDomain = new mConfigRepo(getApplicationContext()).strDomain;
+        tvDomain.setText(txtDomain);
 
         /*String linkAPI = new mConfigRepo(getApplicationContext()).API_menu;
         try {

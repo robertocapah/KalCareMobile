@@ -41,6 +41,20 @@
         android:layout_alignLeft="@+id/username"
         android:layout_alignParentBottom="true"
         android:layout_alignStart="@+id/username"
+        android:gravity="left"
+        android:text="Akash.bangad93@gmail.com"
+        android:textColor="#fff"
+        android:textSize="14sp"
+        android:layout_marginLeft="24dp"
+        android:layout_marginRight="12dp" />
+
+    <TextView
+        android:id="@+id/domain"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/username"
+        android:layout_alignParentBottom="true"
+        android:layout_alignStart="@+id/username"
         android:layout_marginBottom="10dp"
         android:gravity="left"
         android:text="Akash.bangad93@gmail.com"

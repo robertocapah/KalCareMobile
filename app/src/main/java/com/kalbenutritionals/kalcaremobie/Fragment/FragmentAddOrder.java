@@ -1565,6 +1565,7 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                                                         item.setNetPrice(itemNetPrice);
                                                         item.setBonusPoint(itemBonusPoint);
 
+
                                                         boolean booladded = addItem(item);
                                                         if (booladded) {
                                                             alertD.dismiss();

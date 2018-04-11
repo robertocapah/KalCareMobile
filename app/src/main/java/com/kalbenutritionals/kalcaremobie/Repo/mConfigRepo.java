@@ -19,8 +19,9 @@ public class mConfigRepo {
 //    public String APIToken = "http://10.171.10.19:8020/token";
 //    public String API = "http://10.171.10.19:8020/NHD/";
 //    public String APIToken = "http://10.171.10.19:8020/token";
-    public String API = "http://10.171.10.28:8020/WebAPI/NHD/";
-    public String APIToken = "http://10.171.10.28:8020/WebAPI/token";
+    public String strDomain = "10.171.10.28";
+    public String API = "http://"+strDomain+"/WebAPI/NHD/";
+    public String APIToken = "http://"+strDomain+"/WebAPI/token";
 
     public mConfigRepo(Context context) {
         DatabaseManager.init(context);
