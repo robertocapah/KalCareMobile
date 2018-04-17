@@ -41,6 +41,8 @@ import com.kalbe.mobiledevknlibs.Toast.ToastCustom;
 import com.kalbe.mobiledevknlibs.library.pulltorefresh.interfaces.IXListViewListener;
 import com.kalbenutritionals.kalcaremobie.Common.clsCustomerData;
 import com.kalbenutritionals.kalcaremobie.Common.clsDraft;
+import com.kalbenutritionals.kalcaremobie.Common.clsListMediaJasa;
+import com.kalbenutritionals.kalcaremobie.Common.clsListPaymentMethod;
 import com.kalbenutritionals.kalcaremobie.Common.clsProductDraft;
 import com.kalbenutritionals.kalcaremobie.Common.clsToken;
 import com.kalbenutritionals.kalcaremobie.Common.clsUserLogin;
@@ -63,6 +65,8 @@ import com.kalbenutritionals.kalcaremobie.DrawableClickListener;
 import com.kalbenutritionals.kalcaremobie.R;
 import com.kalbenutritionals.kalcaremobie.Repo.clsCustomerDataRepo;
 import com.kalbenutritionals.kalcaremobie.Repo.clsDraftRepo;
+import com.kalbenutritionals.kalcaremobie.Repo.clsListMediaJasaRepo;
+import com.kalbenutritionals.kalcaremobie.Repo.clsListPaymentMethodRepo;
 import com.kalbenutritionals.kalcaremobie.Repo.clsProductDraftRepo;
 import com.kalbenutritionals.kalcaremobie.Repo.clsTokenRepo;
 import com.kalbenutritionals.kalcaremobie.Repo.clsUserLoginRepo;
@@ -220,6 +224,15 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
     List<String> categoriesKabKot = new ArrayList<String>();
     List<String> categoriesKecamatan = new ArrayList<String>();
     List<String> categoriesKelurahan = new ArrayList<String>();
+
+    List<String> paymentMethodList = new ArrayList<String>();
+    List<String> sourceMediaPaymentList = new ArrayList<String>();
+    List<String> paymentList = new ArrayList<String>();
+
+    private HashMap<String, String> HMPaymentmethodList = new HashMap<String, String>();
+    private HashMap<String, String> HMsourceMediaPaymentList = new HashMap<String, String>();
+    private HashMap<String, String> HMpaymentList = new HashMap<String, String>();
+
     @BindView(R.id.spnKelurahanAddOrder)
     Spinner spnKelurahanAddOrder;
     @BindView(R.id.tvPhoneNumb)
@@ -232,6 +245,7 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
     Context context;
     List<clsToken> dataToken;
     final static String SPNMEMBERID = "Member ID";
+    final static String SPNCHOOSEONE = "Choose One";
     final static String SPNPHONE = "Phone Number";
     private HashMap<String, String> HMItemCode = new HashMap<String, String>();
     private HashMap<String, String> HMItemName = new HashMap<String, String>();
@@ -268,6 +282,11 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
     String kelurahanCustomer = "";
     String postCodeCustomer = "";
     ListView lvSearchResult;
+
+    String paymentMethodId = "";
+    String sourceMediaPaymentId = "";
+    String paymentId = "";
+
 
     String mRequestBodyCheckout = "";
     String strLinkAPICheckout = "";
@@ -1878,14 +1897,15 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                         resJson.put("intWalkIn", walkin);
                         resJson.put("intDeliveryBy", "0");
                         resJson.put("txtDeliveryBy", dataLogin.getTxtNamaInstitusi());
-                        resJson.put("txtCustomer", dataDefault.getTxtKontakID());
-                        resJson.put("txtCustomerName", dataDefault.getTxtNama());
 
                         resJson.put("txtPickUpLocation", HMOutletCode.get(draft.getTxtOrderLocation()));
                         resJson.put("txtPickUpLocationName", draft.getTxtOrderLocation());
+
+                       /*
+                        resJson.put("txtCustomer", dataDefault.getTxtKontakID());
+                        resJson.put("txtCustomerName", dataDefault.getTxtNama());
                         resJson.put("txtKelurahanID", dataDefault.getTxtNamaKelurahan());
                         resJson.put("txtKelurahanName", dataDefault.getTxtNamaKelurahan());
-
                         resJson.put("txtPropinsiID", dataDefault.getTxtPropinsiID());
                         resJson.put("txtPropinsiName", dataDefault.getTxtNamaPropinsi());
                         resJson.put("txtKabKotaID", dataDefault.getTxtKabKotaID());
@@ -1893,7 +1913,21 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                         resJson.put("txtKecamatanID", dataDefault.getTxtKecamatan());
                         resJson.put("txtKecamatanName", dataDefault.getTxtKecamatan());
                         resJson.put("txtKodePos", dataDefault.getTxtKodePos());
-                        resJson.put("txtDelivery", dataDefault.getTxtAlamat());
+                        resJson.put("txtDelivery", dataDefault.getTxtAlamat());*/
+
+                        resJson.put("txtCustomer", null);
+                        resJson.put("txtCustomerName", null);
+                        resJson.put("txtKelurahanID", null);
+                        resJson.put("txtKelurahanName", null);
+                        resJson.put("txtPropinsiID", null);
+                        resJson.put("txtPropinsiName", null);
+                        resJson.put("txtKabKotaID", null);
+                        resJson.put("txtKabupatenKotaName", null);
+                        resJson.put("txtKecamatanID", null);
+                        resJson.put("txtKecamatanName", null);
+                        resJson.put("txtKodePos", null);
+                        resJson.put("txtDelivery", null);
+
                         resJson.put("txtRemarks", draft.getTxtRemarks());
                         resJson.put("txtDeviceId", deviceInfo.getModel());
                         resJson.put("txtUser", dataLogin.getNmUser());
@@ -2158,6 +2192,22 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                     } catch (SQLException e) {
                         e.printStackTrace();
                     }
+
+                    resJson.put("txtNamaPropinsi", "");
+                    resJson.put("txtNamaKabKota", "");
+                    resJson.put("txtNamaKecamatan", "");
+                    resJson.put("txtNamaKelurahan", "");
+                    resJson.put("txtRemarkSO", draft.getTxtRemarks());
+                    resJson.put("txtPropinsiID", "");
+                    resJson.put("txtKabKotaID", "");
+                    resJson.put("txtKecamatanID", "");
+                    resJson.put("txtKodePos", "");
+
+                    resJson.put("txtKontakID", txtKontakID);
+                    resJson.put("txtCustName", "");
+                    resJson.put("txtCustPhone", "");
+                    resJson.put("txtAlamatKirim", "");
+                    /*
                     resJson.put("txtNamaPropinsi", dataDefault.getTxtNamaPropinsi());
                     resJson.put("txtNamaKabKota", dataDefault.getTxtNamaKabKota());
                     resJson.put("txtNamaKecamatan", dataDefault.getTxtKecamatan());
@@ -2171,7 +2221,7 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                     resJson.put("txtKontakID", txtKontakID);
                     resJson.put("txtCustName", dataDefault.getTxtNama());
                     resJson.put("txtCustPhone", dataDefault.getTxtPhoneNumber());
-                    resJson.put("txtAlamatKirim", dataDefault.getTxtAlamat());
+                    resJson.put("txtAlamatKirim", dataDefault.getTxtAlamat());*/
                 } else {
                     resJson.put("txtNamaPropinsi", draft.getTxtProvince());
                     resJson.put("txtNamaKabKota", draft.getTxtKabKot());
@@ -2681,7 +2731,9 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                         resJsoni.put("intWalkIn", walkin);
                         resJsoni.put("intDeliveryBy", deliverBy);
                         resJsoni.put("txtDeliveryBy", dataLogin.getTxtNamaInstitusi());
-                        resJsoni.put("txtCustomer", dataDefault.getTxtKontakID());
+
+
+                        /*resJsoni.put("txtCustomer", dataDefault.getTxtKontakID());
                         resJsoni.put("txtCustomerName", dataDefault.getTxtNama());
 
                         resJsoni.put("txtKelurahanID", dataDefault.getTxtNamaKelurahan());
@@ -2694,7 +2746,23 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                         resJsoni.put("txtKecamatanID", dataDefault.getTxtKecamatan());
                         resJsoni.put("txtKecamatanName", dataDefault.getTxtKecamatan());
                         resJsoni.put("txtKodePos", dataDefault.getTxtKodePos());
-                        resJsoni.put("txtDelivery", dataDefault.getTxtAlamat());
+                        resJsoni.put("txtDelivery", dataDefault.getTxtAlamat());*/
+
+                        resJsoni.put("txtCustomer", "");
+                        resJsoni.put("txtCustomerName", "");
+
+                        resJsoni.put("txtKelurahanID", "");
+                        resJsoni.put("txtKelurahanName", "");
+
+                        resJsoni.put("txtPropinsiID", "");
+                        resJsoni.put("txtPropinsiName", "");
+                        resJsoni.put("txtKabKotaID", "");
+                        resJsoni.put("txtKabupatenKotaName", "");
+                        resJsoni.put("txtKecamatanID", "");
+                        resJsoni.put("txtKecamatanName", "");
+                        resJsoni.put("txtKodePos", "123123");
+                        resJsoni.put("txtDelivery", "");
+
                         resJsoni.put("txtRemarks", draft.getTxtRemarks());
                         resJsoni.put("txtDeviceId", deviceInfo.getModel());
                         resJsoni.put("txtUser", dataLogin.getNmUser());
@@ -2913,6 +2981,52 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                                         final RadioGroup rg = promptView.findViewById(R.id.radioGroup);
                                         final RadioButton rbCash = (RadioButton) promptView.findViewById(R.id.radio_cash);
                                         final RadioButton rbDebt = (RadioButton) promptView.findViewById(R.id.radio_debit);
+                                        final Spinner spnPaymentMethod = (Spinner) promptView.findViewById(R.id.spnPaymentMethod);
+                                        final Spinner spnSourceMediaPayment = (Spinner) promptView.findViewById(R.id.spnPaymentMethod);
+                                        final Spinner spnPayment = (Spinner) promptView.findViewById(R.id.spnPayment);
+
+//                                        List<clsListPaymentMethod> mediajasas = new ArrayList<>();
+//                                        clsListMediaJasa mediaJasaDefault = new clsListMediaJasa();
+                                        /*mediaJasaDefault.setTypeid("000");
+                                        mediaJasaDefault.setDescType("Choose one");
+                                        mediajasas.add(mediaJasaDefault);*/
+                                        List<clsListPaymentMethod> paymentMethods = new ArrayList<>();
+                                        try {
+                                            paymentMethods = new clsListPaymentMethodRepo(context).findAll();
+                                            paymentMethodList = new ArrayList<>();
+                                            paymentMethodList.add(SPNCHOOSEONE);
+                                            HMPaymentmethodList.put(SPNCHOOSEONE,"000");
+                                            for(clsListPaymentMethod i : paymentMethods){
+                                                paymentMethodList.add(i.getNama());
+                                                HMPaymentmethodList.put(i.getNama(),i.getKode());
+                                            }
+                                        } catch (SQLException e) {
+                                            e.printStackTrace();
+                                        }
+                                        if (paymentMethods.size()>0){
+                                            SpinnerCustom.setAdapterSpinner(spnPaymentMethod, context, R.layout.custom_spinner, paymentMethodList);
+//                                            SpinnerCustom.selectedItemByText(context, spnProvinceAddOrder, categoriesProv, txtPropinsiName);
+                                        }
+                                        List<clsListMediaJasa> mediaJasas = new ArrayList<>();
+                                        try {
+                                            mediaJasas = new clsListMediaJasaRepo(context).findAll();
+                                            sourceMediaPaymentList = new ArrayList<>();
+                                            sourceMediaPaymentList.add(SPNCHOOSEONE);
+                                            HMsourceMediaPaymentList.put(SPNCHOOSEONE,"000");
+                                            for(clsListMediaJasa i : mediaJasas){
+                                                sourceMediaPaymentList.add(i.getDescType());
+                                                HMsourceMediaPaymentList.put(i.getDescType(),i.getTypeid());
+                                            }
+                                        } catch (SQLException e) {
+                                            e.printStackTrace();
+                                        }
+                                        if (mediaJasas.size()>0){
+                                            SpinnerCustom.setAdapterSpinner(spnSourceMediaPayment, context, R.layout.custom_spinner, sourceMediaPaymentList);
+//                                            SpinnerCustom.selectedItemByText(context, spnProvinceAddOrder, categoriesProv, txtPropinsiName);
+                                        }
+
+
+
                                         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
                                         alertDialogBuilder.setView(promptView);
                                         alertDialogBuilder.setTitle("Payment Method");
@@ -2932,7 +3046,8 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                                         alertD.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
                                             @Override
                                             public void onClick(View v) {
-                                                int selectedId = rg.getCheckedRadioButtonId();
+
+                                                /* int selectedId = rg.getCheckedRadioButtonId();
                                                 if (rbCash.isChecked()) {
                                                     tvPaymentMethod.setText("Cash");
                                                     alertD.dismiss();
@@ -2941,7 +3056,7 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                                                     alertD.dismiss();
                                                 } else {
                                                     ToastCustom.showToasty(context, "Please select payment method", 3);
-                                                }
+                                                }*/
                                             }
                                         });
                                     }
@@ -3394,7 +3509,7 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                         public void onClick(DialogInterface dialog, int which) {
                             contentLibs.remove(position);
                             lvItemAdd.setAdapter(new CardAppAdapter(context, contentLibs, Color.WHITE));
-                            rvParent.setAdapter(new RVParentAdapter(context, contentLibs, Color.WHITE));
+//                            rvParent.setAdapter(new RVParentAdapter(context, contentLibs, Color.WHITE));
                         }
                     })
                             .setCancelable(false)

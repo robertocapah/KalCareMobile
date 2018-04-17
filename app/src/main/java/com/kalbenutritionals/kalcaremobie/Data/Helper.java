@@ -97,7 +97,7 @@ public class Helper {
     }
     public JSONArray writeJSONSaveData(Context context, clsDraft draft, List<VMItems> contentLibs){
         boolean saveDraftResult = false;
-        new clsProductDraftRepo(context).clearAllData();
+//        new clsProductDraftRepo(context).clearAllData();
         JSONArray items = new JSONArray();
         for (VMItems item : contentLibs) {
             String guiid = new Helper().GenerateGuid();

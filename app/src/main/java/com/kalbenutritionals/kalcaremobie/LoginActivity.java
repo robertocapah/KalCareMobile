@@ -46,7 +46,8 @@ import com.android.volley.toolbox.HttpHeaderParser;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.kalbe.mobiledevknlibs.Toast.ToastCustom;
-import com.kalbenutritionals.kalcaremobie.Common.clsCustomerData;
+import com.kalbenutritionals.kalcaremobie.Common.clsListMediaJasa;
+import com.kalbenutritionals.kalcaremobie.Common.clsListPaymentMethod;
 import com.kalbenutritionals.kalcaremobie.Common.clsToken;
 import com.kalbenutritionals.kalcaremobie.Common.clsUserLogin;
 import com.kalbenutritionals.kalcaremobie.Common.mConfigData;
@@ -56,7 +57,8 @@ import com.kalbenutritionals.kalcaremobie.Data.Helper;
 import com.kalbenutritionals.kalcaremobie.Data.VolleyResponseListener;
 import com.kalbenutritionals.kalcaremobie.Data.VolleyUtils;
 import com.kalbenutritionals.kalcaremobie.Data.clsHardCode;
-import com.kalbenutritionals.kalcaremobie.Repo.clsCustomerDataRepo;
+import com.kalbenutritionals.kalcaremobie.Repo.clsListMediaJasaRepo;
+import com.kalbenutritionals.kalcaremobie.Repo.clsListPaymentMethodRepo;
 import com.kalbenutritionals.kalcaremobie.Repo.clsTokenRepo;
 import com.kalbenutritionals.kalcaremobie.Repo.clsUserLoginRepo;
 import com.kalbenutritionals.kalcaremobie.Repo.mConfigRepo;
@@ -431,8 +433,43 @@ public class LoginActivity extends Activity {
 
                                     JSONObject jsnObject = jsn.getJSONObject(0);
                                     JSONObject dtInfo = jsnObject.getJSONObject("dtInfo");
+                                    JSONArray ListMediaJasa = jsnObject.getJSONArray("ListMediaJasa");
+                                    JSONArray ListPaymentMethod = jsnObject.getJSONArray("ListPaymentMethod");
 
-                                    JSONObject dtclsCustomerData = jsnObject.getJSONObject("dtclsCustomerData");
+                                    for (int n = 0; n < ListMediaJasa.length(); n++) {
+                                        JSONObject object = ListMediaJasa.getJSONObject(n);
+                                        String typeid = object.getString("typeid");
+                                        String descType = object.getString("desc_type");
+                                        String txtmediajasapaymentid = object.getString("txtmediajasapaymentid");
+                                        String txtmediajasapayment = object.getString("txtmediajasapayment");
+                                        clsListMediaJasa data = new clsListMediaJasa();
+                                        data.setTypeid(typeid);
+                                        data.setDescType(descType);
+                                        data.setTxtmediajasapaymentid(txtmediajasapaymentid);
+                                        data.setTxtmediajasapayment(txtmediajasapayment);
+                                        try {
+                                            new clsListMediaJasaRepo(getApplicationContext()).createOrUpdate(data);
+                                        } catch (SQLException e) {
+                                            e.printStackTrace();
+                                            ToastCustom.showToasty(getApplicationContext(),"clsMediaJasa Error :"+e.getMessage(),2);
+                                        }
+                                    }
+                                    for (int n = 0; n < ListPaymentMethod.length(); n++) {
+                                        JSONObject object = ListPaymentMethod.getJSONObject(n);
+                                        String kode = object.getString("kode");
+                                        String nama = object.getString("nama");
+                                        clsListPaymentMethod data = new clsListPaymentMethod();
+                                        data.setKode(kode);
+                                        data.setNama(nama);
+                                        try {
+                                            new clsListPaymentMethodRepo(getApplicationContext()).createOrUpdate(data);
+                                        } catch (SQLException e) {
+                                            e.printStackTrace();
+                                            ToastCustom.showToasty(getApplicationContext(),"clsListPaymentMethod Error :"+e.getMessage(),2);
+                                        }
+                                    }
+
+                                    /*JSONObject dtclsCustomerData = jsnObject.getJSONObject("dtclsCustomerData");
                                     String txtKontakIDDefault = dtclsCustomerData.getString("txtKontakID");
                                     String txtNama = dtclsCustomerData.getString("txtNama");
                                     String txtAlamat = dtclsCustomerData.getString("txtAlamat");
@@ -466,7 +503,7 @@ public class LoginActivity extends Activity {
                                     dataDefault.setTxtKecamatan(txtKecamatan);
                                     dataDefault.setTxtKodePos(txtKodePos);
                                     dataDefault.setTxtPhoneNumber(txtPhoneNumb);
-                                    new clsCustomerDataRepo(getApplicationContext()).create(dataDefault);
+                                    new clsCustomerDataRepo(getApplicationContext()).create(dataDefault);*/
 
                                     String dtDate = jsnObject.getString("dtDate");
                                     int intScheduleDevilery = jsnObject.getInt("intScheduleDevilery");

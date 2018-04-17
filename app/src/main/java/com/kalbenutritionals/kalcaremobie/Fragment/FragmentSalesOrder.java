@@ -72,6 +72,7 @@ public class FragmentSalesOrder extends Fragment {
     clsUserLogin dataLogin = null;
     ScrollView scrollViewList;
     LinearLayout lnNoData;
+
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
      * fragment (e.g. upon screen orientation changes).
@@ -139,11 +140,10 @@ public class FragmentSalesOrder extends Fragment {
                 new clsDraftRepo(context).clearAllData();
                 FragmentAddOrder fragmentAddOrder = new FragmentAddOrder();
                 FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
-                fragmentTransaction.replace(R.id.frame, fragmentAddOrder,"Fragment_AddOrder");
+                fragmentTransaction.replace(R.id.frame, fragmentAddOrder, "Fragment_AddOrder");
                 fragmentTransaction.commit();
             }
         });
-
 
 
         try {
@@ -172,274 +172,302 @@ public class FragmentSalesOrder extends Fragment {
                         if (result == 1) {
                             if (!jsonObject.getString("ListData").equals("null")) {
                                 JSONArray jsn = jsonObject.getJSONArray("ListData");
-                                    for (int n = 0; n < jsn.length(); n++) {
-                                        JSONObject object = jsn.getJSONObject(n);
-                                        String txtNewId = object.getString("txtNewId");
-                                        String txtNoSo = object.getString("txtNoSo");
-                                        String txtGenerateNoSo = object.getString("txtGenerateNoSo");
-                                        String dtDateGenerateSO = object.getString("dtDateGenerateSO");
-                                        String dtDate = object.getString("dtDate");
-                                        String txtSourceOrder = object.getString("txtSourceOrder");
-                                        String dtDelivery = object.getString("dtDelivery");
-                                        String txtAgentName = object.getString("txtAgentName");
-                                        String txtPickUpLocation = object.getString("txtPickUpLocation");
-                                        String intWalkIn = object.getString("intWalkIn");
-                                        String intDeliveryBy = object.getString("intDeliveryBy");
-                                        String txtDeliveryBy = object.getString("txtDeliveryBy");
-                                        String txtCustomer = object.getString("txtCustomer");
-                                        String txtCustomerName = object.getString("txtCustomerName");
-                                        String txtDelivery = object.getString("txtDelivery");
-                                        String txtPropinsiID = object.getString("txtPropinsiID");
-                                        String txtPropinsiName = object.getString("txtPropinsiName");
-                                        String txtKabupatenKotaID = object.getString("txtKabupatenKotaID");
-                                        String txtKabupatenKotaName = object.getString("txtKabupatenKotaName");
-                                        String txtKecamatanID = object.getString("txtKecamatanID");
-                                        String txtKecamatanName = object.getString("txtKecamatanName");
-                                        String txtKelurahanID = object.getString("txtKelurahanID");
-                                        String txtKelurahanName = object.getString("txtKelurahanName");
+                                for (int n = 0; n < jsn.length(); n++) {
+                                    JSONObject object = jsn.getJSONObject(n);
+                                    String txtNewId = object.getString("txtNewId");
+                                    String txtNoSo = object.getString("txtNoSo");
+                                    String txtGenerateNoSo = object.getString("txtGenerateNoSo");
+                                    String dtDateGenerateSO = object.getString("dtDateGenerateSO");
+                                    String dtDate = object.getString("dtDate");
+                                    String txtSourceOrder = object.getString("txtSourceOrder");
+                                    String dtDelivery = object.getString("dtDelivery");
+                                    String txtAgentName = object.getString("txtAgentName");
+                                    String txtPickUpLocation = object.getString("txtPickUpLocation");
+                                    String intWalkIn = object.getString("intWalkIn");
+                                    String intDeliveryBy = object.getString("intDeliveryBy");
+                                    String txtDeliveryBy = object.getString("txtDeliveryBy");
+                                    String txtCustomer = object.getString("txtCustomer");
+                                    String txtCustomerName = object.getString("txtCustomerName");
+                                    String txtDelivery = object.getString("txtDelivery");
+                                    String txtPropinsiID = object.getString("txtPropinsiID");
+                                    String txtPropinsiName = object.getString("txtPropinsiName");
+                                    String txtKabupatenKotaID = object.getString("txtKabupatenKotaID");
+                                    String txtKabupatenKotaName = object.getString("txtKabupatenKotaName");
+                                    String txtKecamatanID = object.getString("txtKecamatanID");
+                                    String txtKecamatanName = object.getString("txtKecamatanName");
+                                    String txtKelurahanID = object.getString("txtKelurahanID");
+                                    String txtKelurahanName = object.getString("txtKelurahanName");
 
-                                        String txtDeviceId = object.getString("txtDeviceId");
-                                        String intStatus = object.getString("intStatus");
-                                        String txtRemarks = object.getString("txtRemarks");
-                                        String txtStatus_code = object.getString("txtStatus_code");
+                                    String txtDeviceId = object.getString("txtDeviceId");
+                                    String intStatus = object.getString("intStatus");
+                                    String txtRemarks = object.getString("txtRemarks");
+                                    String txtStatus_code = object.getString("txtStatus_code");
 
-                                        VMLIstSo data = new VMLIstSo();
-                                        data.setTxtPropinsiName(txtPropinsiName);
-                                        data.setTxtKabupatenKotaName(txtKabupatenKotaName);
-                                        data.setTxtKecamatanName(txtKecamatanName);
-                                        data.setTxtKelurahanName(txtKelurahanName);
-                                        data.setTxtNoSo(txtNoSo);
-                                        data.setTxtAgentName(txtAgentName);
-                                        data.setTxtStatus(txtStatus_code);
-                                        data.setIntStatus(intStatus);
-                                        data.setTxtCustomerName(txtCustomerName);
-                                        data.setTxtCustomerId(txtCustomer);
-                                        data.setTxtNewId(txtNewId);
-                                        data.setDtDateGenerateSO(txtGenerateNoSo);
-                                        data.setDtDateGenerateSO(dtDateGenerateSO);
-                                        data.setDtDate(dtDate);
-                                        data.setTxtSourceOrder(txtSourceOrder);
-                                        data.setDtDelivery(dtDelivery);
-                                        data.setTxtPickupLocation(txtPickUpLocation);
-                                        data.setIntWalkIn(Integer.parseInt(intWalkIn));
-                                        data.setIntDeliveryBy(Integer.parseInt(intDeliveryBy));
-                                        data.setTxtDeliveryBy(txtDeliveryBy);
-                                        data.setTxtDelivery(txtDelivery);
-                                        data.setTxtRemarks(txtRemarks);
+                                    VMLIstSo data = new VMLIstSo();
+                                    data.setTxtPropinsiName(txtPropinsiName);
+                                    data.setTxtKabupatenKotaName(txtKabupatenKotaName);
+                                    data.setTxtKecamatanName(txtKecamatanName);
+                                    data.setTxtKelurahanName(txtKelurahanName);
+                                    data.setTxtNoSo(txtNoSo);
+                                    data.setTxtAgentName(txtAgentName);
+                                    data.setTxtStatus(txtStatus_code);
+                                    data.setIntStatus(intStatus);
+                                    data.setTxtCustomerName(txtCustomerName);
+                                    data.setTxtCustomerId(txtCustomer);
+                                    data.setTxtNewId(txtNewId);
+                                    data.setDtDateGenerateSO(txtGenerateNoSo);
+                                    data.setDtDateGenerateSO(dtDateGenerateSO);
+                                    data.setDtDate(dtDate);
+                                    data.setTxtSourceOrder(txtSourceOrder);
+                                    data.setDtDelivery(dtDelivery);
+                                    data.setTxtPickupLocation(txtPickUpLocation);
+                                    data.setIntWalkIn(Integer.parseInt(intWalkIn));
+                                    data.setIntDeliveryBy(Integer.parseInt(intDeliveryBy));
+                                    data.setTxtDeliveryBy(txtDeliveryBy);
+                                    data.setTxtDelivery(txtDelivery);
+                                    data.setTxtRemarks(txtRemarks);
 
-                                        contentLibs.add(data);
+                                    contentLibs.add(data);
 
-                                    }
-                                    lvSO.setAdapter(new CardAdapterListSo(getActivity().getApplicationContext(), contentLibs, Color.WHITE));
-                                    ListViewCustom.setListViewHeightBasedOnItems(getActivity(),lvSO);
-                                    lvSO.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                                        @Override
-                                        public void onItemClick(AdapterView<?> parent, final View view, int position, long id) {
-                                            VMLIstSo itemSelected = null;
-                                            itemSelected = contentLibs.get(position);
-                                            if (!itemSelected.getTxtStatus().equals("DRAFT")){
-                                                ToastCustom.showToasty(context,"Transaction Approved",1);
-                                                final String strLinkAPIApproved = new clsHardCode().linkGetDataDetailSalesOrderMobile;
-                                                final JSONObject resJsonpApproved = new JSONObject();
-
-                                                String currentDateandTimeApproved = sdf.format(dtLoginData);
-
-                                                LayoutInflater layoutInflater = LayoutInflater.from(context);
-                                                AlertDialog.Builder alertDialogBuilderAttch = new AlertDialog.Builder(getActivity());
-                                                final View promptView = layoutInflater.inflate(R.layout.popup_preview_approved, null);
-                                                final ListView lvPreview = (ListView) promptView.findViewById(R.id.lvItemPrev);
-                                                final TextView tvSOStatusPrev = (TextView) promptView.findViewById(R.id.tvSOStatusPrev);
-                                                final TextView tvSoDatePrev = (TextView) promptView.findViewById(R.id.tvSoDatePrev);
-                                                final TextView tvSOSourcePrev = (TextView) promptView.findViewById(R.id.tvSOSourcePrev);
-                                                final TextView tvAgentNamePrev = (TextView) promptView.findViewById(R.id.tvAgentNamePrev);
-                                                final TextView tvOrderLocationPrev = (TextView) promptView.findViewById(R.id.tvOrderLocationPrev);
-                                                final TextView tvDeliveryByPrev = (TextView) promptView.findViewById(R.id.tvDeliveryByPrev);
-                                                final TextView tvDeliverySchedulePrev = (TextView) promptView.findViewById(R.id.tvDeliverySchedulePrev);
-                                                final TextView tvRemarksPreview = (TextView) promptView.findViewById(R.id.tvRemarksPreview);
-                                                final TextView tvPaymentMethod = (TextView) promptView.findViewById(R.id.tvPaymentMethod);
-
-                                                final TextView etCustomerNamePrev = (TextView) promptView.findViewById(R.id.etCustomerNamePrev);
-                                                final TextView etContactIDPrev = (TextView) promptView.findViewById(R.id.etContactIDPrev);
-                                                final TextView etMemberNoPrev = (TextView) promptView.findViewById(R.id.etMemberNoPrev);
-                                                final TextView tvPostCodeCustomerPrev = (TextView) promptView.findViewById(R.id.tvPostCodeCustomerPrev);
-                                                final TextView tvProvinceCustomerPrev = (TextView) promptView.findViewById(R.id.tvProvinceCustomerPrev);
-                                                final TextView tvCityCustomerPrev = (TextView) promptView.findViewById(R.id.tvCityCustomerPrev);
-                                                final TextView tvRegionCustomerPrev = (TextView) promptView.findViewById(R.id.tvRegionCustomerPrev);
-                                                final TextView tvKelurahanCustomerPrev = (TextView) promptView.findViewById(R.id.tvKelurahanCustomerPrev);
-                                                TextView tvHideCustPrev = (TextView) promptView.findViewById(R.id.tvHideCustPrev);
-
-
-                                                final LinearLayout lnAttacedCust = (LinearLayout) promptView.findViewById(R.id.lnAttacedCust);
-                                                final TextView tvCustomerPrev = (TextView) promptView.findViewById(R.id.tvCustomerPrev);
-
-
-
-
-                                                try {
-                                                    resJsonpApproved.put("txtAgentName", dataLogin.getNmUser());
-                                                    resJsonpApproved.put("dtDate", currentDateandTimeApproved);
-                                                    resJsonpApproved.put("txtNoSo", itemSelected.getTxtNoSo());
-
-                                                } catch (JSONException e) {
-                                                    e.printStackTrace();
-                                                }
-                                                final String mRequestBodyApproved = resJsonpApproved.toString();
-                                                new VolleyUtils().makeJsonObjectRequestWithToken(getActivity(), strLinkAPIApproved, mRequestBodyApproved, access_token, "Please Wait...", new VolleyResponseListener() {
-                                                    @Override
-                                                    public void onError(String response) {
-                                                        ToastCustom.showToasty(context, response, 2);
+                                }
+                                lvSO.setAdapter(new CardAdapterListSo(getActivity().getApplicationContext(), contentLibs, Color.WHITE));
+                                ListViewCustom.setListViewHeightBasedOnItems(getActivity(), lvSO);
+                                lvSO.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+                                    @Override
+                                    public boolean onItemLongClick(AdapterView<?> parent, View view, final int position, long id) {
+                                        String so = contentLibs.get(position).getTxtNoSo();
+                                        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
+                                        alertDialogBuilder.setMessage("Action for " + so + " ?");
+                                        alertDialogBuilder.setPositiveButton("Delete", new DialogInterface.OnClickListener() {
+                                            @Override
+                                            public void onClick(DialogInterface dialog, int which) {
+                                            }
+                                        })
+                                                .setCancelable(false)
+                                                .setNegativeButton("Edit", new DialogInterface.OnClickListener() {
+                                                    public void onClick(DialogInterface dialog, int id) {
+                                                        dialog.cancel();
                                                     }
+                                                }).setNeutralButton("Cancel", new DialogInterface.OnClickListener() {
+                                            @Override
+                                            public void onClick(DialogInterface dialog, int which) {
 
-                                                    @Override
-                                                    public void onResponse(String response, Boolean status, String strErrorMsg) {
-                                                        if (response != null) {
-                                                            JSONObject jsonObject = null;
-                                                            try {
-                                                                jsonObject = new JSONObject(response);
-                                                                int result = jsonObject.getInt("intResult");
-                                                                String warn = jsonObject.getString("txtMessage");
-                                                                if (result == 1) {
-                                                                    if (!jsonObject.getString("ListData").equals("null")) {
-                                                                        JSONArray jsn = jsonObject.getJSONArray("ListData");
+                                            }
+                                        });
+                                        final AlertDialog alertD = alertDialogBuilder.create();
+                                        alertD.show();
+                                        alertD.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
+                                            @Override
+                                            public void onClick(View v) {
 
-                                                                        JSONObject objData = jsn.getJSONObject(0).getJSONObject("DataSalesOrder");
+                                            }
+                                        });
+                                        alertD.getButton(DialogInterface.BUTTON_NEGATIVE).setOnClickListener(new View.OnClickListener() {
+                                            @Override
+                                            public void onClick(View v) {
+                                                VMLIstSo itemSelected = null;
+                                                itemSelected = contentLibs.get(position);
+                                                if (!itemSelected.getTxtStatus().equals("DRAFT")) {
+                                                    ToastCustom.showToasty(context, "Transaction Approved", 1);
+                                                    final String strLinkAPIApproved = new clsHardCode().linkGetDataDetailSalesOrderMobile;
+                                                    final JSONObject resJsonpApproved = new JSONObject();
 
-                                                                        String txtNewIdSO = objData.getString("txtNewId");
-                                                                        String txtNoSo = objData.getString("txtNoSo");
-                                                                        String txtGenerateNoSo = objData.getString("txtGenerateNoSo");
-                                                                        String dtDateGenerateSO = objData.getString("dtDateGenerateSO");
-                                                                        String dtDate = objData.getString("dtDate");
-                                                                        String txtSourceOrder = objData.getString("txtSourceOrder");
-                                                                        String dtDelivery = objData.getString("dtDelivery");
-                                                                        String txtAgentName = objData.getString("txtAgentName");
-                                                                        String txtPickUpLocation = objData.getString("txtPickUpLocation");
-                                                                        String intWalkIn = objData.getString("intWalkIn");
-                                                                        String intDeliveryBy = objData.getString("intDeliveryBy");
-                                                                        String txtDeliveryBy = objData.getString("txtDeliveryBy");
-                                                                        String txtCustomer = objData.getString("txtCustomer");
-                                                                        String txtCustomerName = objData.getString("txtCustomerName");
-                                                                        String txtDelivery = objData.getString("txtDelivery");
-                                                                        String txtPrfopinsiID = objData.getString("txtPropinsiID");
-                                                                        String txtPropinsiName = objData.getString("txtPropinsiName");
-                                                                        String txtKabupatenKotaID = objData.getString("txtKabupatenKotaID");
-                                                                        String txtKabupatenKotaName = objData.getString("txtKabupatenKotaName");
-                                                                        String txtKecamatanID = objData.getString("txtKecamatanID");
-                                                                        String txtKecamatanName = objData.getString("txtKecamatanName");
-                                                                        String txtKelurahanID = objData.getString("txtKelurahanID");
-                                                                        String txtKelurahanName = objData.getString("txtKelurahanName");
-                                                                        String txtKodePos = objData.getString("txtKodePos");
-                                                                        String txtRemarks = objData.getString("txtRemarks");
-                                                                        String txtDeviceId = objData.getString("txtDeviceId");
-                                                                        String intStatus = objData.getString("intStatus");
-                                                                        String txtStatus_code = objData.getString("txtStatus_code");
+                                                    String currentDateandTimeApproved = sdf.format(dtLoginData);
 
-                                                                        tvSOSourcePrev.setText(txtSourceOrder);
-                                                                        tvSoDatePrev.setText(dtDate);
-                                                                        tvSOStatusPrev.setText(txtStatus_code);
-                                                                        tvDeliverySchedulePrev.setText(dtDelivery);
-                                                                        tvAgentNamePrev.setText(txtAgentName);
-                                                                        tvOrderLocationPrev.setText(txtPickUpLocation);
-                                                                        tvRemarksPreview.setText(txtRemarks);
-                                                                        tvDeliveryByPrev.setText(txtDeliveryBy);
-                                                                        tvCustomerPrev.setText(txtPickUpLocation);
+                                                    LayoutInflater layoutInflater = LayoutInflater.from(context);
+                                                    AlertDialog.Builder alertDialogBuilderAttch = new AlertDialog.Builder(getActivity());
+                                                    final View promptView = layoutInflater.inflate(R.layout.popup_preview_approved, null);
+                                                    final ListView lvPreview = (ListView) promptView.findViewById(R.id.lvItemPrev);
+                                                    final TextView tvSOStatusPrev = (TextView) promptView.findViewById(R.id.tvSOStatusPrev);
+                                                    final TextView tvSoDatePrev = (TextView) promptView.findViewById(R.id.tvSoDatePrev);
+                                                    final TextView tvSOSourcePrev = (TextView) promptView.findViewById(R.id.tvSOSourcePrev);
+                                                    final TextView tvAgentNamePrev = (TextView) promptView.findViewById(R.id.tvAgentNamePrev);
+                                                    final TextView tvOrderLocationPrev = (TextView) promptView.findViewById(R.id.tvOrderLocationPrev);
+                                                    final TextView tvDeliveryByPrev = (TextView) promptView.findViewById(R.id.tvDeliveryByPrev);
+                                                    final TextView tvDeliverySchedulePrev = (TextView) promptView.findViewById(R.id.tvDeliverySchedulePrev);
+                                                    final TextView tvRemarksPreview = (TextView) promptView.findViewById(R.id.tvRemarksPreview);
+                                                    final TextView tvPaymentMethod = (TextView) promptView.findViewById(R.id.tvPaymentMethod);
 
-                                                                        if (intDeliveryBy.equals("1")){
-                                                                            tvCustomerPrev.setText("Customer Detail");
-                                                                            etCustomerNamePrev.setText(txtCustomerName);
+                                                    final TextView etCustomerNamePrev = (TextView) promptView.findViewById(R.id.etCustomerNamePrev);
+                                                    final TextView etContactIDPrev = (TextView) promptView.findViewById(R.id.etContactIDPrev);
+                                                    final TextView etMemberNoPrev = (TextView) promptView.findViewById(R.id.etMemberNoPrev);
+                                                    final TextView tvPostCodeCustomerPrev = (TextView) promptView.findViewById(R.id.tvPostCodeCustomerPrev);
+                                                    final TextView tvProvinceCustomerPrev = (TextView) promptView.findViewById(R.id.tvProvinceCustomerPrev);
+                                                    final TextView tvCityCustomerPrev = (TextView) promptView.findViewById(R.id.tvCityCustomerPrev);
+                                                    final TextView tvRegionCustomerPrev = (TextView) promptView.findViewById(R.id.tvRegionCustomerPrev);
+                                                    final TextView tvKelurahanCustomerPrev = (TextView) promptView.findViewById(R.id.tvKelurahanCustomerPrev);
+                                                    TextView tvHideCustPrev = (TextView) promptView.findViewById(R.id.tvHideCustPrev);
+
+
+                                                    final LinearLayout lnAttacedCust = (LinearLayout) promptView.findViewById(R.id.lnAttacedCust);
+                                                    final TextView tvCustomerPrev = (TextView) promptView.findViewById(R.id.tvCustomerPrev);
+
+
+                                                    try {
+                                                        resJsonpApproved.put("txtAgentName", dataLogin.getNmUser());
+                                                        resJsonpApproved.put("dtDate", currentDateandTimeApproved);
+                                                        resJsonpApproved.put("txtNoSo", itemSelected.getTxtNoSo());
+
+                                                    } catch (JSONException e) {
+                                                        e.printStackTrace();
+                                                    }
+                                                    final String mRequestBodyApproved = resJsonpApproved.toString();
+                                                    new VolleyUtils().makeJsonObjectRequestWithToken(getActivity(), strLinkAPIApproved, mRequestBodyApproved, access_token, "Please Wait...", new VolleyResponseListener() {
+                                                        @Override
+                                                        public void onError(String response) {
+                                                            ToastCustom.showToasty(context, response, 2);
+                                                        }
+
+                                                        @Override
+                                                        public void onResponse(String response, Boolean status, String strErrorMsg) {
+                                                            if (response != null) {
+                                                                JSONObject jsonObject = null;
+                                                                try {
+                                                                    jsonObject = new JSONObject(response);
+                                                                    int result = jsonObject.getInt("intResult");
+                                                                    String warn = jsonObject.getString("txtMessage");
+                                                                    if (result == 1) {
+                                                                        if (!jsonObject.getString("ListData").equals("null")) {
+                                                                            JSONArray jsn = jsonObject.getJSONArray("ListData");
+
+                                                                            JSONObject objData = jsn.getJSONObject(0).getJSONObject("DataSalesOrder");
+
+                                                                            String txtNewIdSO = objData.getString("txtNewId");
+                                                                            String txtNoSo = objData.getString("txtNoSo");
+                                                                            String txtGenerateNoSo = objData.getString("txtGenerateNoSo");
+                                                                            String dtDateGenerateSO = objData.getString("dtDateGenerateSO");
+                                                                            String dtDate = objData.getString("dtDate");
+                                                                            String txtSourceOrder = objData.getString("txtSourceOrder");
+                                                                            String dtDelivery = objData.getString("dtDelivery");
+                                                                            String txtAgentName = objData.getString("txtAgentName");
+                                                                            String txtPickUpLocation = objData.getString("txtPickUpLocation");
+                                                                            String intWalkIn = objData.getString("intWalkIn");
+                                                                            String intDeliveryBy = objData.getString("intDeliveryBy");
+                                                                            String txtDeliveryBy = objData.getString("txtDeliveryBy");
+                                                                            String txtCustomer = objData.getString("txtCustomer");
+                                                                            String txtCustomerName = objData.getString("txtCustomerName");
+                                                                            String txtDelivery = objData.getString("txtDelivery");
+                                                                            String txtPrfopinsiID = objData.getString("txtPropinsiID");
+                                                                            String txtPropinsiName = objData.getString("txtPropinsiName");
+                                                                            String txtKabupatenKotaID = objData.getString("txtKabupatenKotaID");
+                                                                            String txtKabupatenKotaName = objData.getString("txtKabupatenKotaName");
+                                                                            String txtKecamatanID = objData.getString("txtKecamatanID");
+                                                                            String txtKecamatanName = objData.getString("txtKecamatanName");
+                                                                            String txtKelurahanID = objData.getString("txtKelurahanID");
+                                                                            String txtKelurahanName = objData.getString("txtKelurahanName");
+                                                                            String txtKodePos = objData.getString("txtKodePos");
+                                                                            String txtRemarks = objData.getString("txtRemarks");
+                                                                            String txtDeviceId = objData.getString("txtDeviceId");
+                                                                            String intStatus = objData.getString("intStatus");
+                                                                            String txtStatus_code = objData.getString("txtStatus_code");
+
+                                                                            tvSOSourcePrev.setText(txtSourceOrder);
+                                                                            tvSoDatePrev.setText(dtDate);
+                                                                            tvSOStatusPrev.setText(txtStatus_code);
+                                                                            tvDeliverySchedulePrev.setText(dtDelivery);
+                                                                            tvAgentNamePrev.setText(txtAgentName);
+                                                                            tvOrderLocationPrev.setText(txtPickUpLocation);
+                                                                            tvRemarksPreview.setText(txtRemarks);
+                                                                            tvDeliveryByPrev.setText(txtDeliveryBy);
+                                                                            tvCustomerPrev.setText(txtPickUpLocation);
+
+                                                                            if (intDeliveryBy.equals("1")) {
+                                                                                tvCustomerPrev.setText("Customer Detail");
+                                                                                etCustomerNamePrev.setText(txtCustomerName);
 //                                                                            etContactIDPrev.setText();
-                                                                            lnAttacedCust.setVisibility(View.VISIBLE);
-                                                                            tvProvinceCustomerPrev.setText(txtPropinsiName);
-                                                                            tvCityCustomerPrev.setText(txtKabupatenKotaName);
-                                                                            tvRegionCustomerPrev.setText(txtKecamatanName);
-                                                                            tvKelurahanCustomerPrev.setText(txtKelurahanName);
-                                                                            tvPostCodeCustomerPrev.setText(txtKodePos);
+                                                                                lnAttacedCust.setVisibility(View.VISIBLE);
+                                                                                tvProvinceCustomerPrev.setText(txtPropinsiName);
+                                                                                tvCityCustomerPrev.setText(txtKabupatenKotaName);
+                                                                                tvRegionCustomerPrev.setText(txtKecamatanName);
+                                                                                tvKelurahanCustomerPrev.setText(txtKelurahanName);
+                                                                                tvPostCodeCustomerPrev.setText(txtKodePos);
 
-                                                                        }else{
-                                                                            lnAttacedCust.setVisibility(View.GONE);
-                                                                        }
-
-                                                                        JSONArray arrayData = jsn.getJSONObject(0).getJSONArray("ListDataDetail");
-                                                                        final List<VMItems> contentItems = new ArrayList<VMItems>();
-                                                                        for (int n = 0; n < jsn.length(); n++) {
-                                                                            JSONObject obj = arrayData.getJSONObject(n);
-                                                                            String txtNewId = obj.getString("txtNewId");
-                                                                            String txtProductCode = obj.getString("txtProductCode");
-                                                                            String txtProductName = obj.getString("txtProductName");
-                                                                            String intQty = obj.getString("intQty");
-                                                                            String decPrice = obj.getString("decPrice");
-                                                                            String decDiscount = obj.getString("decDiscount");
-                                                                            String decTotalPrice = obj.getString("decTotalPrice");
-                                                                            String decTaxAmount = obj.getString("decTaxAmount");
-                                                                            String decNetPrice = obj.getString("decNetPrice");
-                                                                            String decBasePoint = obj.getString("decBasePoint");
-                                                                            String decTotalBasePoint = obj.getString("decTotalBasePoint");
-                                                                            String decBonusPoint = obj.getString("decBonusPoint");
-                                                                            String txtNoSO = obj.getString("txtNoSO");
-                                                                            VMItems item = new VMItems(view);
-                                                                            item.setItemName(txtProductName);
-                                                                            item.setGuiid(new Helper().GenerateGuid());
-                                                                            item.setItemCode(txtProductCode);
-                                                                            item.setPrice(Double.parseDouble(decPrice));
-//                                                                            item.setProductCategory(HMtxtProductCategory.get(itemCodeAdd));
-                                                                            item.setBasePoint(decBasePoint);
-                                                                            double dbQty = Double.parseDouble(intQty);
-                                                                            int intQtyi = (int) dbQty;
-                                                                            item.setQty(intQtyi);
-                                                                            item.setDiscount(Double.parseDouble(decDiscount));
-                                                                            item.setTotalPrice(Double.parseDouble(decTotalPrice));
-                                                                            item.setTaxAmount(Double.parseDouble(decTaxAmount));
-                                                                            item.setNetPrice(Double.parseDouble(decNetPrice));
-                                                                            item.setBonusPoint(decBonusPoint);
-
-                                                                            contentItems.add(item);
-                                                                        }
-
-                                                                        lvPreview.setAdapter(new CardAppAdapter(context, contentItems, Color.WHITE));
-
-                                                                        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
-                                                                        alertDialogBuilder.setView(promptView);
-                                                                        alertDialogBuilder.setTitle("Detail Transaction");
-                                                                        alertDialogBuilder
-                                                                                .setCancelable(false)
-                                                                                .setPositiveButton("Oke", new DialogInterface.OnClickListener() {
-                                                                            public void onClick(DialogInterface dialog, int id) {
-
+                                                                            } else {
+                                                                                lnAttacedCust.setVisibility(View.GONE);
                                                                             }
-                                                                        });
-                                                                        final AlertDialog alertD = alertDialogBuilder.create();
-                                                                        alertD.show();
-                                                                    }
-                                                                }else{
-                                                                    ToastCustom.showToasty(context,warn, 2);
 
+                                                                            JSONArray arrayData = jsn.getJSONObject(0).getJSONArray("ListDataDetail");
+                                                                            final List<VMItems> contentItems = new ArrayList<VMItems>();
+                                                                            for (int n = 0; n < jsn.length(); n++) {
+                                                                                JSONObject obj = arrayData.getJSONObject(n);
+                                                                                String txtNewId = obj.getString("txtNewId");
+                                                                                String txtProductCode = obj.getString("txtProductCode");
+                                                                                String txtProductName = obj.getString("txtProductName");
+                                                                                String intQty = obj.getString("intQty");
+                                                                                String decPrice = obj.getString("decPrice");
+                                                                                String decDiscount = obj.getString("decDiscount");
+                                                                                String decTotalPrice = obj.getString("decTotalPrice");
+                                                                                String decTaxAmount = obj.getString("decTaxAmount");
+                                                                                String decNetPrice = obj.getString("decNetPrice");
+                                                                                String decBasePoint = obj.getString("decBasePoint");
+                                                                                String decTotalBasePoint = obj.getString("decTotalBasePoint");
+                                                                                String decBonusPoint = obj.getString("decBonusPoint");
+                                                                                String txtNoSO = obj.getString("txtNoSO");
+                                                                                VMItems item = new VMItems(getView());
+                                                                                item.setItemName(txtProductName);
+                                                                                item.setGuiid(new Helper().GenerateGuid());
+                                                                                item.setItemCode(txtProductCode);
+                                                                                item.setPrice(Double.parseDouble(decPrice));
+//                                                                            item.setProductCategory(HMtxtProductCategory.get(itemCodeAdd));
+                                                                                item.setBasePoint(decBasePoint);
+                                                                                double dbQty = Double.parseDouble(intQty);
+                                                                                int intQtyi = (int) dbQty;
+                                                                                item.setQty(intQtyi);
+                                                                                item.setDiscount(Double.parseDouble(decDiscount));
+                                                                                item.setTotalPrice(Double.parseDouble(decTotalPrice));
+                                                                                item.setTaxAmount(Double.parseDouble(decTaxAmount));
+                                                                                item.setNetPrice(Double.parseDouble(decNetPrice));
+                                                                                item.setBonusPoint(decBonusPoint);
+
+                                                                                contentItems.add(item);
+                                                                            }
+
+                                                                            lvPreview.setAdapter(new CardAppAdapter(context, contentItems, Color.WHITE));
+
+                                                                            AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
+                                                                            alertDialogBuilder.setView(promptView);
+                                                                            alertDialogBuilder.setTitle("Detail Transaction");
+                                                                            alertDialogBuilder
+                                                                                    .setCancelable(false)
+                                                                                    .setPositiveButton("Oke", new DialogInterface.OnClickListener() {
+                                                                                        public void onClick(DialogInterface dialog, int id) {
+
+                                                                                        }
+                                                                                    });
+                                                                            final AlertDialog alertD = alertDialogBuilder.create();
+                                                                            alertD.show();
+                                                                        }
+                                                                    } else {
+                                                                        ToastCustom.showToasty(context, warn, 2);
+
+                                                                    }
+                                                                } catch (JSONException ex) {
+                                                                    String x = ex.getMessage();
                                                                 }
-                                                            }catch (JSONException ex){
-                                                                String x = ex.getMessage();
                                                             }
                                                         }
-                                                    }
-                                                });
+                                                    });
 
 
-                                            }else{
+                                                } else {
                                                /* new clsProductDraftRepo(context).clearAllData();
                                                 new clsDraftRepo(context).clearAllData();*/
 
 
-                                                final String strLinkAPI = new clsHardCode().linkGetDataDetailSalesOrderMobile;
-                                                final JSONObject resJsonRestore = new JSONObject();
-                                                SimpleDateFormat sdfRestore = new SimpleDateFormat("yyyy-MM-dd");
-                                                Date dtLoginData = dataLogin.getDtLogin();
-                                                String currentDateandTime = sdfRestore.format(dtLoginData);
-                                                try {
-                                                    resJsonRestore.put("txtAgentName", dataLogin.getNmUser());
-                                                    resJsonRestore.put("dtDate", currentDateandTime);
-                                                    resJsonRestore.put("txtNoSo", itemSelected.getTxtNoSo());
+                                                    final String strLinkAPI = new clsHardCode().linkGetDataDetailSalesOrderMobile;
+                                                    final JSONObject resJsonRestore = new JSONObject();
+                                                    SimpleDateFormat sdfRestore = new SimpleDateFormat("yyyy-MM-dd");
+                                                    Date dtLoginData = dataLogin.getDtLogin();
+                                                    String currentDateandTime = sdfRestore.format(dtLoginData);
+                                                    try {
+                                                        resJsonRestore.put("txtAgentName", dataLogin.getNmUser());
+                                                        resJsonRestore.put("dtDate", currentDateandTime);
+                                                        resJsonRestore.put("txtNoSo", itemSelected.getTxtNoSo());
 
-                                                } catch (JSONException e) {
-                                                    e.printStackTrace();
-                                                }
-                                                final String mRequestBodyRestore = resJsonRestore.toString();
+                                                    } catch (JSONException e) {
+                                                        e.printStackTrace();
+                                                    }
+                                                    final String mRequestBodyRestore = resJsonRestore.toString();
                                                     new VolleyUtils().makeJsonObjectRequestWithToken(getActivity(), strLinkAPI, mRequestBodyRestore, access_token, "Please Wait...", new VolleyResponseListener() {
                                                         @Override
                                                         public void onError(String response) {
@@ -526,15 +554,15 @@ public class FragmentSalesOrder extends Fragment {
                                                                                     e.printStackTrace();
                                                                                 }
                                                                             }
-                                                                            if(intWalkIn.equals("1")){
+                                                                            if (intWalkIn.equals("1")) {
                                                                                 draft.setBoolWalkin(true);
 
-                                                                            }else{
+                                                                            } else {
                                                                                 draft.setBoolWalkin(false);
                                                                             }
-                                                                            if (intDeliveryBy.equals("1")){
+                                                                            if (intDeliveryBy.equals("1")) {
                                                                                 draft.setBoolAttachCustomer(true);
-                                                                            }else{
+                                                                            } else {
                                                                                 draft.setBoolAttachCustomer(false);
                                                                             }
                                                                             draft.setTxtPostCode(txtKodePos);
@@ -559,7 +587,7 @@ public class FragmentSalesOrder extends Fragment {
                                                                             draft.setIntStatus(0);
                                                                             new clsDraftRepo(context).createOrUpdate(draft);
 
-                                                                            if(jsn.length()>0){
+                                                                            if (jsn.length() > 0) {
                                                                                 JSONArray arrayData = jsn.getJSONObject(0).getJSONArray("ListDataDetail");
                                                                                 for (int n = 0; n < arrayData.length(); n++) {
                                                                                     JSONObject obj = arrayData.getJSONObject(n);
@@ -595,23 +623,24 @@ public class FragmentSalesOrder extends Fragment {
                                                                                     new clsProductDraftRepo(context).createOrUpdate(itemsDraft);
 
                                                                                 }
-                                                                            }else{
+                                                                            } else {
                                                                             }
 
                                                                             FragmentAddOrder fragmentAddOrder = new FragmentAddOrder();
                                                                             Bundle arguments = new Bundle();
-                                                                            arguments.putString( "noSO" , "");
+                                                                            arguments.putString("noSO", "");
                                                                             fragmentAddOrder.setArguments(arguments);
                                                                             FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
                                                                             fragmentTransaction.replace(R.id.frame, fragmentAddOrder, "Fragment_AddOrder");
+                                                                            alertD.dismiss();
 
                                                                             fragmentTransaction.commit();
                                                                         }
-                                                                    }else{
-                                                                        ToastCustom.showToasty(context,warn, 2);
+                                                                    } else {
+                                                                        ToastCustom.showToasty(context, warn, 2);
 
                                                                     }
-                                                                }catch (JSONException ex){
+                                                                } catch (JSONException ex) {
                                                                     String x = ex.getMessage();
                                                                 }
                                                             }
@@ -620,30 +649,38 @@ public class FragmentSalesOrder extends Fragment {
                                                     });
 
 
-
+                                                }
                                             }
-
-                                        }
-                                    });
-                                    if (jsn.length()==0){
-                                        scrollViewList.setVisibility(View.GONE);
-                                        lnNoData.setVisibility(View.VISIBLE);
-                                    }else{
-                                        scrollViewList.setVisibility(View.VISIBLE);
-                                        lnNoData.setVisibility(View.GONE);
+                                        });
+                                        return false;
                                     }
+                                });
 
+                                /*lvSO.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                                    @Override
+                                    public void onItemClick(AdapterView<?> parent, final View view, int position, long id) {
+
+
+                                    }
+                                });*/
+                                if (jsn.length() == 0) {
+                                    scrollViewList.setVisibility(View.GONE);
+                                    lnNoData.setVisibility(View.VISIBLE);
+                                } else {
+                                    scrollViewList.setVisibility(View.VISIBLE);
+                                    lnNoData.setVisibility(View.GONE);
+                                }
 
 
                             }
-                        }else{
-                            ToastCustom.showToasty(context,warn, 2);
-                                scrollViewList.setVisibility(View.GONE);
-                                lnNoData.setVisibility(View.VISIBLE);
+                        } else {
+                            ToastCustom.showToasty(context, warn, 2);
+                            scrollViewList.setVisibility(View.GONE);
+                            lnNoData.setVisibility(View.VISIBLE);
 
 
                         }
-                    }catch (JSONException ex){
+                    } catch (JSONException ex) {
                         String x = ex.getMessage();
                     }
                 }
@@ -652,11 +689,8 @@ public class FragmentSalesOrder extends Fragment {
         });
 
 
-
-
         return view;
     }
-
 
 
     /**
