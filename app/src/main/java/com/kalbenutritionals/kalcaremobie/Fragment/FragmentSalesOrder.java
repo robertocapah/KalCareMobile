@@ -238,22 +238,40 @@ public class FragmentSalesOrder extends Fragment {
                                         final String so = contentLibs.get(position).getTxtNoSo();
                                         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
                                         alertDialogBuilder.setMessage("Action for " + so + " ?");
-                                        alertDialogBuilder.setPositiveButton("Delete", new DialogInterface.OnClickListener() {
-                                            @Override
-                                            public void onClick(DialogInterface dialog, int which) {
-                                            }
-                                        })
-                                                .setCancelable(false)
-                                                .setNegativeButton("Edit", new DialogInterface.OnClickListener() {
-                                                    public void onClick(DialogInterface dialog, int id) {
-                                                        dialog.cancel();
-                                                    }
-                                                }).setNeutralButton("Cancel", new DialogInterface.OnClickListener() {
-                                            @Override
-                                            public void onClick(DialogInterface dialog, int which) {
+                                        VMLIstSo itemSelected = null;
+                                        itemSelected = contentLibs.get(position);
+                                        if (itemSelected.getTxtStatus().equals("DRAFT")) {
+                                            alertDialogBuilder.setPositiveButton("Delete", new DialogInterface.OnClickListener() {
+                                                @Override
+                                                public void onClick(DialogInterface dialog, int which) {
+                                                }
+                                            });
+                                            alertDialogBuilder.setCancelable(false)
+                                                    .setNegativeButton("Edit", new DialogInterface.OnClickListener() {
+                                                        public void onClick(DialogInterface dialog, int id) {
+                                                            dialog.cancel();
+                                                        }
+                                                    }).setNeutralButton("Cancel", new DialogInterface.OnClickListener() {
+                                                @Override
+                                                public void onClick(DialogInterface dialog, int which) {
 
-                                            }
-                                        });
+                                                }
+                                            });
+                                        }else{
+                                            alertDialogBuilder.setCancelable(false)
+                                                    .setNegativeButton("View Detail", new DialogInterface.OnClickListener() {
+                                                        public void onClick(DialogInterface dialog, int id) {
+                                                            dialog.cancel();
+                                                        }
+                                                    }).setNeutralButton("Cancel", new DialogInterface.OnClickListener() {
+                                                @Override
+                                                public void onClick(DialogInterface dialog, int which) {
+
+                                                }
+                                            });
+                                        }
+
+
                                         final AlertDialog alertD = alertDialogBuilder.create();
                                         alertD.show();
                                         alertD.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
@@ -327,7 +345,13 @@ public class FragmentSalesOrder extends Fragment {
                                                     final TextView tvDeliveryByPrev = (TextView) promptView.findViewById(R.id.tvDeliveryByPrev);
                                                     final TextView tvDeliverySchedulePrev = (TextView) promptView.findViewById(R.id.tvDeliverySchedulePrev);
                                                     final TextView tvRemarksPreview = (TextView) promptView.findViewById(R.id.tvRemarksPreview);
-                                                    final TextView tvPaymentMethod = (TextView) promptView.findViewById(R.id.tvPaymentMethod);
+
+                                                    final TextView etPaymentMethodPrev = (TextView) promptView.findViewById(R.id.etPaymentMethodPrev);
+                                                    final TextView etSourceMediaPaymentPrev = (TextView) promptView.findViewById(R.id.etSourceMediaPaymentPrev);
+                                                    final TextView etPaymentPrev = (TextView) promptView.findViewById(R.id.etPaymentPrev);
+                                                    final TextView etCardNumberPrev = (TextView) promptView.findViewById(R.id.etCardNumberPrev);
+                                                    final TextView etBcaTraceNumberPrev = (TextView) promptView.findViewById(R.id.etBcaTraceNumberPrev);
+                                                    final TextView etNetPricePrev = (TextView) promptView.findViewById(R.id.etNetPricePrev);
 
                                                     final TextView etCustomerNamePrev = (TextView) promptView.findViewById(R.id.etCustomerNamePrev);
                                                     final TextView etContactIDPrev = (TextView) promptView.findViewById(R.id.etContactIDPrev);
@@ -372,6 +396,7 @@ public class FragmentSalesOrder extends Fragment {
                                                                             JSONArray jsn = jsonObject.getJSONArray("ListData");
 
                                                                             JSONObject objData = jsn.getJSONObject(0).getJSONObject("DataSalesOrder");
+
 
                                                                             String txtNewIdSO = objData.getString("txtNewId");
                                                                             String txtNoSo = objData.getString("txtNoSo");
@@ -426,6 +451,25 @@ public class FragmentSalesOrder extends Fragment {
                                                                             } else {
                                                                                 lnAttacedCust.setVisibility(View.GONE);
                                                                             }
+                                                                            JSONObject objDataPayment = jsn.getJSONObject(0).getJSONObject("DataPayment");
+                                                                            String txtPaymentMethodName = objDataPayment.getString("txtPaymentMethodName");
+                                                                            String txtmediajasapayment = objDataPayment.getString("txtmediajasapayment");
+                                                                            String txtmediajasa = objDataPayment.getString("txtmediajasa");
+                                                                            String txtTraceNumber = objDataPayment.getString("txtTraceNumber");
+                                                                            String txtCardNumber = objDataPayment.getString("txtCardNumber");
+                                                                            String decTaxBaseAmount = objDataPayment.getString("decTaxBaseAmount");
+                                                                            String decAmount = objDataPayment.getString("decAmount");
+                                                                            String decTotal = objDataPayment.getString("decTotal");
+                                                                            String decTotDiscount = objDataPayment.getString("decTotDiscount");
+                                                                            String decTotalPriceSO = objDataPayment.getString("decTotalPrice");
+                                                                            String decRounded = objDataPayment.getString("decRounded");
+                                                                            String decPayment = objDataPayment.getString("decPayment");
+                                                                            etPaymentMethodPrev.setText(txtPaymentMethodName);
+                                                                            etSourceMediaPaymentPrev.setText(txtmediajasapayment);
+                                                                            etPaymentPrev.setText(txtmediajasa);
+                                                                            etBcaTraceNumberPrev.setText(txtTraceNumber);
+                                                                            etCardNumberPrev.setText(txtCardNumber);
+                                                                            etNetPricePrev.setText(decTotalPriceSO);
 
                                                                             JSONArray arrayData = jsn.getJSONObject(0).getJSONArray("ListDataDetail");
                                                                             final List<VMItems> contentItems = new ArrayList<VMItems>();
@@ -475,8 +519,9 @@ public class FragmentSalesOrder extends Fragment {
 
                                                                                         }
                                                                                     });
-                                                                            final AlertDialog alertD = alertDialogBuilder.create();
-                                                                            alertD.show();
+                                                                            final AlertDialog alertD2 = alertDialogBuilder.create();
+                                                                            alertD2.show();
+                                                                            alertD.dismiss();
                                                                         }
                                                                     } else {
                                                                         ToastCustom.showToasty(context, warn, 2);
