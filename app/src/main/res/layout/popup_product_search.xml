@@ -96,6 +96,7 @@
             android:id="@+id/etQty"
             android:inputType="number"
             android:textColor="@color/black"
+            android:maxLength="3"
             android:background="@drawable/bg_edtext"
             android:layout_weight="1"/>
 
