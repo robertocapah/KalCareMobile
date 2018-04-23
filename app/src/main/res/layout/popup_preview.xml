@@ -333,6 +333,7 @@
                     android:layout_height="wrap_content"
                     android:background="@drawable/bg_edtext"
                     android:editable="false"
+                    android:inputType="number"
                     android:focusable="false"
                     android:clickable="false"/>
                 <TextView
@@ -348,6 +349,7 @@
                     android:background="@drawable/bg_edtext"
                     android:editable="false"
                     android:focusable="false"
+                    android:inputType="number"
                     android:clickable="false"/>
             </LinearLayout>
         </LinearLayout>
