@@ -17,11 +17,11 @@ public class mConfigRepo {
     DatabaseHelper helper;
 //    public String API = "http://10.171.10.19:8020/NHD/";
 //    public String APIToken = "http://10.171.10.19:8020/token";
-//    public String API = "http://10.171.10.19:8020/NHD/";
-//    public String APIToken = "http://10.171.10.19:8020/token";
-    public String strDomain = "10.171.10.28";
-    public String API = "http://"+strDomain+"/WebAPI/NHD/";
-    public String APIToken = "http://"+strDomain+"/WebAPI/token";
+    public String strDomain = "10.171.10.28:8020";
+    public String API = "http://"+strDomain+"/NHD/";
+    public String APIToken = "http://"+strDomain+"/token";
+//    public String API = "http://"+strDomain+"/NHD/";
+//    public String APIToken = "http://"+strDomain+"/token/";
 
     public mConfigRepo(Context context) {
         DatabaseManager.init(context);

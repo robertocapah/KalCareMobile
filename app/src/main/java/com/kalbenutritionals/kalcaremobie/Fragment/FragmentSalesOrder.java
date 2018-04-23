@@ -235,7 +235,7 @@ public class FragmentSalesOrder extends Fragment {
                                 lvSO.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
                                     @Override
                                     public boolean onItemLongClick(AdapterView<?> parent, View view, final int position, long id) {
-                                        String so = contentLibs.get(position).getTxtNoSo();
+                                        final String so = contentLibs.get(position).getTxtNoSo();
                                         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
                                         alertDialogBuilder.setMessage("Action for " + so + " ?");
                                         alertDialogBuilder.setPositiveButton("Delete", new DialogInterface.OnClickListener() {
@@ -259,7 +259,48 @@ public class FragmentSalesOrder extends Fragment {
                                         alertD.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
                                             @Override
                                             public void onClick(View v) {
+                                                final JSONObject resJsonDelete = new JSONObject();
+                                                final String strLinkAPIDelete = new clsHardCode().linkDelete;
+                                                try {
+                                                    resJsonDelete.put("txtNoSO", so);
+                                                    resJsonDelete.put("txtUser", dataLogin.getNmUser());
+                                                } catch (JSONException e) {
+                                                    e.printStackTrace();
+                                                }
+                                                final String mRequestBodyDelete = resJsonDelete.toString();
+                                                new VolleyUtils().makeJsonObjectRequestWithToken(getActivity(), strLinkAPIDelete, mRequestBodyDelete, access_token, "Please Wait...", new VolleyResponseListener() {
+                                                    @Override
+                                                    public void onError(String response) {
+                                                        ToastCustom.showToasty(context, response, 2);
+                                                    }
 
+                                                    @Override
+                                                    public void onResponse(String response, Boolean status, String strErrorMsg) {
+                                                        if (response != null) {
+                                                            JSONObject jsonObject = null;
+                                                            try {
+                                                                jsonObject = new JSONObject(response);
+                                                                int result = jsonObject.getInt("intResult");
+                                                                String warn = jsonObject.getString("txtMessage");
+                                                                if (result == 1) {
+                                                                    ToastCustom.showToasty(context,"Item has been deleted",1);
+                                                                    alertD.dismiss();
+                                                                    Fragment frg = null;
+                                                                    frg = getActivity().getSupportFragmentManager().findFragmentByTag("FragmentSalesOrder");
+                                                                    final FragmentTransaction ft = getActivity().getSupportFragmentManager().beginTransaction();
+                                                                    ft.detach(frg);
+                                                                    ft.attach(frg);
+                                                                    ft.commit();
+                                                                }else{
+                                                                    ToastCustom.showToasty(context,warn, 2);
+
+                                                                }
+                                                            }catch (JSONException ex){
+                                                                String x = ex.getMessage();
+                                                            }
+                                                        }
+                                                    }
+                                                });
                                             }
                                         });
                                         alertD.getButton(DialogInterface.BUTTON_NEGATIVE).setOnClickListener(new View.OnClickListener() {
@@ -615,9 +656,15 @@ public class FragmentSalesOrder extends Fragment {
                                                                                     itemsDraft.setIntQty(intQtyf);
                                                                                     itemsDraft.setDblPrice(Double.parseDouble(decPrice));
                                                                                     itemsDraft.setDblItemDiscount(Double.parseDouble(decDiscount));
-                                                                                    itemsDraft.setDblTotalPrice(Double.parseDouble(decTotalPrice));
-                                                                                    itemsDraft.setDblItemTax(Double.parseDouble(decTaxAmount));
-                                                                                    itemsDraft.setDblNetPrice(Double.parseDouble(decNetPrice));
+                                                                                    if (!decTotalPrice.equals("null")){
+                                                                                        itemsDraft.setDblTotalPrice(Double.parseDouble(decTotalPrice));
+                                                                                    }
+                                                                                    if(!decTaxAmount.equals("null")){
+                                                                                        itemsDraft.setDblItemTax(Double.parseDouble(decTaxAmount));
+                                                                                    }
+                                                                                    if(!decNetPrice.equals("null")){
+                                                                                        itemsDraft.setDblNetPrice(Double.parseDouble(decNetPrice));
+                                                                                    }
                                                                                     itemsDraft.setTxtBasedPoint(decBasePoint);
                                                                                     itemsDraft.setTxtBonusPoint(decBonusPoint);
                                                                                     new clsProductDraftRepo(context).createOrUpdate(itemsDraft);

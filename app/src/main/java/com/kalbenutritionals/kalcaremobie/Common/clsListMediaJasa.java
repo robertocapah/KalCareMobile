@@ -10,7 +10,9 @@ import java.io.Serializable;
  */
 @DatabaseTable
 public class clsListMediaJasa implements Serializable {
-    @DatabaseField(id = true)
+    @DatabaseField(generatedId = true)
+    int id;
+    @DatabaseField
     private String typeid;
     @DatabaseField
     private String descType;
@@ -18,6 +20,9 @@ public class clsListMediaJasa implements Serializable {
     private String txtmediajasapaymentid;
     @DatabaseField
     private String txtmediajasapayment;
+
+    public String Property_StrTypeId = "typeid";
+    public String Property_txtmediajasapaymentid = "txtmediajasapaymentid";
 
     public String getTypeid() {
         return typeid;

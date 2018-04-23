@@ -48,6 +48,7 @@ import com.android.volley.toolbox.Volley;
 import com.kalbe.mobiledevknlibs.Toast.ToastCustom;
 import com.kalbenutritionals.kalcaremobie.Common.clsListMediaJasa;
 import com.kalbenutritionals.kalcaremobie.Common.clsListPaymentMethod;
+import com.kalbenutritionals.kalcaremobie.Common.clsListPaymentMethodAndTipe;
 import com.kalbenutritionals.kalcaremobie.Common.clsToken;
 import com.kalbenutritionals.kalcaremobie.Common.clsUserLogin;
 import com.kalbenutritionals.kalcaremobie.Common.mConfigData;
@@ -58,6 +59,7 @@ import com.kalbenutritionals.kalcaremobie.Data.VolleyResponseListener;
 import com.kalbenutritionals.kalcaremobie.Data.VolleyUtils;
 import com.kalbenutritionals.kalcaremobie.Data.clsHardCode;
 import com.kalbenutritionals.kalcaremobie.Repo.clsListMediaJasaRepo;
+import com.kalbenutritionals.kalcaremobie.Repo.clsListPaymentMethodAndTipeRepo;
 import com.kalbenutritionals.kalcaremobie.Repo.clsListPaymentMethodRepo;
 import com.kalbenutritionals.kalcaremobie.Repo.clsTokenRepo;
 import com.kalbenutritionals.kalcaremobie.Repo.clsUserLoginRepo;
@@ -435,7 +437,30 @@ public class LoginActivity extends Activity {
                                     JSONObject dtInfo = jsnObject.getJSONObject("dtInfo");
                                     JSONArray ListMediaJasa = jsnObject.getJSONArray("ListMediaJasa");
                                     JSONArray ListPaymentMethod = jsnObject.getJSONArray("ListPaymentMethod");
+                                    JSONArray ListPaymentMethodAndTipe = jsnObject.getJSONArray("ListPaymentMethodAndTipe");
 
+                                    for (int n = 0; n < ListPaymentMethodAndTipe.length(); n++) {
+                                        JSONObject object = ListPaymentMethodAndTipe.getJSONObject(n);
+                                        String txtPaymentMethodId = object.getString("txtPaymentMethodId");
+                                        String txtPaymentMethodName = object.getString("txtPaymentMethodName");
+                                        String typeid = object.getString("typeid");
+                                        String desc_type = object.getString("desc_type");
+                                        int intFillCardNumber = object.getInt("intFillCardNumber");
+                                        int intFillTraceNumber = object.getInt("intFillTraceNumber");
+                                        clsListPaymentMethodAndTipe data = new clsListPaymentMethodAndTipe();
+                                        data.setId(n);
+                                        data.setTxtPaymentMethodId(txtPaymentMethodId);
+                                        data.setTxtPaymentMethodName(txtPaymentMethodName);
+                                        data.setTypeid(typeid);
+                                        data.setDesc_type(desc_type);
+                                        data.setIntFillCardNumber(intFillCardNumber);
+                                        data.setIntFillTraceNumber(intFillTraceNumber);
+                                        try {
+                                            new clsListPaymentMethodAndTipeRepo(getApplicationContext()).createOrUpdate(data);
+                                        } catch (SQLException e) {
+                                            e.printStackTrace();
+                                        }
+                                    }
                                     for (int n = 0; n < ListMediaJasa.length(); n++) {
                                         JSONObject object = ListMediaJasa.getJSONObject(n);
                                         String typeid = object.getString("typeid");

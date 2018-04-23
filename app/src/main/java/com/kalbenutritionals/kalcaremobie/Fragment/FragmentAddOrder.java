@@ -43,6 +43,7 @@ import com.kalbenutritionals.kalcaremobie.Common.clsCustomerData;
 import com.kalbenutritionals.kalcaremobie.Common.clsDraft;
 import com.kalbenutritionals.kalcaremobie.Common.clsListMediaJasa;
 import com.kalbenutritionals.kalcaremobie.Common.clsListPaymentMethod;
+import com.kalbenutritionals.kalcaremobie.Common.clsListPaymentMethodAndTipe;
 import com.kalbenutritionals.kalcaremobie.Common.clsProductDraft;
 import com.kalbenutritionals.kalcaremobie.Common.clsToken;
 import com.kalbenutritionals.kalcaremobie.Common.clsUserLogin;
@@ -66,6 +67,7 @@ import com.kalbenutritionals.kalcaremobie.R;
 import com.kalbenutritionals.kalcaremobie.Repo.clsCustomerDataRepo;
 import com.kalbenutritionals.kalcaremobie.Repo.clsDraftRepo;
 import com.kalbenutritionals.kalcaremobie.Repo.clsListMediaJasaRepo;
+import com.kalbenutritionals.kalcaremobie.Repo.clsListPaymentMethodAndTipeRepo;
 import com.kalbenutritionals.kalcaremobie.Repo.clsListPaymentMethodRepo;
 import com.kalbenutritionals.kalcaremobie.Repo.clsProductDraftRepo;
 import com.kalbenutritionals.kalcaremobie.Repo.clsTokenRepo;
@@ -227,11 +229,18 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
 
     List<String> paymentMethodList = new ArrayList<String>();
     List<String> sourceMediaPaymentList = new ArrayList<String>();
-    List<String> paymentList = new ArrayList<String>();
+    List<String> paymentMethodAndTipe = new ArrayList<String>();
 
     private HashMap<String, String> HMPaymentmethodList = new HashMap<String, String>();
     private HashMap<String, String> HMsourceMediaPaymentList = new HashMap<String, String>();
-    private HashMap<String, String> HMpaymentList = new HashMap<String, String>();
+    private HashMap<String, String> HMpaymentMethodAndTipe = new HashMap<String, String>();
+    private HashMap<String, Integer> HMCardNumber = new HashMap<String, Integer>();
+    private HashMap<String, Integer> HMTraceNumber = new HashMap<String, Integer>();
+
+    boolean boolPaymentFill = false;
+
+    EditText etCardNumber;
+    EditText etBcaTraceNumber, etPayment;
 
     @BindView(R.id.spnKelurahanAddOrder)
     Spinner spnKelurahanAddOrder;
@@ -260,6 +269,40 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
     private HashMap<String, String> HMKodePos = new HashMap<>();
     private HashMap<String, String> HMOutletCode = new HashMap<>();
     private HashMap<String, String> HMOrderLocationId = new HashMap<>();
+
+    //final
+    double dblTaxBasedAmountFinal = 0;
+    double dbldecAmountFinal = 0;
+    double dbldecTotalFinal = 0;
+    double dbldecTotDiscountFinal = 0;
+    double dbldecTotalPriceFinal = 0;
+    double dbldecdecRoundedFinal = 0;
+
+
+    String txtPaymentMethodID = "";
+    String txtMediaJasaID = "";
+    String txtMediaJasaPaymentID = "";
+    String txtCardNumber = "";
+    String txtBCATraceNo = "";
+    String txtMediaJasaName  = "";
+    String txtPaymentMethodDesc = "";
+    String txtCustomerFinal = "";
+    String txtCustomerNameFinal = "";
+    String txtPickUpLocationNameFinal = "";
+    String txtmediajasapaymentFinal = "";
+
+    String txtPropinsiIDFinal = "";
+    String txtPropinsiNameFinal = "";
+    String txtKabupatenKotaIDFinal = "";
+    String txtKabupatenKotaNameFinal = "";
+    String txtKecamatanIDFinal = "";
+    String txtKecamatanNameFinal = "";
+    String txtKelurahanIDFinal = "";
+    String txtKelurahanNameFinal = "";
+    String txtKodePosFinal ="";
+
+
+    int intBitActiveFinal = 0;
 
     String access_token;
     String strPaymentMethod = "";
@@ -2166,6 +2209,8 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                     resJson.put("txtOrderNo", draft.getTxtNoSO());
                 }
                 String txtKontakID = dataLogin.getTxtKontakID();
+                String txtTeleId = dataLogin.getTxtTeleID();
+                resJson.put("txtTeleId", txtTeleId);
 
                 String soDate = etDate.getText().toString();
                 String dateSO = "";
@@ -2257,7 +2302,7 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
             mRequestBodyCheckout = resJson.toString();
             saveDataPreview();
             /*if (boolSavedDispatch) {
-//                checkout(strLinkAPI,mRequestBody);
+//                dispatchPartnerPreview(strLinkAPI,mRequestBody);
                 *//*new VolleyUtils().makeJsonObjectRequestWithToken(getActivity(), strLinkAPI, mRequestBody, access_token, "Please Wait...", new VolleyResponseListener() {
                     @Override
                     public void onError(String response) {
@@ -2693,7 +2738,8 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                     } else {
                         resJsoni.put("txtNoSo", draft.getTxtNoSO());
                     }
-
+                    String txtTeleId = dataLogin.getTxtTeleID();
+                    resJsoni.put("txtTeleId", txtTeleId);
                     SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
                     String currentDateandTime = sdf.format(new Date());
                     resJsoni.put("dtDate", currentDateandTime);
@@ -2760,8 +2806,9 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                         resJsoni.put("txtKabupatenKotaName", "");
                         resJsoni.put("txtKecamatanID", "");
                         resJsoni.put("txtKecamatanName", "");
-                        resJsoni.put("txtKodePos", "123123");
+                        resJsoni.put("txtKodePos", "");
                         resJsoni.put("txtDelivery", "");
+
 
                         resJsoni.put("txtRemarks", draft.getTxtRemarks());
                         resJsoni.put("txtDeviceId", deviceInfo.getModel());
@@ -2817,11 +2864,73 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                                 if (result == 1) {
                                     if (!jsonObject.getString("ListData").equals("null")) {
                                         JSONArray jsn = jsonObject.getJSONArray("ListData");
+                                        JSONObject jsnObjStatusSO = jsn.getJSONObject(0).getJSONObject("StatusSO");
+                                        JSONObject jsnObjPaymentSO = jsn.getJSONObject(0).getJSONObject("PaymentSO");
+                                        JSONObject jsnObjHeaderSO = jsn.getJSONObject(0).getJSONObject("HeaderSO");
+
+                                        //StatusSO
+                                        String txtNoSO = jsnObjStatusSO.getString("txtNoSO");
+                                        String intStatus = jsnObjStatusSO.getString("intStatus");
+                                        String txtStatus = jsnObjStatusSO.getString("txtStatus");
+
+                                        //PaymentSO
+                                        dblTaxBasedAmountFinal = jsnObjPaymentSO.getDouble("decTaxBaseAmount");
+                                        dbldecAmountFinal = jsnObjPaymentSO.getDouble("decTaxBaseAmount");
+                                        dbldecTotalFinal = jsnObjPaymentSO.getDouble("decTotal");
+                                        dbldecTotDiscountFinal = jsnObjPaymentSO.getDouble("decTotDiscount");
+                                        dbldecTotalPriceFinal = jsnObjPaymentSO.getDouble("decTotalPrice");
+                                        dbldecdecRoundedFinal = jsnObjPaymentSO.getDouble("decRounded");
+                                        intBitActiveFinal = jsnObjPaymentSO.getInt("bitActive");
+
+                                        //HeaderSO
+                                        String txtPropinsiID = jsnObjHeaderSO.getString("txtPropinsiID");
+                                        String txtPropinsiName = jsnObjHeaderSO.getString("txtPropinsiName");
+                                        String txtKabupatenKotaID = jsnObjHeaderSO.getString("txtKabupatenKotaID");
+                                        String txtKabupatenKotaName = jsnObjHeaderSO.getString("txtKabupatenKotaName");
+                                        String txtKecamatanID = jsnObjHeaderSO.getString("txtKecamatanID");
+                                        String txtKecamatanName = jsnObjHeaderSO.getString("txtKecamatanName");
+                                        String txtKelurahanID = jsnObjHeaderSO.getString("txtKelurahanID");
+                                        String txtKelurahanName = jsnObjHeaderSO.getString("txtKelurahanName");
+                                        String txtKodePos = jsnObjHeaderSO.getString("txtKodePos");
+                                        String txtCustomer = jsnObjHeaderSO.getString("txtCustomer");
+                                        String txtCustomerName = jsnObjHeaderSO.getString("txtCustomerName");
+                                        String txtPickUpLocationName = jsnObjHeaderSO.getString("txtPickUpLocationName");
+                                        String txtDelivery = jsnObjHeaderSO.getString("txtDelivery");
+
+                                        txtCustomerFinal = txtCustomer;
+                                        txtCustomerNameFinal = txtCustomerName;
+                                        txtPickUpLocationNameFinal = txtPickUpLocationName;
+                                        txtPropinsiIDFinal = txtPropinsiID;
+                                        txtPropinsiNameFinal = txtPropinsiName;
+                                        txtKabupatenKotaIDFinal = txtKabupatenKotaID;
+                                        txtKabupatenKotaNameFinal = txtKabupatenKotaName;
+                                        txtKecamatanIDFinal = txtKecamatanID;
+                                        txtKecamatanNameFinal = txtKecamatanName;
+                                        txtKelurahanIDFinal = txtKelurahanID;
+                                        txtKelurahanNameFinal = txtKelurahanName;
+                                        txtKodePosFinal = txtKodePos;
+
+
+                                        resJsoni.put("txtCustomer", txtCustomer);
+                                        resJsoni.put("txtCustomerName", txtCustomerName);
+
+                                        resJsoni.put("txtKelurahanID", txtKelurahanID);
+                                        resJsoni.put("txtKelurahanName", txtKelurahanName);
+
+                                        resJsoni.put("txtPropinsiID", txtPropinsiID);
+                                        resJsoni.put("txtPropinsiName", txtPropinsiName);
+                                        resJsoni.put("txtKabKotaID", txtKabupatenKotaID);
+                                        resJsoni.put("txtKabupatenKotaName", txtKabupatenKotaName);
+                                        resJsoni.put("txtKecamatanID", txtKecamatanID);
+                                        resJsoni.put("txtKecamatanName", txtKecamatanName);
+                                        resJsoni.put("txtKodePos", txtKodePos);
+                                        resJsoni.put("txtDelivery", txtDelivery);
+
                                         for (int n = 0; n < jsn.length(); n++) {
                                             JSONObject object = jsn.getJSONObject(n);
-                                            String txtNoSO = object.getString("txtNoSO");
-                                            String intStatus = object.getString("intStatus");
-                                            String txtStatus = object.getString("txtStatus");
+//                                            String txtNoSO = object.getString("txtNoSO");
+//                                            String intStatus = object.getString("intStatus");
+//                                            String txtStatus = object.getString("txtStatus");
                                             draft.setTxtNoSO(txtNoSO);
                                             draft.setIntStatus(0);
                                             draft.setTxtSOStatus(txtStatus);
@@ -2830,8 +2939,9 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                                                 Log.d("Update", "Berhasil");
                                                 ToastCustom.showToasty(context, "Save done", 1);
 //                                                btnPreview.performClick();
-                                                checkout(strLinkAPICheckout,mRequestBodyi);
-
+                                                resJsoni.put("txtNoSo", txtNoSO);
+                                                String mRequestBodyiCheckout = resJsoni.toString();
+                                                dispatchPartnerPreview(strLinkAPICheckout, mRequestBodyiCheckout);
                                             } else {
                                                 ToastCustom.showToasty(context, "failed to save", 2);
                                             }
@@ -2877,7 +2987,8 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
 
         }
     }
-    public void checkout(String strLinkAPI, String mRequestBody){
+
+    public void dispatchPartnerPreview(String strLinkAPI, String mRequestBody) {
         new VolleyUtils().makeJsonObjectRequestWithToken(getActivity(), strLinkAPI, mRequestBody, access_token, "Please Wait...", new VolleyResponseListener() {
             @Override
             public void onError(String response) {
@@ -2953,6 +3064,15 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
 
 
                                 final LinearLayout lnAttacedCust = (LinearLayout) promptView.findViewById(R.id.lnAttacedCust);
+
+                                final LinearLayout linearLayoutPaymentDetail = (LinearLayout) promptView.findViewById(R.id.linearLayoutPaymentDetail);
+                                final EditText etSourceMediaPayment = (EditText) promptView.findViewById(R.id.etSourceMediaPayment);
+                                etCardNumber = (EditText) promptView.findViewById(R.id.etCardNumber);
+                                etBcaTraceNumber = (EditText) promptView.findViewById(R.id.etBcaTraceNumber);
+                                etPayment = (EditText) promptView.findViewById(R.id.etPayment);
+
+                                //pelem
+
                                 TextView tvCustomerPrev = (TextView) promptView.findViewById(R.id.tvCustomerPrev);
 
 
@@ -2977,13 +3097,16 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                                     @Override
                                     public void onClick(View v) {
                                         LayoutInflater layoutInflater = LayoutInflater.from(context);
-                                        final View promptView = layoutInflater.inflate(R.layout.popup_payment_method, null);
+                                        View promptView = layoutInflater.inflate(R.layout.popup_payment_method, null);
                                         final RadioGroup rg = promptView.findViewById(R.id.radioGroup);
                                         final RadioButton rbCash = (RadioButton) promptView.findViewById(R.id.radio_cash);
                                         final RadioButton rbDebt = (RadioButton) promptView.findViewById(R.id.radio_debit);
                                         final Spinner spnPaymentMethod = (Spinner) promptView.findViewById(R.id.spnPaymentMethod);
-                                        final Spinner spnSourceMediaPayment = (Spinner) promptView.findViewById(R.id.spnPaymentMethod);
-                                        final Spinner spnPayment = (Spinner) promptView.findViewById(R.id.spnPayment);
+                                        final Spinner spnPaymentMethodAndTipe = (Spinner) promptView.findViewById(R.id.spnSourceMediaPayment);
+                                        final Spinner spnSourceMediaPaymentList = (Spinner) promptView.findViewById(R.id.spnPayment);
+
+                                        final EditText etCardNumber2 = (EditText) promptView.findViewById(R.id.etCardNumber2);
+                                        final EditText etBcaTraceNumber2 = (EditText) promptView.findViewById(R.id.etBcaTraceNumber2);
 
 //                                        List<clsListPaymentMethod> mediajasas = new ArrayList<>();
 //                                        clsListMediaJasa mediaJasaDefault = new clsListMediaJasa();
@@ -2995,36 +3118,134 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                                             paymentMethods = new clsListPaymentMethodRepo(context).findAll();
                                             paymentMethodList = new ArrayList<>();
                                             paymentMethodList.add(SPNCHOOSEONE);
-                                            HMPaymentmethodList.put(SPNCHOOSEONE,"000");
-                                            for(clsListPaymentMethod i : paymentMethods){
+                                            HMPaymentmethodList.put(SPNCHOOSEONE, "999");
+                                            for (clsListPaymentMethod i : paymentMethods) {
                                                 paymentMethodList.add(i.getNama());
-                                                HMPaymentmethodList.put(i.getNama(),i.getKode());
+                                                HMPaymentmethodList.put(i.getNama(), i.getKode());
                                             }
                                         } catch (SQLException e) {
                                             e.printStackTrace();
                                         }
-                                        if (paymentMethods.size()>0){
+                                        if (paymentMethods.size() > 0) {
                                             SpinnerCustom.setAdapterSpinner(spnPaymentMethod, context, R.layout.custom_spinner, paymentMethodList);
 //                                            SpinnerCustom.selectedItemByText(context, spnProvinceAddOrder, categoriesProv, txtPropinsiName);
                                         }
-                                        List<clsListMediaJasa> mediaJasas = new ArrayList<>();
-                                        try {
-                                            mediaJasas = new clsListMediaJasaRepo(context).findAll();
-                                            sourceMediaPaymentList = new ArrayList<>();
-                                            sourceMediaPaymentList.add(SPNCHOOSEONE);
-                                            HMsourceMediaPaymentList.put(SPNCHOOSEONE,"000");
-                                            for(clsListMediaJasa i : mediaJasas){
-                                                sourceMediaPaymentList.add(i.getDescType());
-                                                HMsourceMediaPaymentList.put(i.getDescType(),i.getTypeid());
-                                            }
-                                        } catch (SQLException e) {
-                                            e.printStackTrace();
-                                        }
-                                        if (mediaJasas.size()>0){
-                                            SpinnerCustom.setAdapterSpinner(spnSourceMediaPayment, context, R.layout.custom_spinner, sourceMediaPaymentList);
-//                                            SpinnerCustom.selectedItemByText(context, spnProvinceAddOrder, categoriesProv, txtPropinsiName);
-                                        }
+                                        etCardNumber2.setFocusable(false);
+                                        etCardNumber2.setEnabled(false);
+                                        etBcaTraceNumber2.setFocusable(false);
+                                        etBcaTraceNumber2.setEnabled(false);
 
+                                        sourceMediaPaymentList.add(SPNCHOOSEONE);
+                                        paymentMethodAndTipe.add(SPNCHOOSEONE);
+                                        //boole
+                                        spnPaymentMethod.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                                            @Override
+                                            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                                                String txtPaymentMethod = paymentMethodList.get(position);
+                                                String idPaymentMethod = HMPaymentmethodList.get(txtPaymentMethod);
+                                                if (!idPaymentMethod.equals("999")) {
+                                                    try {
+
+                                                        List<clsListPaymentMethodAndTipe> listPaymentMethodAndTipeSelected = new clsListPaymentMethodAndTipeRepo(context).findById2(idPaymentMethod);
+                                                        paymentMethodAndTipe = new ArrayList<>();
+                                                        paymentMethodAndTipe.add(SPNCHOOSEONE);
+                                                        HMpaymentMethodAndTipe.put(SPNCHOOSEONE, "999");
+                                                        for (clsListPaymentMethodAndTipe i : listPaymentMethodAndTipeSelected) {
+                                                            paymentMethodAndTipe.add(i.getDesc_type());
+                                                            HMpaymentMethodAndTipe.put(i.getDesc_type(), i.getTypeid());
+                                                            HMCardNumber.put(i.getDesc_type(),i.getIntFillCardNumber());
+                                                            HMTraceNumber.put(i.getDesc_type(),i.getIntFillTraceNumber());
+                                                        }
+                                                        if (paymentMethodAndTipe.size() > 0) {
+                                                            SpinnerCustom.setAdapterSpinner(spnPaymentMethodAndTipe, context, R.layout.custom_spinner, paymentMethodAndTipe);
+                                                            SpinnerCustom.selectedItemByText(context, spnSourceMediaPaymentList, paymentMethodAndTipe, SPNCHOOSEONE);
+                                                        }
+
+                                                    } catch (SQLException e) {
+                                                        e.printStackTrace();
+                                                    }
+                                                }
+
+                                            }
+
+                                            @Override
+                                            public void onNothingSelected(AdapterView<?> parent) {
+
+                                            }
+                                        });
+                                        spnPaymentMethodAndTipe.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                                            @Override
+                                            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                                                String txtPaymentMethodAndTipe = paymentMethodAndTipe.get(position);
+                                                String idTxtSourceMedia = HMpaymentMethodAndTipe.get(txtPaymentMethodAndTipe);
+
+                                                if (!idTxtSourceMedia.equals("999")) {
+                                                    int cardNumber = HMCardNumber.get(txtPaymentMethodAndTipe);
+                                                    int traceNumber = HMTraceNumber.get(txtPaymentMethodAndTipe);
+                                                    if(cardNumber==1){
+                                                        etCardNumber2.setEnabled(true);
+                                                        etCardNumber2.setFocusable(true);
+                                                        etCardNumber2.setFocusableInTouchMode(true);
+                                                        etCardNumber2.setClickable(true);
+                                                    }else{
+                                                        etCardNumber2.setEnabled(false);
+                                                        etCardNumber2.setFocusable(false);
+                                                        etCardNumber2.setFocusableInTouchMode(false);
+                                                        etCardNumber2.setClickable(false);
+                                                        etCardNumber2.setText("");
+                                                    }
+                                                    if (traceNumber==1){
+                                                        etBcaTraceNumber2.setEnabled(true);
+                                                        etBcaTraceNumber2.setFocusable(true);
+                                                        etBcaTraceNumber2.setFocusableInTouchMode(true);
+                                                        etBcaTraceNumber2.setClickable(true);
+                                                    }else{
+                                                        etBcaTraceNumber2.setEnabled(false);
+                                                        etBcaTraceNumber2.setFocusable(false);
+                                                        etBcaTraceNumber2.setFocusableInTouchMode(false);
+                                                        etBcaTraceNumber2.setClickable(false);
+                                                        etBcaTraceNumber2.setText("");
+                                                    }
+
+                                                    List<clsListMediaJasa> listMediaJasasSelected = new ArrayList<>();
+                                                    if (!idTxtSourceMedia.equals("999")) {
+                                                        try {
+                                                            listMediaJasasSelected = new clsListMediaJasaRepo(context).findById2(idTxtSourceMedia);
+                                                            List<clsListMediaJasa> mediaJasas = new ArrayList<>();
+                                                            mediaJasas = new clsListMediaJasaRepo(context).findAll();
+                                                            sourceMediaPaymentList = new ArrayList<>();
+                                                            sourceMediaPaymentList.add(SPNCHOOSEONE);
+                                                            HMsourceMediaPaymentList.put(SPNCHOOSEONE, "999");
+                                                            for (clsListMediaJasa i : listMediaJasasSelected) {
+                                                                sourceMediaPaymentList.add(i.getTxtmediajasapayment());
+                                                                HMsourceMediaPaymentList.put(i.getTxtmediajasapayment(), i.getTxtmediajasapaymentid());
+                                                            }
+                                                        } catch (SQLException e) {
+                                                            e.printStackTrace();
+                                                        }
+                                                        if (listMediaJasasSelected.size() > 0) {
+                                                            SpinnerCustom.setAdapterSpinner(spnSourceMediaPaymentList, context, R.layout.custom_spinner, sourceMediaPaymentList);
+                                                        }
+                                                    }
+                                                }
+                                            }
+
+                                            @Override
+                                            public void onNothingSelected(AdapterView<?> parent) {
+
+                                            }
+                                        });
+                                        spnSourceMediaPaymentList.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                                            @Override
+                                            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+
+                                            }
+
+                                            @Override
+                                            public void onNothingSelected(AdapterView<?> parent) {
+
+                                            }
+                                        });
 
 
                                         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
@@ -3036,7 +3257,7 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                                                     public void onClick(DialogInterface dialog, int id) {
                                                         dialog.cancel();
                                                     }
-                                                }).setPositiveButton("Oke", new DialogInterface.OnClickListener() {
+                                                }).setPositiveButton("Submit", new DialogInterface.OnClickListener() {
                                             public void onClick(DialogInterface dialog, int id) {
 
                                             }
@@ -3046,7 +3267,71 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                                         alertD.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
                                             @Override
                                             public void onClick(View v) {
+                                                String paymentMethod = spnPaymentMethod.getSelectedItem().toString();
+                                                String idPaymentMethod = HMPaymentmethodList.get(paymentMethod);
+                                                boolean boolPaymentValid = true;
+                                                if (!idPaymentMethod.equals("999")) {
+                                                    txtPaymentMethodID = idPaymentMethod;
+                                                    tvPaymentMethod.setText(paymentMethod);
+                                                    boolPaymentValid = true;
+                                                } else {
+                                                    boolPaymentValid = false;
+                                                }
+                                                if (spnPaymentMethodAndTipe.getSelectedItem() != null && boolPaymentValid) {
+                                                    String sourceMediaPayment = spnPaymentMethodAndTipe.getSelectedItem().toString();
+                                                    String idSourceMediaPayment = HMpaymentMethodAndTipe.get(sourceMediaPayment);
+                                                    if (!idSourceMediaPayment.equals("999")) {
+                                                        txtMediaJasaID = idSourceMediaPayment;
+                                                        txtMediaJasaName = sourceMediaPayment;
+                                                        txtmediajasapaymentFinal = txtMediaJasaName;
+                                                        etSourceMediaPayment.setText(sourceMediaPayment);
 
+
+                                                        int cardNumb = HMCardNumber.get(sourceMediaPayment);
+                                                        int traceBca = HMTraceNumber.get(sourceMediaPayment);
+                                                        if (cardNumb == 1){
+                                                            String cn = etCardNumber2.getText().toString();
+                                                            etCardNumber.setText(cn);
+                                                            txtCardNumber = cn;
+                                                        }else{
+                                                            etCardNumber.setText("0");
+                                                            txtCardNumber = "0";
+                                                        }
+                                                        if (traceBca == 1){
+                                                            String bcaTN = etBcaTraceNumber2.getText().toString();
+                                                            etBcaTraceNumber.setText(bcaTN);
+                                                            txtBCATraceNo = bcaTN;
+                                                        }else{
+                                                            etBcaTraceNumber.setText("0");
+                                                            txtBCATraceNo = "0";
+                                                        }
+
+                                                        boolPaymentValid = true;
+                                                    } else {
+                                                        boolPaymentValid = false;
+                                                    }
+
+                                                } else {
+                                                    boolPaymentValid = false;
+                                                }
+                                                if (spnSourceMediaPaymentList.getSelectedItem()!=null && boolPaymentValid){
+                                                    String payment= spnSourceMediaPaymentList.getSelectedItem().toString();
+                                                    String paymentId = HMsourceMediaPaymentList.get(payment);
+                                                    if (!paymentId.equals("999")) {
+                                                        txtMediaJasaPaymentID = paymentId;
+                                                        etPayment.setText(payment);
+
+                                                    }else{
+                                                        boolPaymentValid = false;
+                                                    }
+
+                                                }
+                                                if (boolPaymentValid) {
+                                                    alertD.dismiss();
+                                                    linearLayoutPaymentDetail.setVisibility(View.VISIBLE);
+                                                } else {
+                                                    ToastCustom.showToasty(context, "Invalid data payment", 3);
+                                                }
                                                 /* int selectedId = rg.getCheckedRadioButtonId();
                                                 if (rbCash.isChecked()) {
                                                     tvPaymentMethod.setText("Cash");
@@ -3173,6 +3458,35 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                                             } catch (SQLException e) {
                                                 e.printStackTrace();
                                             }
+                                            resJsonFinalCheckout.put("txtLogisticID","");
+                                            resJsonFinalCheckout.put("txtLogType","");
+                                            resJsonFinalCheckout.put("intNilaiPembulatan",dbldecdecRoundedFinal);
+                                            resJsonFinalCheckout.put("txtPaymentMethodID",txtPaymentMethodID);
+                                            resJsonFinalCheckout.put("txtMediaJasaID",txtMediaJasaID);
+                                            resJsonFinalCheckout.put("txtMediaJasaPaymentID",txtMediaJasaPaymentID);
+                                            resJsonFinalCheckout.put("txtCardNumber",txtCardNumber);
+                                            resJsonFinalCheckout.put("txtBCATraceNo",txtBCATraceNo);
+                                            resJsonFinalCheckout.put("AdminSetPaidFromBankName",txtMediaJasaName);
+                                            resJsonFinalCheckout.put("AdminSetPaidToBankName",txtMediaJasaName);
+                                            resJsonFinalCheckout.put("AdminSetPaidFromName",txtCustomerFinal);
+                                            double dblAdminSetPaidValue = dbldecTotalPriceFinal - dbldecdecRoundedFinal;
+                                            resJsonFinalCheckout.put("AdminSetPaidValue",dblAdminSetPaidValue);
+                                            resJsonFinalCheckout.put("AdminSetReferenceTransferNo",txtBCATraceNo);
+                                            resJsonFinalCheckout.put("PaidDescription",tvPaymentMethod.getText().toString());
+                                            resJsonFinalCheckout.put("decAmount",dbldecAmountFinal);
+                                            resJsonFinalCheckout.put("decTaxBaseAmount",dblTaxBasedAmountFinal);
+                                            resJsonFinalCheckout.put("decTotal",dbldecTotalFinal);
+                                            resJsonFinalCheckout.put("decTotDiscount",dbldecTotDiscountFinal);
+                                            resJsonFinalCheckout.put("decTotalPrice",dbldecTotalPriceFinal);
+                                            resJsonFinalCheckout.put("txtmediajasapayment",txtmediajasapaymentFinal);
+
+                                            /*resJsonFinalCheckout.put("intNilaiPembulatan", 0);
+                                            resJsonFinalCheckout.put("txtPaymentMethodID", "");
+                                            resJsonFinalCheckout.put("txtMediaJasaID", "");
+                                            resJsonFinalCheckout.put("txtMediaJasaPaymentID", "");
+                                            resJsonFinalCheckout.put("txtCardNumber", "");
+                                            resJsonFinalCheckout.put("txtBCATraceNo", "");*/
+
 
                                             resJsonFinalCheckout.put("txtSourceOrder", data.getTxtSumberDataID());
 //                                                    resJson.put("txtSourceOrder", data.getTxtSumberDataID());
@@ -3191,10 +3505,10 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                                             String walkin = "";
                                             if (draft.isBoolWalkin()) {
                                                 walkin = "1";
-                                                resJsonFinalCheckout.put("txtAlamatKirim", dataDefault.getTxtAlamat());
+                                                resJsonFinalCheckout.put("txtAlamatKirim", txtKelurahanNameFinal);
                                                 resJsonFinalCheckout.put("txtCustPhone", dataLogin.getTxtPhoneNo());
-                                                resJsonFinalCheckout.put("txtCustName", dataDefault.getTxtNama());
-                                                resJsonFinalCheckout.put("txtKontakID", dataDefault.getTxtKontakID());
+                                                resJsonFinalCheckout.put("txtCustName", txtCustomerNameFinal);
+                                                resJsonFinalCheckout.put("txtKontakID", txtCustomerFinal);
                                                 resJsonFinalCheckout.put("txtPickUpLocation", dataLogin.getTxtNamaInstitusi());
 
                                                 SimpleDateFormat sdfFinalCheckout = new SimpleDateFormat("yyyy-MM-dd");
@@ -3203,15 +3517,15 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                                                 }
 
                                                 resJsonFinalCheckout.put("dtKirim", txtDeliverSche);
-                                                resJsonFinalCheckout.put("txtKelurahanID", dataDefault.getTxtNamaKelurahan());
-                                                resJsonFinalCheckout.put("txtNamaKelurahan", dataDefault.getTxtNamaKelurahan());
-                                                resJsonFinalCheckout.put("txtPropinsiID", String.valueOf(dataDefault.getTxtPropinsiID()));
-                                                resJsonFinalCheckout.put("txtNamaPropinsi", dataDefault.getTxtNamaPropinsi());
-                                                resJsonFinalCheckout.put("txtKabKotaID", String.valueOf(dataDefault.getTxtKabKotaID()));
-                                                resJsonFinalCheckout.put("txtNamaKabKota", dataDefault.getTxtNamaKabKota());
-                                                resJsonFinalCheckout.put("txtKecamatanID", String.valueOf(dataDefault.getTxtKecamatan()));
-                                                resJsonFinalCheckout.put("txtNamaKecamatan", dataDefault.getTxtNamaKecamatan());
-                                                resJsonFinalCheckout.put("txtKodePos", dataDefault.getTxtKodePos());
+                                                resJsonFinalCheckout.put("txtKelurahanID", txtKelurahanIDFinal);
+                                                resJsonFinalCheckout.put("txtNamaKelurahan", txtKelurahanNameFinal);
+                                                resJsonFinalCheckout.put("txtPropinsiID", txtPropinsiIDFinal);
+                                                resJsonFinalCheckout.put("txtNamaPropinsi", txtPropinsiNameFinal);
+                                                resJsonFinalCheckout.put("txtKabKotaID", txtKabupatenKotaIDFinal);
+                                                resJsonFinalCheckout.put("txtNamaKabKota", txtKabupatenKotaNameFinal );
+                                                resJsonFinalCheckout.put("txtKecamatanID", txtKecamatanIDFinal);
+                                                resJsonFinalCheckout.put("txtNamaKecamatan", txtKecamatanNameFinal );
+                                                resJsonFinalCheckout.put("txtKodePos", txtKodePosFinal);
                                             } else {
                                                 walkin = "0";
                                                 resJsonFinalCheckout.put("txtCustName", draft.getTxtCustomerName());
@@ -3245,12 +3559,7 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                                             } else {
                                                 deliverBy = "0";
                                             }
-                                            resJsonFinalCheckout.put("intNilaiPembulatan", 0);
-                                            resJsonFinalCheckout.put("txtPaymentMethodID", "");
-                                            resJsonFinalCheckout.put("txtMediaJasaID", "");
-                                            resJsonFinalCheckout.put("txtMediaJasaPaymentID", "");
-                                            resJsonFinalCheckout.put("txtCardNumber", "");
-                                            resJsonFinalCheckout.put("txtBCATraceNo", "");
+
                                             resJsonFinalCheckout.put("txtUserID", dataLogin.getIdUser());
                                             resJsonFinalCheckout.put("txtTeleID", dataLogin.getTxtTeleID());
                                             resJsonFinalCheckout.put("txtUserID", dataLogin.getIdUser());
@@ -3267,50 +3576,57 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                                         }
 
                                         final String mRequestBodyFinalCheckout = resJsonFinalCheckout.toString();
-                                        new VolleyUtils().makeJsonObjectRequestWithToken(getActivity(), strLinkAPIFinalCheckout, mRequestBodyFinalCheckout, access_token, "Please Wait...", new VolleyResponseListener() {
-                                            @Override
-                                            public void onError(String response) {
-                                                ToastCustom.showToasty(context, response, 2);
-                                            }
-
-                                            @Override
-                                            public void onResponse(String response, Boolean status, String strErrorMsg) {
-                                                if (response != null) {
-                                                    JSONObject jsonObject = null;
-                                                    try {
-                                                        jsonObject = new JSONObject(response);
-                                                        int result = jsonObject.getInt("intResult");
-                                                        String warn = jsonObject.getString("txtMessage");
-                                                        if (result == 1) {
-                                                            if (!jsonObject.getString("ListData").equals("null")) {
-                                                                JSONArray jsn = jsonObject.getJSONArray("ListData");
-                                                                for (int n = 0; n < jsn.length(); n++) {
-
-                                                                }
-                                                            }
-                                                            alertD.dismiss();
-                                                            new clsProductDraftRepo(context).clearAllData();
-                                                            new clsDraftRepo(context).clearAllData();
-                                                            ToastCustom.showToasty(context, "Checkout Completed", 1);
-                                                            FragmentSalesOrder SOFragment = new FragmentSalesOrder();
-                                                            FragmentTransaction fragmentTransactionSO = getActivity().getSupportFragmentManager().beginTransaction();
-                                                            fragmentTransactionSO.replace(R.id.frame, SOFragment, "FragmentSalesOrder");
-                                                            fragmentTransactionSO.commit();
-
-
-                                                        } else {
-                                                            ToastCustom.showToasty(context, warn, 2);
-
-                                                        }
-                                                    } catch (JSONException ex) {
-                                                        String x = ex.getMessage();
-                                                    }
-                                                    String a = "";
+                                        if(!tvPaymentMethod.getText().toString().equals("*Add payment method")){
+                                            boolPaymentFill = true;
+                                        }else{
+                                            boolPaymentFill = false;
+                                        }
+                                        if(boolPaymentFill){
+                                            new VolleyUtils().makeJsonObjectRequestWithToken(getActivity(), strLinkAPIFinalCheckout, mRequestBodyFinalCheckout, access_token, "Please Wait...", new VolleyResponseListener() {
+                                                @Override
+                                                public void onError(String response) {
+                                                    ToastCustom.showToasty(context, response, 2);
                                                 }
-                                            }
-                                        });
+
+                                                @Override
+                                                public void onResponse(String response, Boolean status, String strErrorMsg) {
+                                                    if (response != null) {
+                                                        JSONObject jsonObject = null;
+                                                        try {
+                                                            jsonObject = new JSONObject(response);
+                                                            int result = jsonObject.getInt("intResult");
+                                                            String warn = jsonObject.getString("txtMessage");
+                                                            if (result == 1) {
+                                                                if (!jsonObject.getString("ListData").equals("null")) {
+                                                                    JSONArray jsn = jsonObject.getJSONArray("ListData");
+                                                                    for (int n = 0; n < jsn.length(); n++) {
+
+                                                                    }
+                                                                }
+                                                                alertD.dismiss();
+                                                                new clsProductDraftRepo(context).clearAllData();
+                                                                new clsDraftRepo(context).clearAllData();
+                                                                ToastCustom.showToasty(context, "Checkout Completed", 1);
+                                                                FragmentSalesOrder SOFragment = new FragmentSalesOrder();
+                                                                FragmentTransaction fragmentTransactionSO = getActivity().getSupportFragmentManager().beginTransaction();
+                                                                fragmentTransactionSO.replace(R.id.frame, SOFragment, "FragmentSalesOrder");
+                                                                fragmentTransactionSO.commit();
 
 
+                                                            } else {
+                                                                ToastCustom.showToasty(context, warn, 2);
+
+                                                            }
+                                                        } catch (JSONException ex) {
+                                                            String x = ex.getMessage();
+                                                        }
+                                                        String a = "";
+                                                    }
+                                                }
+                                            });
+                                        }else{
+                                            ToastCustom.showToasty(context,"Payment method empty !", 3);
+                                        }
                                     }
                                 });
 
@@ -3665,16 +3981,15 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                                                         boolMatch = true;
                                                     }
                                                 }
-                                                if(boolMatch){
-                                                    ToastCustom.showToasty(context,"Product "+item.getItemName()+" has been in the list ",2);
-                                                }else{
+                                                if (boolMatch) {
+                                                    ToastCustom.showToasty(context, "Product " + item.getItemName() + " has been in the list ", 2);
+                                                } else {
                                                     contentLibs.set(position, item);
                                                     lvItemAdd.setAdapter(new CardAppAdapter(context, contentLibs, Color.WHITE));
                                                     alertDi.dismiss();
                                                     alertD.dismiss();
 
                                                 }
-
 
 
 //                                                boolean booladded = addItem(item);

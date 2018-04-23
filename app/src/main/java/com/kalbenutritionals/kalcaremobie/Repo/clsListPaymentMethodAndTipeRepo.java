@@ -4,7 +4,7 @@ import android.content.Context;
 
 import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.stmt.QueryBuilder;
-import com.kalbenutritionals.kalcaremobie.Common.clsListMediaJasa;
+import com.kalbenutritionals.kalcaremobie.Common.clsListPaymentMethodAndTipe;
 import com.kalbenutritionals.kalcaremobie.Data.DatabaseHelper;
 import com.kalbenutritionals.kalcaremobie.Data.DatabaseManager;
 
@@ -13,12 +13,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by Robert on 13/04/2018.
+ * Created by Robert on 20/04/2018.
  */
 
-public class clsListMediaJasaRepo implements crud {
+public class clsListPaymentMethodAndTipeRepo implements crud{
     private DatabaseHelper helper;
-    public clsListMediaJasaRepo(Context context){
+    public clsListPaymentMethodAndTipeRepo(Context context){
         DatabaseManager.init(context);
         helper = DatabaseManager.getInstance().getHelper();
     }
@@ -26,9 +26,9 @@ public class clsListMediaJasaRepo implements crud {
     @Override
     public int create(Object item) throws SQLException {
         int index = -1;
-        clsListMediaJasa object = (clsListMediaJasa) item;
+        clsListPaymentMethodAndTipe object = (clsListPaymentMethodAndTipe) item;
         try {
-            index = helper.getclsListMediaJasaDao().create(object);
+            index = helper.getClsListPaymentMethodAndTipeDao().create(object);
         }catch (SQLException e){
             e.printStackTrace();
         }
@@ -38,9 +38,9 @@ public class clsListMediaJasaRepo implements crud {
     @Override
     public int createOrUpdate(Object item) throws SQLException {
         int index = -1;
-        clsListMediaJasa object = (clsListMediaJasa) item;
+        clsListPaymentMethodAndTipe object = (clsListPaymentMethodAndTipe) item;
         try {
-            Dao.CreateOrUpdateStatus status = helper.getclsListMediaJasaDao().createOrUpdate(object);
+            Dao.CreateOrUpdateStatus status = helper.getClsListPaymentMethodAndTipeDao().createOrUpdate(object);
             index = status.getNumLinesChanged();
 //            index = 1;
         }catch (SQLException e){
@@ -61,33 +61,27 @@ public class clsListMediaJasaRepo implements crud {
 
     @Override
     public Object findById(int id) throws SQLException {
-        clsListMediaJasa item = null;
-        try{
-            item = helper.getclsListMediaJasaDao().queryForId(id);
-        }catch (SQLException e){
-            e.printStackTrace();
-        }
-        return item;
+        return null;
     }
-    public List<clsListMediaJasa> findById2(String id) throws SQLException {
-        clsListMediaJasa item = new clsListMediaJasa();
-        List<clsListMediaJasa> listData = new ArrayList<>();
-        QueryBuilder<clsListMediaJasa, Integer> queryBuilder = null;
+    public List<clsListPaymentMethodAndTipe> findById2(String txtTypeId) throws SQLException {
+        clsListPaymentMethodAndTipe item = new clsListPaymentMethodAndTipe();
+        List<clsListPaymentMethodAndTipe> listData = new ArrayList<>();
+        int intId = Integer.parseInt(txtTypeId);
+        QueryBuilder<clsListPaymentMethodAndTipe, Integer> queryBuilder = null;
         try {
-            queryBuilder = helper.getclsListMediaJasaDao().queryBuilder();
-            queryBuilder.where().eq(item.Property_StrTypeId, id);
+            queryBuilder = helper.getClsListPaymentMethodAndTipeDao().queryBuilder();
+            queryBuilder.where().eq(item.Property_txtPaymentMethodId, txtTypeId);
             listData = queryBuilder.query();
         } catch (SQLException e) {
             e.printStackTrace();
         }
         return listData;
     }
-
     @Override
-    public List<clsListMediaJasa> findAll() throws SQLException {
-        List<clsListMediaJasa> items = null;
+    public List<?> findAll() throws SQLException {
+        List<clsListPaymentMethodAndTipe> items = null;
         try{
-            items = helper.getclsListMediaJasaDao().queryForAll();
+            items = helper.getClsListPaymentMethodAndTipeDao().queryForAll();
         }catch (SQLException e){
             e.printStackTrace();
         }

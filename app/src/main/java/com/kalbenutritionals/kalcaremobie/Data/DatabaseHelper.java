@@ -13,6 +13,7 @@ import com.kalbenutritionals.kalcaremobie.Common.clsCustomerData;
 import com.kalbenutritionals.kalcaremobie.Common.clsDraft;
 import com.kalbenutritionals.kalcaremobie.Common.clsListMediaJasa;
 import com.kalbenutritionals.kalcaremobie.Common.clsListPaymentMethod;
+import com.kalbenutritionals.kalcaremobie.Common.clsListPaymentMethodAndTipe;
 import com.kalbenutritionals.kalcaremobie.Common.clsPhotoProfile;
 import com.kalbenutritionals.kalcaremobie.Common.clsProductDraft;
 import com.kalbenutritionals.kalcaremobie.Common.clsToken;
@@ -52,6 +53,7 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
     protected Dao<clsCustomerData, Integer> customerDataDao;
     protected Dao<clsListMediaJasa, Integer> clsListMediaJasaDao;
     protected Dao<clsListPaymentMethod, Integer> clsListPaymentMethodDao;
+    protected Dao<clsListPaymentMethodAndTipe, Integer> clsListPaymentMethodAndTipeDao;
 
     public DatabaseHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -70,6 +72,7 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
             TableUtils.createTableIfNotExists(connectionSource, clsCustomerData.class);
             TableUtils.createTableIfNotExists(connectionSource, clsListMediaJasa.class);
             TableUtils.createTableIfNotExists(connectionSource, clsListPaymentMethod.class);
+            TableUtils.createTableIfNotExists(connectionSource, clsListPaymentMethodAndTipe.class);
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -109,6 +112,7 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
             TableUtils.clearTable(connectionSource, clsCustomerData.class);
             TableUtils.clearTable(connectionSource, clsListMediaJasa.class);
             TableUtils.clearTable(connectionSource, clsListPaymentMethod.class);
+            TableUtils.clearTable(connectionSource, clsListPaymentMethodAndTipe.class);
 
             // after we drop the old databases, we create the new ones
 //            onCreate(db, connectionSource);
@@ -144,6 +148,13 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
             clsListMediaJasaDao = getDao(clsListMediaJasa.class);
         }
         return clsListMediaJasaDao;
+    }
+
+    public Dao<clsListPaymentMethodAndTipe, Integer> getClsListPaymentMethodAndTipeDao() throws SQLException {
+        if (clsListPaymentMethodAndTipeDao == null) {
+            clsListPaymentMethodAndTipeDao = getDao(clsListPaymentMethodAndTipe.class);
+        }
+        return clsListPaymentMethodAndTipeDao;
     }
 
     public Dao<clsListPaymentMethod, Integer> getclsListPaymentMethodDao() throws SQLException {
@@ -213,5 +224,6 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
         customerDataDao = null;
         clsListMediaJasaDao = null;
         clsListPaymentMethodDao = null;
+        clsListPaymentMethodAndTipeDao = null;
     }
 }

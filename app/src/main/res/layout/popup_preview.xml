@@ -12,7 +12,8 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="@dimen/_10sdp"
+            android:layout_gravity="right"
+            android:layout_weight="1"
             android:layout_margin="5dp"
             android:visibility="gone"
             android:orientation="horizontal">
@@ -37,9 +38,11 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="@dimen/_10sdp"
+            android:layout_gravity="right"
+            android:layout_weight="1"
             android:layout_margin="5dp"
-            android:orientation="horizontal">
+            android:orientation="vertical"
+            android:visibility="visible">
 
             <TextView
                 android:layout_width="match_parent"
@@ -63,9 +66,11 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="@dimen/_10sdp"
+            android:layout_gravity="right"
+            android:layout_weight="1"
             android:layout_margin="5dp"
-            android:orientation="horizontal">
+            android:orientation="vertical"
+            android:visibility="visible">
 
             <TextView
                 android:layout_width="match_parent"
@@ -89,9 +94,11 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_gravity="right"
+            android:layout_weight="1"
             android:layout_margin="5dp"
-            android:layout_marginLeft="@dimen/_10sdp"
-            android:orientation="horizontal">
+            android:orientation="vertical"
+            android:visibility="visible">
 
             <TextView
                 android:layout_width="match_parent"
@@ -115,9 +122,11 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="@dimen/_10sdp"
+            android:layout_gravity="right"
+            android:layout_weight="1"
             android:layout_margin="5dp"
-            android:orientation="horizontal">
+            android:orientation="vertical"
+            android:visibility="visible">
 
             <TextView
                 android:layout_width="match_parent"
@@ -141,9 +150,11 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_gravity="right"
+            android:layout_weight="1"
             android:layout_margin="5dp"
-            android:layout_marginLeft="@dimen/_10sdp"
-            android:orientation="horizontal">
+            android:orientation="vertical"
+            android:visibility="visible">
 
             <TextView
                 android:layout_width="match_parent"
@@ -167,9 +178,11 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_gravity="right"
+            android:layout_weight="1"
             android:layout_margin="5dp"
-            android:layout_marginLeft="@dimen/_10sdp"
-            android:orientation="horizontal">
+            android:orientation="vertical"
+            android:visibility="visible">
 
             <TextView
                 android:layout_width="match_parent"
@@ -193,9 +206,11 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_gravity="right"
+            android:layout_weight="1"
             android:layout_margin="5dp"
-            android:layout_marginLeft="@dimen/_10sdp"
-            android:orientation="horizontal">
+            android:orientation="vertical"
+            android:visibility="visible">
 
             <TextView
                 android:layout_width="match_parent"
@@ -209,7 +224,6 @@
                 android:id="@+id/tvRemarksPreview"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="5dp"
                 android:textColor="@color/black"
                 android:layout_weight="0.5"
                 android:background="@drawable/bg_edtext"
@@ -219,14 +233,15 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_gravity="right"
+            android:layout_weight="1"
             android:layout_margin="5dp"
-            android:layout_marginLeft="@dimen/_10sdp"
-            android:orientation="horizontal">
+            android:orientation="vertical"
+            android:visibility="visible">
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="5dp"
                 android:textColor="@color/black"
                 android:layout_weight="1"
                 android:text="Customer"/>
@@ -245,9 +260,10 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="@dimen/_5sdp"
-            android:layout_marginLeft="@dimen/_10sdp"
-            android:orientation="horizontal"
+            android:layout_gravity="right"
+            android:layout_weight="1"
+            android:layout_margin="5dp"
+            android:orientation="vertical"
             android:visibility="visible">
 
             <TextView
@@ -262,38 +278,107 @@
                 android:id="@+id/tvPaymentMethod"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/_10sdp"
+                android:layout_marginTop="10dp"
                 android:layout_weight="0.5"
                 android:drawableLeft="@drawable/ic_credit_card"
                 android:textColor="@color/black"
                 android:background="@drawable/bg_edtext"
                 android:text="*Add payment method" />
+            <LinearLayout
+                android:id="@+id/linearLayoutPaymentDetail"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="right"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:padding="5dp"
+                android:visibility="gone">
+                <TextView
+                    android:id="@+id/textView1"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:text="Source media payment " />
+                <EditText
+                    android:id="@+id/etSourceMediaPayment"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/bg_edtext"
+                    android:editable="false"
+                    android:focusable="false"
+                    android:clickable="false" />
+                <TextView
+                    android:id="@+id/textView2"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:text="Payment" />
+                <EditText
+                    android:id="@+id/etPayment"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/bg_edtext"
+                    android:editable="false"
+                    android:focusable="false"
+                    android:clickable="false"/>
+                <TextView
+                    android:id="@+id/textView3"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:text="Card Number" />
+                <EditText
+                    android:id="@+id/etCardNumber"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/bg_edtext"
+                    android:editable="false"
+                    android:focusable="false"
+                    android:clickable="false"/>
+                <TextView
+                    android:id="@+id/textView4"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:text="BCA trace number" />
+                <EditText
+                    android:id="@+id/etBcaTraceNumber"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/bg_edtext"
+                    android:editable="false"
+                    android:focusable="false"
+                    android:clickable="false"/>
+            </LinearLayout>
         </LinearLayout>
-        <View
+      <!--  <View
             android:layout_width="match_parent"
             android:background="@color/black"
-            android:layout_height="@dimen/_2sdp"/>
+            android:layout_height="@dimen/_2sdp"/>-->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:id="@+id/lnAttacedCust"
             android:visibility="visible"
-            android:layout_margin="@dimen/_5sdp"
+            android:layout_margin="5dp"
             android:orientation="vertical"
             android:weightSum="2">
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_margin="@dimen/_15sdp"
+                android:layout_margin="10dp"
                 android:textColor="@color/black"
                 android:text="Customer's Detail" />
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_margin="@dimen/_5sdp"
-                android:orientation="horizontal">
+                android:layout_gravity="right"
+                android:layout_weight="1"
+                android:layout_margin="5dp"
+                android:orientation="vertical"
+                android:visibility="visible">
 
                 <TextView
                     android:layout_width="match_parent"
@@ -323,8 +408,11 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_margin="@dimen/_5sdp"
-                android:orientation="horizontal">
+                android:layout_gravity="right"
+                android:layout_weight="1"
+                android:layout_margin="5dp"
+                android:orientation="vertical"
+                android:visibility="visible">
 
                 <TextView
                     android:layout_width="match_parent"
@@ -354,8 +442,11 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_margin="@dimen/_5sdp"
-                android:orientation="horizontal">
+                android:layout_gravity="right"
+                android:layout_weight="1"
+                android:layout_margin="5dp"
+                android:orientation="vertical"
+                android:visibility="visible">
 
                 <TextView
                     android:layout_width="match_parent"
@@ -385,8 +476,11 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_margin="@dimen/_3sdp"
-                android:orientation="horizontal">
+                android:layout_gravity="right"
+                android:layout_weight="1"
+                android:layout_margin="5dp"
+                android:orientation="vertical"
+                android:visibility="visible">
 
                 <TextView
                     android:layout_width="match_parent"
@@ -410,8 +504,11 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_margin="@dimen/_3sdp"
-                android:orientation="horizontal">
+                android:layout_gravity="right"
+                android:layout_weight="1"
+                android:layout_margin="5dp"
+                android:orientation="vertical"
+                android:visibility="visible">
 
                 <TextView
                     android:layout_width="match_parent"
@@ -435,8 +532,11 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_margin="@dimen/_3sdp"
-                android:orientation="horizontal">
+                android:layout_gravity="right"
+                android:layout_weight="1"
+                android:layout_margin="5dp"
+                android:orientation="vertical"
+                android:visibility="visible">
 
                 <TextView
                     android:layout_width="match_parent"
@@ -460,8 +560,11 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_margin="@dimen/_3sdp"
-                android:orientation="horizontal">
+                android:layout_gravity="right"
+                android:layout_weight="1"
+                android:layout_margin="5dp"
+                android:orientation="vertical"
+                android:visibility="visible">
 
                 <TextView
                     android:layout_width="match_parent"
@@ -482,8 +585,11 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_margin="@dimen/_3sdp"
-                android:orientation="horizontal">
+                android:layout_gravity="right"
+                android:layout_weight="1"
+                android:layout_margin="5dp"
+                android:orientation="vertical"
+                android:visibility="visible">
 
                 <TextView
                     android:layout_width="match_parent"
@@ -505,7 +611,7 @@
                 android:layout_width="match_parent"
                 android:background="@color/black"
                 android:id="@+id/vwLineBot"
-                android:layout_height="@dimen/_2sdp"
+                android:layout_height="2dp"
                 />
             <TextView
                 android:layout_width="wrap_content"
@@ -558,9 +664,9 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="@dimen/_10sdp"
-            android:layout_marginRight="@dimen/_10sdp"
-            android:layout_marginTop="@dimen/_15sdp"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:layout_marginTop="10dp"
             android:layout_weight="0.5"
             android:textColor="@color/black"
             android:text="Item List"
@@ -569,10 +675,10 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_marginLeft="@dimen/_10sdp"
-            android:layout_marginRight="@dimen/_10sdp"
-            android:layout_marginTop="@dimen/_5sdp"
-            android:layout_marginBottom="@dimen/_10sdp"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:layout_marginTop="5dp"
+            android:layout_marginBottom="5dp"
             android:orientation="horizontal">
 
             <ListView

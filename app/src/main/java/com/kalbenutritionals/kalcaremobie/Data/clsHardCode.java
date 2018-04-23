@@ -34,6 +34,7 @@ public class clsHardCode {
     public String linkCheckoutSalesOrder = new mConfigRepo(context).API + "CheckoutSalesOrder";
     public String linkGetDataSalesOrderMobile  = new mConfigRepo(context).API + "GetDataSalesOrderMobile";
     public String linkGetDataDetailSalesOrderMobile   = new mConfigRepo(context).API + "GetDataDetailSalesOrderMobile";
+    public String linkDelete = new mConfigRepo(context).API + "DeleteSO";
 
     /*public String copydb(Context context) throws IOException {
         String CURRENT_DATABASE_PATH = "data/data/" + context.getPackageName() + "/databases/"+ new clsHardCode().dbName;

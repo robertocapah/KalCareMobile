@@ -335,7 +335,7 @@ public class MainMenu extends AppCompatActivity implements GoogleApiClient.Conne
 
 
                     case R.id.profile:
-                        toolbar.setTitle("Home");
+                        toolbar.setTitle("Profile");
 
                         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_FULL_SENSOR);
 
@@ -348,7 +348,7 @@ public class MainMenu extends AppCompatActivity implements GoogleApiClient.Conne
                         return true;
 
                     case R.id.SO:
-                        toolbar.setTitle("Home");
+                        toolbar.setTitle("Source Order");
 
                         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_FULL_SENSOR);
 

@@ -59,43 +59,31 @@
                 android:layout_weight="1"
                 android:popupBackground="@color/white"
                 android:background="@drawable/spinner_background"></Spinner>
-            <android.support.design.widget.TextInputLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-
-                <EditText
-                    android:id="@+id/etCardNumber"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:background="@drawable/bg_edtext"
-                    android:hint="Card Number"
-                    android:editable="false"
-                    android:inputType="date" />
-
-            </android.support.design.widget.TextInputLayout>
-            <android.support.design.widget.TextInputLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-
-                <EditText
-                    android:id="@+id/etBcaTraceNumber"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:background="@drawable/bg_edtext"
-                    android:hint="BCA Trace Number"
-                    android:editable="false"
-                    android:inputType="date" />
-
-            </android.support.design.widget.TextInputLayout>
-
-            <Button
-                android:id="@+id/btnNext"
-                android:layout_width="match_parent"
+            <TextView
+                android:id="@+id/textView4"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
-                android:background="@drawable/btn_download_all"
-                android:text="Submit"
-                android:textColor="@color/white" />
+                android:text="Card Number" />
+            <EditText
+                android:id="@+id/etCardNumber2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_edtext" />
+
+            <TextView
+                android:id="@+id/textView5"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:text="BCA Trace Number" />
+
+            <EditText
+                android:id="@+id/etBcaTraceNumber2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_edtext" />
+
         </LinearLayout>
 
 
