@@ -241,7 +241,7 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
 
     EditText etCardNumber;
     EditText etBcaTraceNumber, etPayment;
-
+    TextView tvCustomerPrev;
     @BindView(R.id.spnKelurahanAddOrder)
     Spinner spnKelurahanAddOrder;
     @BindView(R.id.tvPhoneNumb)
@@ -3044,6 +3044,7 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                                 RecyclerView rvPreview = (RecyclerView) promptView.findViewById(R.id.rv_preview);
 
                                 TextView tvSOStatusPrev = (TextView) promptView.findViewById(R.id.tvSOStatusPrev);
+                                TextView tvtvSoNumberPrev = (TextView) promptView.findViewById(R.id.tvSoNumberPrev);
                                 TextView tvSoDatePrev = (TextView) promptView.findViewById(R.id.tvSoDatePrev);
                                 TextView tvSOSourcePrev = (TextView) promptView.findViewById(R.id.tvSOSourcePrev);
                                 TextView tvAgentNamePrev = (TextView) promptView.findViewById(R.id.tvAgentNamePrev);
@@ -3074,7 +3075,7 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
 
                                 //pelem
 
-                                TextView tvCustomerPrev = (TextView) promptView.findViewById(R.id.tvCustomerPrev);
+                                tvCustomerPrev = (TextView) promptView.findViewById(R.id.tvCustomerPrev);
 
 
                                 String noSO = etNoSo.getText().toString();
@@ -3093,6 +3094,7 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                                 tvDeliverySchedulePrev.setText(deliverySche);
                                 tvAgentNamePrev.setText(agentName);
                                 tvOrderLocationPrev.setText(orderLocation);
+                                tvtvSoNumberPrev.setText(noSO);
 
                                 tvPaymentMethod.setOnClickListener(new View.OnClickListener() {
                                     @Override
@@ -3108,6 +3110,43 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
 
                                         final EditText etCardNumber2 = (EditText) promptView.findViewById(R.id.etCardNumber2);
                                         final EditText etBcaTraceNumber2 = (EditText) promptView.findViewById(R.id.etBcaTraceNumber2);
+
+                                        /*etCardNumber2.addTextChangedListener(new TextWatcher() {
+                                            @Override
+                                            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+                                            }
+
+                                            @Override
+                                            public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+                                            }
+
+                                            @Override
+                                            public void afterTextChanged(Editable text) {
+                                                if (text.length() == 3 || text.length() == 7 || text.length() == 11) {
+                                                    text.append('-');
+                                                }
+                                            }
+                                        });
+                                        etBcaTraceNumber2.addTextChangedListener(new TextWatcher() {
+                                            @Override
+                                            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+                                            }
+
+                                            @Override
+                                            public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+                                            }
+
+                                            @Override
+                                            public void afterTextChanged(Editable text) {
+                                                if (text.length() == 3 || text.length() == 7 || text.length() == 11) {
+                                                    text.append('-');
+                                                }
+                                            }
+                                        });*/
 
                                         final String txtPaymentMth1 = tvPaymentMethod.getText().toString();
                                         final String txtSourceMediaPayment1 = etSourceMediaPayment.getText().toString();
@@ -3365,6 +3404,7 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                                                 if (boolPaymentValid) {
                                                     alertD.dismiss();
                                                     linearLayoutPaymentDetail.setVisibility(View.VISIBLE);
+                                                    linearLayoutPaymentDetail.setBackgroundResource(R.drawable.bg_rounded_select);
                                                 } else {
                                                     ToastCustom.showToasty(context, "Invalid data payment", 3);
                                                 }
@@ -3405,7 +3445,13 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                                     tvCustomerPrev.setOnClickListener(new View.OnClickListener() {
                                         @Override
                                         public void onClick(View v) {
-                                            lnAttacedCust.setVisibility(View.VISIBLE);
+                                            if(lnAttacedCust.getVisibility() == View.VISIBLE){
+                                                lnAttacedCust.setVisibility(View.GONE);
+                                                tvCustomerPrev.setText("Show Contact Detail");
+                                            }else{
+                                                lnAttacedCust.setVisibility(View.VISIBLE);
+                                                tvCustomerPrev.setText("Hide Contact Detail");
+                                            }
                                             etCustomerNamePrev.setText(tvCustomerNameHeader.getText().toString());
                                             etContactIDPrev.setText(tvContactIDHeader.getText().toString());
                                             etMemberNoPrev.setText(tvMemberNoHeader.getText().toString());
