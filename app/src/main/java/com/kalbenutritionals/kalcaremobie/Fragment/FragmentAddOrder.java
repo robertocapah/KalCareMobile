@@ -278,6 +278,7 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
     double dbldecTotalPriceFinal = 0;
     double dbldecdecRoundedFinal = 0;
 
+    boolean boolPaymentFilled = false;
 
     String txtPaymentMethodID = "";
     String txtMediaJasaID = "";
@@ -3108,6 +3109,30 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                                         final EditText etCardNumber2 = (EditText) promptView.findViewById(R.id.etCardNumber2);
                                         final EditText etBcaTraceNumber2 = (EditText) promptView.findViewById(R.id.etBcaTraceNumber2);
 
+                                        final String txtPaymentMth1 = tvPaymentMethod.getText().toString();
+                                        final String txtSourceMediaPayment1 = etSourceMediaPayment.getText().toString();
+                                        final String txtCardNumber1 = etCardNumber.getText().toString();
+                                        final String txtBcaTraceNumber1 = etBcaTraceNumber.getText().toString();
+                                        final String txtPayment1 = etPayment.getText().toString();
+
+                                        if (!txtPaymentMth1.equals("*Add payment method")){
+                                            boolPaymentFilled = true;
+                                        }else{
+                                            boolPaymentFilled = false;
+                                        }
+
+                                        if (boolPaymentFilled){
+                                            etCardNumber2.setText(txtCardNumber1);
+                                            etBcaTraceNumber2.setText(txtBcaTraceNumber1);
+                                            etBcaTraceNumber2.setEnabled(true);
+                                            etBcaTraceNumber2.setFocusable(true);
+                                            etBcaTraceNumber2.setFocusableInTouchMode(true);
+                                            etBcaTraceNumber2.setClickable(true);
+                                            etCardNumber2.setEnabled(true);
+                                            etCardNumber2.setFocusable(true);
+                                            etCardNumber2.setFocusableInTouchMode(true);
+                                            etCardNumber2.setClickable(true);
+                                        }
 //                                        List<clsListPaymentMethod> mediajasas = new ArrayList<>();
 //                                        clsListMediaJasa mediaJasaDefault = new clsListMediaJasa();
                                         /*mediaJasaDefault.setTypeid("000");
@@ -3128,6 +3153,9 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                                         }
                                         if (paymentMethods.size() > 0) {
                                             SpinnerCustom.setAdapterSpinner(spnPaymentMethod, context, R.layout.custom_spinner, paymentMethodList);
+                                            if (boolPaymentFilled){
+                                                SpinnerCustom.selectedItemByText(context, spnPaymentMethod, paymentMethodList, txtPaymentMth1);
+                                            }
 //                                            SpinnerCustom.selectedItemByText(context, spnProvinceAddOrder, categoriesProv, txtPropinsiName);
                                         }
                                         etCardNumber2.setFocusable(false);
@@ -3158,7 +3186,11 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                                                         }
                                                         if (paymentMethodAndTipe.size() > 0) {
                                                             SpinnerCustom.setAdapterSpinner(spnPaymentMethodAndTipe, context, R.layout.custom_spinner, paymentMethodAndTipe);
-                                                            SpinnerCustom.selectedItemByText(context, spnSourceMediaPaymentList, paymentMethodAndTipe, SPNCHOOSEONE);
+                                                            if (boolPaymentFilled){
+                                                                SpinnerCustom.selectedItemByText(context, spnPaymentMethodAndTipe, paymentMethodAndTipe, txtSourceMediaPayment1);
+                                                            }else{
+                                                                SpinnerCustom.selectedItemByText(context, spnPaymentMethodAndTipe, paymentMethodAndTipe, SPNCHOOSEONE);
+                                                            }
                                                         }
 
                                                     } catch (SQLException e) {
@@ -3225,6 +3257,9 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                                                         }
                                                         if (listMediaJasasSelected.size() > 0) {
                                                             SpinnerCustom.setAdapterSpinner(spnSourceMediaPaymentList, context, R.layout.custom_spinner, sourceMediaPaymentList);
+                                                            if (boolPaymentFilled){
+                                                                SpinnerCustom.selectedItemByText(context, spnSourceMediaPaymentList, sourceMediaPaymentList, txtPayment1);
+                                                            }
                                                         }
                                                     }
                                                 }
@@ -3235,6 +3270,7 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
 
                                             }
                                         });
+
                                         spnSourceMediaPaymentList.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                                             @Override
                                             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
