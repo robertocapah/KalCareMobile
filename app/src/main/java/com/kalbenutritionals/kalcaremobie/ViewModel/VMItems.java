@@ -24,9 +24,18 @@ public class VMItems extends RecyclerView.ViewHolder {
     double netPrice;
     String basePoint;
     String bonusPoint;
+    int intCampagn;
 
     public VMItems(View itemView) {
         super(itemView);
+    }
+
+    public int getIntCampagn() {
+        return intCampagn;
+    }
+
+    public void setIntCampagn(int intCampagn) {
+        this.intCampagn = intCampagn;
     }
 
     public String getItemBrand() {

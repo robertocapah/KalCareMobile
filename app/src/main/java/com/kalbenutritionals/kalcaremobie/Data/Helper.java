@@ -121,6 +121,8 @@ public class Helper {
             }
             double decDiscount = item.getDiscount();
             double intTotalBonus = 0;
+            int intCampagn = item.getIntCampagn();
+            double decTax = item.getTaxAmount();
             String strBonusPoint = item.getBonusPoint();
             if (!strBonusPoint.equals("") || !strBonusPoint.equals("null")){
                 intTotalBonus = Double.parseDouble(item.getBonusPoint());
@@ -135,7 +137,8 @@ public class Helper {
                 jsnItem.put("intTotBonusPoin",intTotalBonus);
                 jsnItem.put("decDiscount",decDiscount);
                 jsnItem.put("bitPromo","1");
-                jsnItem.put("intCampaignID","3");
+                jsnItem.put("intCampaignID",intCampagn);
+                jsnItem.put("decTax",decTax);
                 jsnItem.put("txtProductCategory",item.getProductCategory());
                 jsnItem.put("txtDataId",item.getGuiid());
                 jsnItem.put("ProductCode",item.getItemCode());

@@ -86,6 +86,7 @@ import org.json.JSONObject;
 
 import java.sql.SQLException;
 import java.text.DateFormat;
+import java.text.NumberFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -93,6 +94,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -231,6 +233,8 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
     List<String> sourceMediaPaymentList = new ArrayList<String>();
     List<String> paymentMethodAndTipe = new ArrayList<String>();
 
+    int intCampagnGlobal = 0;
+
     private HashMap<String, String> HMPaymentmethodList = new HashMap<String, String>();
     private HashMap<String, String> HMsourceMediaPaymentList = new HashMap<String, String>();
     private HashMap<String, String> HMpaymentMethodAndTipe = new HashMap<String, String>();
@@ -272,13 +276,15 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
 
     //final
     double dblTaxBasedAmountFinal = 0;
-    double dbldecAmountFinal = 0;
+    double dbldecTaxAmountFinal = 0;
     double dbldecTotalFinal = 0;
     double dbldecTotDiscountFinal = 0;
     double dbldecTotalPriceFinal = 0;
     double dbldecdecRoundedFinal = 0;
+    double dbldecNetPriceFinal = 0;
 
     boolean boolPaymentFilled = false;
+    boolean keyDel = false;
 
     String txtPaymentMethodID = "";
     String txtMediaJasaID = "";
@@ -301,7 +307,12 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
     String txtKelurahanIDFinal = "";
     String txtKelurahanNameFinal = "";
     String txtKodePosFinal ="";
+    String txtDeliveryAddressFinal ="";
+    String txtKontakIDFinal ="";
 
+    String txtNoSoFinal ="";
+
+    String bitSO = "";
 
     int intBitActiveFinal = 0;
 
@@ -370,6 +381,7 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
         final Bundle arguments = getArguments();
         String noSO = "";
         if (arguments != null) {
+            bitSO = arguments.getString("bitSO");
             noSO = arguments.getString("noSO");
         }
         final SimpleDateFormat sdfi = new SimpleDateFormat("yyyy-MM-dd");
@@ -582,6 +594,7 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                                                                                     categoriesKecamatan.add(txtNamaKecamatan);
                                                                                     HMKecID.put(txtNamaKecamatan, txtKecamatanID);
                                                                                 }
+                                                                                SpinnerCustom.setAdapterSpinner(spnKecamatanAddOrder, context, R.layout.custom_spinner, categoriesKecamatan);
                                                                                 spnKecamatanAddOrder.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                                                                                     @Override
                                                                                     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
@@ -594,15 +607,23 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                                                                                     }
                                                                                 });
                                                                                 if (!boolAttachCustomer) {
-                                                                                    SpinnerCustom.setAdapterSpinner(spnKecamatanAddOrder, context, R.layout.custom_spinner, categoriesKecamatan);
+
+                                                                                    categoriesKelurahan = new ArrayList<>();
+                                                                                    categoriesKelurahan.add(STRSPINNEROPT);
+                                                                                    SpinnerCustom.setAdapterSpinner(spnKelurahanAddOrder, context, R.layout.custom_spinner, categoriesKelurahan);
+                                                                                    SpinnerCustom.selectedItemByText(context, spnKelurahanAddOrder, categoriesKelurahan, STRSPINNEROPT);
+
+                                                                                    categoriesPostCode = new ArrayList<>();
+                                                                                    categoriesPostCode.add(STRSPINNEROPT);
+                                                                                    SpinnerCustom.setAdapterSpinner(spnPostCodeAddOrder, context, R.layout.custom_spinner, categoriesPostCode);
+                                                                                    SpinnerCustom.selectedItemByText(context, spnPostCodeAddOrder, categoriesPostCode, STRSPINNEROPT);
                                                                                 } else {
 //                                                                                    boolAttachCustomer = false;
                                                                                     SpinnerCustom.setAdapterSpinner(spnKecamatanAddOrder, context, R.layout.custom_spinner, categoriesKecamatan);
                                                                                     SpinnerCustom.selectedItemByText(context, spnKecamatanAddOrder, categoriesKecamatan, kecamatanCustomer);
                                                                                 }
 
-
-                                                                                if (draft != null) {
+                                                                                if (draft != null && draft.isBoolWalkin()==false && !boolAttachCustomer && bitSO.equals("1")) {
                                                                                     SpinnerCustom.selectedItemByText(context, spnKecamatanAddOrder, categoriesKecamatan, draft.getTxtKecamatan());
                                                                                 } else {
 //                                                                                    SpinnerCustom.selectedItemByText(context, spnKecamatanAddOrder, categoriesKecamatan, STRSPINNEROPT);
@@ -622,10 +643,8 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                                                             }
                                                         });
                                                     } else {
-                                                        categoriesKecamatan = new ArrayList<>();
-                                                        categoriesPostCode = new ArrayList<>();
-                                                        categoriesKelurahan = new ArrayList<>();
-                                                        addDefaultSpinnerAlamat();
+
+//                                                        addDefaultSpinnerAlamat();
                                                         SpinnerCustom.setAdapterSpinner(spnKecamatanAddOrder, context, R.layout.custom_spinner, categoriesKecamatan);
                                                         SpinnerCustom.selectedItemByText(context, spnKecamatanAddOrder, categoriesKecamatan, STRSPINNEROPT);
 
@@ -671,7 +690,7 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                                         }
 
 
-                                        if (draft != null && draft.getTxtKabKot() != null) {
+                                        if (draft != null && draft.getTxtKabKot() != null && draft.isBoolWalkin()==false && !boolAttachCustomer && bitSO.equals("1")) {
                                             SpinnerCustom.selectedItemByText(context, spnKabKotAddOrder, categoriesKabKot, draft.getTxtKabKot());
                                         } else {
 //                                            SpinnerCustom.selectedItemByText(context, spnKabKotAddOrder, categoriesKabKot, STRSPINNEROPT);
@@ -1252,15 +1271,11 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                                                         postCodeCustomer = spnPostCodeCustomer.getSelectedItem().toString();
 
 
-                                                        categoriesPostCode.add(postCodeCustomer);
-                                                        SpinnerCustom.setAdapterSpinner(spnPostCodeAddOrder, context, R.layout.custom_spinner, categoriesPostCode);
-                                                        SpinnerCustom.selectedItemByText(context, spnPostCodeAddOrder, categoriesPostCode, postCodeCustomer);
-
 
                                                         SpinnerCustom.setAdapterSpinner(spnProvinceAddOrder, context, R.layout.custom_spinner, categoriesProv);
                                                         SpinnerCustom.selectedItemByText(context, spnProvinceAddOrder, categoriesProv, provinceCustomer);
 
-                                                        categoriesKabKot.add(kabKotCustomer);
+                                                        /*categoriesKabKot.add(kabKotCustomer);
                                                         SpinnerCustom.setAdapterSpinner(spnKabKotAddOrder, context, R.layout.custom_spinner, categoriesKabKot);
                                                         SpinnerCustom.selectedItemByText(context, spnKabKotAddOrder, categoriesKabKot, kabKotCustomer);
 
@@ -1271,6 +1286,10 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                                                         categoriesKelurahan.add(kelurahanCustomer);
                                                         SpinnerCustom.setAdapterSpinner(spnKelurahanAddOrder, context, R.layout.custom_spinner, categoriesKelurahan);
                                                         SpinnerCustom.selectedItemByText(context, spnKelurahanAddOrder, categoriesKelurahan, kelurahanCustomer);
+
+                                                        categoriesPostCode.add(postCodeCustomer);
+                                                        SpinnerCustom.setAdapterSpinner(spnPostCodeAddOrder, context, R.layout.custom_spinner, categoriesPostCode);
+                                                        SpinnerCustom.selectedItemByText(context, spnPostCodeAddOrder, categoriesPostCode, postCodeCustomer);*/
 
                                                         alertD.dismiss();
                                                         lnCustomerDetail.setVisibility(View.VISIBLE);
@@ -1296,23 +1315,23 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                         tvPhoneNumb.setText("");
                         categoriesPostCode.add("");
 //                        categoriesPostCode = new ArrayList<>();
-                        SpinnerCustom.setAdapterSpinner(spnPostCodeAddOrder, context, R.layout.custom_spinner, categoriesPostCode);
+//                        SpinnerCustom.setAdapterSpinner(spnPostCodeAddOrder, context, R.layout.custom_spinner, categoriesPostCode);
 //                    SpinnerCustom.selectedItemByText(context, spnPostCodeAddOrder, categoriesPostCode, "");
 
 //                        categoriesProv = new ArrayList<>();
-                        SpinnerCustom.setAdapterSpinner(spnProvinceAddOrder, context, R.layout.custom_spinner, categoriesProv);
+//                        SpinnerCustom.setAdapterSpinner(spnProvinceAddOrder, context, R.layout.custom_spinner, categoriesProv);
 //                    SpinnerCustom.selectedItemByText(context, spnProvinceAddOrder, categoriesProv, "");
 
 //                        categoriesKabKot = new ArrayList<>();
-                        SpinnerCustom.setAdapterSpinner(spnKabKotAddOrder, context, R.layout.custom_spinner, categoriesKabKot);
+//                        SpinnerCustom.setAdapterSpinner(spnKabKotAddOrder, context, R.layout.custom_spinner, categoriesKabKot);
 //                    SpinnerCustom.selectedItemByText(context, spnKabKotAddOrder, categoriesKabKot, "");
 
 //                        categoriesKecamatan = new ArrayList<>();
-                        SpinnerCustom.setAdapterSpinner(spnKecamatanAddOrder, context, R.layout.custom_spinner, categoriesKecamatan);
+//                        SpinnerCustom.setAdapterSpinner(spnKecamatanAddOrder, context, R.layout.custom_spinner, categoriesKecamatan);
 //                    SpinnerCustom.selectedItemByText(context, spnKecamatanAddOrder, categoriesKecamatan, "");
 
 //                        categoriesKelurahan = new ArrayList<>();
-                        SpinnerCustom.setAdapterSpinner(spnKelurahanAddOrder, context, R.layout.custom_spinner, categoriesKelurahan);
+//                        SpinnerCustom.setAdapterSpinner(spnKelurahanAddOrder, context, R.layout.custom_spinner, categoriesKelurahan);
 //                    SpinnerCustom.selectedItemByText(context, spnKelurahanAddOrder, categoriesKelurahan, "");
                         cbWalkIn.setChecked(true);
                     }
@@ -1676,6 +1695,7 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
 
     @OnClick(R.id.btnNext)
     public void onBtnNextClicked() {
+        boolean boolValidNext = true;
         if (etDeliverySchedule.getText().toString().equals("")) {
             ToastCustom.showToasty(context, "Please set delivery schedule", 3);
         } else {
@@ -1757,6 +1777,11 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                         draft.setTxtKelurahanID(kelID);
                         draft.setTxtPostCode(postCode);
                         draft.setTxtAddress(address);
+
+                        if(kelID.equals("0")||provinceID.equals("0")||kabKotID.equals("0")||postCode.equals("0")||kecID.equals("0")){
+                         boolValidNext = false;
+                         ToastCustom.showToasty(context,"Invalid Customer Address",3);
+                        }
                     } else {
                         draft.setTxtContactID("");
                         draft.setTxtMemberID("");
@@ -1820,6 +1845,10 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                         String postCodeKel = spnPostCodeAddOrder.getSelectedItem().toString();
                         String postCode = HMKodePos.get(postCodeKel);
                         String address = etAddress.getText().toString();
+                        if(kelID.equals("0")||provinceID.equals("0")||kabKotID.equals("0")||postCode.equals("0")||kecID.equals("0")){
+                            boolValidNext = false;
+                            ToastCustom.showToasty(context,"Invalid Customer Address",3);
+                        }
                         draft.setTxtContactID(contactId);
                         draft.setTxtMemberID(memberNo);
                         draft.setTxtCustomerName(customername);
@@ -1844,10 +1873,10 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
             draftData = new clsDraft();
             draftData.setGuiId(guiid);
 
-
-            linearLayoutTop.setVisibility(View.GONE);
-            linearLayoutBottom.setVisibility(View.VISIBLE);
-
+            if (boolValidNext){
+                linearLayoutTop.setVisibility(View.GONE);
+                linearLayoutBottom.setVisibility(View.VISIBLE);
+            }
             try {
                 List<clsProductDraft> itemsDraft = new clsProductDraftRepo(context).findAll();
                 boolean addedSucces = false;
@@ -1867,6 +1896,7 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                     item.setTaxAmount(productDraft.getDblItemTax());
                     item.setNetPrice(productDraft.getDblNetPrice());
                     item.setBonusPoint(productDraft.getTxtBonusPoint());
+                    item.setIntCampagn(productDraft.getIntCampagn());
                     boolean booladded = addItem(item);
                     addedSucces = booladded;
                 }
@@ -2094,7 +2124,7 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                 final String mRequestBody = resJson.toString();
 //                        lt.setText("Retrieving data Kelurahan...");
                 //volley untuk ambil kelurahan dan kode pos
-                new VolleyUtils().makeJsonObjectRequestWithTokenWithoutProgressD(getActivity(), strLinkSpnKel, mRequestBody, access_token, "Please Wait...", new VolleyResponseListener() {
+                new VolleyUtils().makeJsonObjectRequestWithToken(getActivity(), strLinkSpnKel, mRequestBody, access_token, "Please Wait...", new VolleyResponseListener() {
                     @Override
                     public void onError(String response) {
                         ToastCustom.showToasty(context, response, 2);
@@ -2120,7 +2150,10 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
 //                                        categoriesPostCode = new ArrayList<String>();
 //                                        categoriesPostCode.add(STRSPINNEROPT);
 //                                        HMKodePos.put(STRSPINNEROPT, "0");
-
+                                        categoriesKelurahan = new ArrayList<>();
+                                        categoriesKelurahan.add(STRSPINNEROPT);
+                                        categoriesPostCode = new ArrayList<>();
+                                        categoriesPostCode.add(STRSPINNEROPT);
                                         for (int n = 0; n < jsn.length(); n++) {
                                             JSONObject object = jsn.getJSONObject(n);
                                             String txtNamaKelurahan = object.getString("txtNamaKelurahan");
@@ -2130,9 +2163,10 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                                             categoriesPostCode.add(txtKodePosID + "-" + txtNamaKelurahan);
                                             HMKodePos.put(txtKodePosID + "-" + txtNamaKelurahan, txtKodePosID);
                                         }
+                                        SpinnerCustom.setAdapterSpinner(spnKelurahanAddOrder, context, R.layout.custom_spinner, categoriesKelurahan);
+                                        SpinnerCustom.setAdapterSpinner(spnPostCodeAddOrder, context, R.layout.custom_spinner, categoriesPostCode);
+
                                         if (!boolAttachCustomer) {
-                                            SpinnerCustom.setAdapterSpinner(spnKelurahanAddOrder, context, R.layout.custom_spinner, categoriesKelurahan);
-                                            SpinnerCustom.setAdapterSpinner(spnPostCodeAddOrder, context, R.layout.custom_spinner, categoriesPostCode);
                                             if (draft != null) {
                                                 SpinnerCustom.selectedItemByText(context, spnKelurahanAddOrder, categoriesKelurahan, draft.getTxtKelurahan());
                                                 SpinnerCustom.selectedItemByText(context, spnPostCodeAddOrder, categoriesPostCode, draft.getTxtPostCode() + "-" + draft.getTxtKelurahan());
@@ -2875,13 +2909,14 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                                         String txtStatus = jsnObjStatusSO.getString("txtStatus");
 
                                         //PaymentSO
-                                        dblTaxBasedAmountFinal = jsnObjPaymentSO.getDouble("decTaxBaseAmount");
-                                        dbldecAmountFinal = jsnObjPaymentSO.getDouble("decTaxBaseAmount");
+                                        dblTaxBasedAmountFinal = jsnObjPaymentSO.getDouble("decAmount");
+                                        dbldecTaxAmountFinal = jsnObjPaymentSO.getDouble("decTaxBaseAmount");
                                         dbldecTotalFinal = jsnObjPaymentSO.getDouble("decTotal");
                                         dbldecTotDiscountFinal = jsnObjPaymentSO.getDouble("decTotDiscount");
                                         dbldecTotalPriceFinal = jsnObjPaymentSO.getDouble("decTotalPrice");
                                         dbldecdecRoundedFinal = jsnObjPaymentSO.getDouble("decRounded");
                                         intBitActiveFinal = jsnObjPaymentSO.getInt("bitActive");
+                                        dbldecNetPriceFinal = jsnObjPaymentSO.getInt("decNetPrice");
 
                                         //HeaderSO
                                         String txtPropinsiID = jsnObjHeaderSO.getString("txtPropinsiID");
@@ -2910,6 +2945,9 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                                         txtKelurahanIDFinal = txtKelurahanID;
                                         txtKelurahanNameFinal = txtKelurahanName;
                                         txtKodePosFinal = txtKodePos;
+                                        txtNoSoFinal = txtNoSO;
+                                        txtDeliveryAddressFinal = txtDelivery;
+                                        txtKontakIDFinal = txtCustomer;
 
 
                                         resJsoni.put("txtCustomer", txtCustomer);
@@ -3062,8 +3100,48 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                                 final TextView tvProvinceCustomerPrev = (TextView) promptView.findViewById(R.id.tvProvinceCustomerPrev);
                                 final TextView tvCityCustomerPrev = (TextView) promptView.findViewById(R.id.tvCityCustomerPrev);
                                 final TextView tvRegionCustomerPrev = (TextView) promptView.findViewById(R.id.tvRegionCustomerPrev);
-                                TextView tvHideCustPrev = (TextView) promptView.findViewById(R.id.tvHideCustPrev);
 
+                                final TextView tvTaxBaseAmount3 = (TextView) promptView.findViewById(R.id.tvTaxBaseAmount3);
+                                final TextView tvTaxAmount3 = (TextView) promptView.findViewById(R.id.tvTaxAmount3);
+                                final TextView tvTotal = (TextView) promptView.findViewById(R.id.tvTotal);
+                                final TextView tvDiscount3 = (TextView) promptView.findViewById(R.id.tvDiscount3);
+                                final TextView tvTotalPrice3 = (TextView) promptView.findViewById(R.id.tvTotalPrice3);
+                                final TextView tvRounded3 = (TextView) promptView.findViewById(R.id.tvRounded3);
+                                final TextView tvPaymentEnd3 = (TextView) promptView.findViewById(R.id.tvPaymentEnd3);
+
+                                Locale localeID = new Locale("in", "ID");
+                                NumberFormat formatRupiah = NumberFormat.getCurrencyInstance(localeID);
+                                formatRupiah.setMaximumFractionDigits(2);
+                                formatRupiah.setMinimumFractionDigits(2);
+//                                detailHarga.setText(formatRupiah.format((double)hargarumah));
+
+//                                tvTaxBaseAmount3.setText((new DecimalFormat("##.##").format(dblTaxBasedAmountFinal)));
+//                                tvTotalPrice3.setText(new DecimalFormat("##.##").format(dbldecTotalPriceFinal));
+//                                tvDiscount3.setText(new DecimalFormat("##.##").format(dbldecTotDiscountFinal));
+//                                tvRounded3.setText(new DecimalFormat("##.##").format(dbldecdecRoundedFinal));
+
+                                tvTaxBaseAmount3.setText(formatRupiah.format((double)dblTaxBasedAmountFinal));
+                                tvTaxAmount3.setText(formatRupiah.format((double)dbldecTaxAmountFinal));
+                                tvTotal.setText(formatRupiah.format((double)dbldecTotalFinal));
+                                tvTotalPrice3.setText(formatRupiah.format((double)dbldecTotalPriceFinal));
+                                tvDiscount3.setText(formatRupiah.format((double)dbldecTotDiscountFinal));
+                                tvRounded3.setText(formatRupiah.format((double)dbldecdecRoundedFinal));
+                                tvPaymentEnd3.setText(formatRupiah.format((double)dbldecNetPriceFinal));
+
+
+
+                                final TextView tvKN1Poin3 = (TextView) promptView.findViewById(R.id.tvKN1Poin3);
+                                final TextView tvKN2Poin3 = (TextView) promptView.findViewById(R.id.tvKN2Poin3);
+                                final TextView tvKN3poin3 = (TextView) promptView.findViewById(R.id.tvKN3poin3);
+                                final TextView tvKN4poin3 = (TextView) promptView.findViewById(R.id.tvKN4poin3);
+                                final TextView tvKNOtherPoin3 = (TextView) promptView.findViewById(R.id.tvKNOtherPoin3);
+                                final TextView tvBonusPoin3 = (TextView) promptView.findViewById(R.id.tvBonusPoin3);
+                                final TextView tvTotalPoin3 = (TextView) promptView.findViewById(R.id.tvTotalPoin3);
+
+                                final Button btnSummarySO = (Button) promptView.findViewById(R.id.btnSummarySO);
+                                TextView tvHideCustPrev = (TextView) promptView.findViewById(R.id.tvHideCustPrev);
+                                LinearLayout lnContactIdPrev = (LinearLayout) promptView.findViewById(R.id.lnContactIdPrev);
+                                LinearLayout lnMemberIdPrev = (LinearLayout) promptView.findViewById(R.id.lnMemberIdPrev);
 
                                 final LinearLayout lnAttacedCust = (LinearLayout) promptView.findViewById(R.id.lnAttacedCust);
 
@@ -3078,7 +3156,7 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                                 tvCustomerPrev = (TextView) promptView.findViewById(R.id.tvCustomerPrev);
 
 
-                                String noSO = etNoSo.getText().toString();
+                                String noSO = txtNoSoFinal;
                                 String soStatus = etSoStatus.getText().toString();
                                 String soDate = etDate.getText().toString();
                                 String soSource = etSOSource.getText().toString();
@@ -3095,7 +3173,25 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                                 tvAgentNamePrev.setText(agentName);
                                 tvOrderLocationPrev.setText(orderLocation);
                                 tvtvSoNumberPrev.setText(noSO);
+                                btnSummarySO.setOnClickListener(new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View v) {
+                                        LayoutInflater layoutInflater = LayoutInflater.from(context);
+                                        View promptViewSummarySo = layoutInflater.inflate(R.layout.popup_summary_so, null);
+                                        AlertDialog.Builder alertDialogBuilder2 = new AlertDialog.Builder(getActivity());
+                                        alertDialogBuilder2.setView(promptViewSummarySo);
+                                        alertDialogBuilder2.setTitle("Summary Sales Order");
+                                        alertDialogBuilder2
+                                                .setCancelable(false)
+                                                .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                                            public void onClick(DialogInterface dialog, int id) {
 
+                                            }
+                                        });
+                                        final AlertDialog alertDSummarySO = alertDialogBuilder2.create();
+                                        alertDSummarySO.show();
+                                    }
+                                });
                                 tvPaymentMethod.setOnClickListener(new View.OnClickListener() {
                                     @Override
                                     public void onClick(View v) {
@@ -3110,8 +3206,23 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
 
                                         final EditText etCardNumber2 = (EditText) promptView.findViewById(R.id.etCardNumber2);
                                         final EditText etBcaTraceNumber2 = (EditText) promptView.findViewById(R.id.etBcaTraceNumber2);
-
-                                        /*etCardNumber2.addTextChangedListener(new TextWatcher() {
+                                        /*etCardNumber2.setOnKeyListener(new View.OnKeyListener() {
+                                            @Override
+                                            public boolean onKey(View v, int keyCode, KeyEvent event) {
+                                                if (keyCode == KeyEvent.KEYCODE_DEL){
+                                                    String txtEtCardNumb = etCardNumber2.getText().toString();
+                                                    if (txtEtCardNumb.length() != 4 && txtEtCardNumb.length() != 9 && txtEtCardNumb.length() != 14) {
+                                                        keyDel = true;
+                                                    }else{
+                                                        keyDel = false;
+                                                    }
+                                                }else{
+                                                    keyDel = false;
+                                                }
+                                                return false;
+                                            }
+                                        });
+                                        etCardNumber2.addTextChangedListener(new TextWatcher() {
                                             @Override
                                             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
 
@@ -3124,9 +3235,23 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
 
                                             @Override
                                             public void afterTextChanged(Editable text) {
-                                                if (text.length() == 3 || text.length() == 7 || text.length() == 11) {
-                                                    text.append('-');
+                                                if(!keyDel){
+                                                    if (text.length() == 4 || text.length() == 9 || text.length() == 14) {
+                                                        text.append('-');
+                                                    }
                                                 }
+                                                keyDel = false;
+                                            }
+                                        });
+                                        etBcaTraceNumber2.setOnKeyListener(new View.OnKeyListener() {
+                                            @Override
+                                            public boolean onKey(View v, int keyCode, KeyEvent event) {
+                                                if (keyCode == KeyEvent.KEYCODE_DEL){
+                                                    keyDel = true;
+                                                }else{
+                                                    keyDel = false;
+                                                }
+                                                return false;
                                             }
                                         });
                                         etBcaTraceNumber2.addTextChangedListener(new TextWatcher() {
@@ -3142,9 +3267,12 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
 
                                             @Override
                                             public void afterTextChanged(Editable text) {
-                                                if (text.length() == 3 || text.length() == 7 || text.length() == 11) {
-                                                    text.append('-');
+                                                if(!keyDel){
+                                                    if (text.length() == 4 || text.length() == 9 || text.length() == 14) {
+                                                        text.append('-');
+                                                    }
                                                 }
+                                                keyDel = false;
                                             }
                                         });*/
 
@@ -3367,6 +3495,8 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                                                         if (cardNumb == 1){
                                                             String cn = etCardNumber2.getText().toString();
                                                             etCardNumber.setText(cn);
+                                                            cn = cn.replace(" ","");
+                                                            cn = cn.replace("-","");
                                                             txtCardNumber = cn;
                                                         }else{
                                                             etCardNumber.setText("0");
@@ -3375,7 +3505,12 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                                                         if (traceBca == 1){
                                                             String bcaTN = etBcaTraceNumber2.getText().toString();
                                                             etBcaTraceNumber.setText(bcaTN);
+                                                            bcaTN = bcaTN.replace(" ","");
+                                                            bcaTN = bcaTN.replace("-","");
                                                             txtBCATraceNo = bcaTN;
+                                                            if (bcaTN.equals("")){
+
+                                                            }
                                                         }else{
                                                             etBcaTraceNumber.setText("0");
                                                             txtBCATraceNo = "0";
@@ -3470,8 +3605,46 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                                         }
                                     });
                                 } else {
-                                    tvCustomerPrev.setText("KalCare Outlet");
-                                    tvCustomerPrev.setClickable(false);
+                                    etCustomerNamePrev.setText(txtCustomerNameFinal);
+//                                    etContactIDPrev.setVisibility(View.GONE);
+//                                    lnContactIdPrev.setVisibility(View.GONE);
+                                    etMemberNoPrev.setVisibility(View.GONE);
+                                    lnMemberIdPrev.setVisibility(View.GONE);
+                                    tvProvinceCustomerPrev.setText(txtPropinsiNameFinal );
+                                    tvCityCustomerPrev.setText(txtKabupatenKotaNameFinal );
+                                    tvRegionCustomerPrev.setText(txtKecamatanNameFinal);
+                                    tvPostCodeCustomerPrev.setText(txtKodePosFinal);
+                                    tvAddressCustomerPrev.setText(txtDeliveryAddressFinal);
+                                    lnAttacedCust.setVisibility(View.VISIBLE);
+                                    tvCustomerPrev.setOnClickListener(new View.OnClickListener() {
+                                        @Override
+                                        public void onClick(View v) {
+                                            if(lnAttacedCust.getVisibility() == View.VISIBLE){
+                                                lnAttacedCust.setVisibility(View.GONE);
+                                                tvCustomerPrev.setText("Show Contact Detail");
+                                            }else{
+                                                lnAttacedCust.setVisibility(View.VISIBLE);
+                                                tvCustomerPrev.setText("Hide Contact Detail");
+                                            }
+                                            etCustomerNamePrev.setText(txtCustomerNameFinal);
+                                            etContactIDPrev.setText(txtKontakIDFinal);
+                                            etMemberNoPrev.setText("");
+                                            tvProvinceCustomerPrev.setText(txtPropinsiNameFinal);
+                                            tvCityCustomerPrev.setText(txtKabupatenKotaNameFinal);
+                                            tvRegionCustomerPrev.setText(txtKecamatanNameFinal);
+                                            tvPostCodeCustomerPrev.setText(txtKodePosFinal);
+                                            tvAddressCustomerPrev.setText(txtDeliveryAddressFinal);
+                                        }
+                                    });
+
+                                    tvHideCustPrev.setOnClickListener(new View.OnClickListener() {
+                                        @Override
+                                        public void onClick(View v) {
+                                            lnAttacedCust.setVisibility(View.GONE);
+                                        }
+                                    });
+                                    /*tvCustomerPrev.setText("KalCare Outlet");
+                                    tvCustomerPrev.setClickable(false);*/
                                 }
                                 tvCustomerPrev.setClickable(true);
                                 lnAttacedCust.setVisibility(View.GONE);
@@ -3555,7 +3728,7 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                                             resJsonFinalCheckout.put("AdminSetPaidValue",dblAdminSetPaidValue);
                                             resJsonFinalCheckout.put("AdminSetReferenceTransferNo",txtBCATraceNo);
                                             resJsonFinalCheckout.put("PaidDescription",tvPaymentMethod.getText().toString());
-                                            resJsonFinalCheckout.put("decAmount",dbldecAmountFinal);
+                                            resJsonFinalCheckout.put("decAmount", dbldecTaxAmountFinal);
                                             resJsonFinalCheckout.put("decTaxBaseAmount",dblTaxBasedAmountFinal);
                                             resJsonFinalCheckout.put("decTotal",dbldecTotalFinal);
                                             resJsonFinalCheckout.put("decTotDiscount",dbldecTotDiscountFinal);
@@ -3652,6 +3825,7 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                                             resJsonFinalCheckout.put("txtDeviceId", deviceInfo.getModel());
                                             resJsonFinalCheckout.put("txtUser", dataLogin.getNmUser());
                                             resJsonFinalCheckout.put("txtStatusDoc", "0");
+                                            resJsonFinalCheckout.put("decNetPrice", dbldecNetPriceFinal);
                                             resJsonFinalCheckout.put("Detail", jsonProductCheckout);
                                         } catch (JSONException e) {
                                             e.printStackTrace();
@@ -3898,6 +4072,7 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                     final String itemBasedPoint = contentLibs.get(position).getBasePoint();
                     final String itemBonusPoint = contentLibs.get(position).getBonusPoint();
                     final int intQty = contentLibs.get(position).getQty();
+                    final int intCampagn = contentLibs.get(position).getIntCampagn();
 
                     AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
 
@@ -4018,6 +4193,8 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                                                 String itemNameAdd = contentSearchResult.get(positionResult).getItemName();
                                                 String itemCodeAdd = contentSearchResult.get(positionResult).getItemCode();
                                                 String itemBrand = contentSearchResult.get(positionResult).getItemBrand();
+                                                double itemTax = contentSearchResult.get(positionResult).getTaxAmount();
+                                                int intCampagn = contentSearchResult.get(positionResult).getIntCampagn();
                                                 String txtPrice = etPrice.getText().toString();
                                                 double itemPriceSearch = 0;
                                                 if (!txtPrice.equals("0")) {
@@ -4034,7 +4211,8 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
 
                                                 Double itemTotalPrice = (itemPriceSearch * itemQty) - itemDiscount;
 
-                                                Double itemTaxAmount = itemTotalPrice * 0.1;
+//                                                Double itemTaxAmount = itemTotalPrice * 0.1;
+                                                Double itemTaxAmount = itemTotalPrice * (itemTax/100);
 
                                                 Double itemNetPrice = itemTotalPrice + itemTaxAmount;
 
@@ -4055,6 +4233,7 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                                                 item.setTaxAmount(itemTaxAmount);
                                                 item.setNetPrice(itemNetPrice);
                                                 item.setBonusPoint(itemBonusPoint);
+                                                item.setIntCampagn(intCampagn);
 
                                                 boolean boolMatch = false;
                                                 int j = 0;
@@ -4063,7 +4242,11 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                                                         boolMatch = true;
                                                     }
                                                 }
-                                                if (boolMatch) {
+                                                contentLibs.set(position, item);
+                                                lvItemAdd.setAdapter(new CardAppAdapter(context, contentLibs, Color.WHITE));
+                                                alertDi.dismiss();
+                                                alertD.dismiss();
+                                                /*if (boolMatch) {
                                                     ToastCustom.showToasty(context, "Product " + item.getItemName() + " has been in the list ", 2);
                                                 } else {
                                                     contentLibs.set(position, item);
@@ -4071,7 +4254,7 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                                                     alertDi.dismiss();
                                                     alertD.dismiss();
 
-                                                }
+                                                }*/
 
 
 //                                                boolean booladded = addItem(item);
@@ -4217,6 +4400,9 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                                     String txtProductCode = object.getString("txtProductCode");
                                     HMtxtProductCategory.put(txtProductCode, txtProductCategory);
                                     String txtProductDesc = object.getString("txtProductDesc");
+                                    int intCampagn = object.getInt("intCampaign");
+                                    double dbltax = object.getDouble("decTax");
+
 
                                     item = new VMItems(promptView);
                                     item.setItemName(txtProductDesc);
@@ -4227,6 +4413,8 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                                     item.setItemCode(txtProductCode);
                                     item.setDesc(txtProductDesc);
                                     item.setItemBrand(txtBrand);
+                                    item.setIntCampagn(intCampagn);
+
 
                                     contentSearchResult.add(item);
 
@@ -4282,6 +4470,7 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                                                         String itemNameAdd = contentSearchResult.get(position).getItemName();
                                                         String itemCodeAdd = contentSearchResult.get(position).getItemCode();
                                                         String itemBrand = contentSearchResult.get(position).getItemBrand();
+                                                        int intCampagn = contentSearchResult.get(position).getIntCampagn();
                                                         String txtPrice = etPrice.getText().toString();
                                                         double itemPriceSearch = 0;
                                                         if (!txtPrice.equals("0")) {
@@ -4319,6 +4508,7 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                                                         item.setTaxAmount(itemTaxAmount);
                                                         item.setNetPrice(itemNetPrice);
                                                         item.setBonusPoint(itemBonusPoint);
+                                                        item.setIntCampagn(intCampagn);
 
                                                         boolean booladded = addItem(item);
                                                         if (booladded) {
@@ -4396,6 +4586,9 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                                     String txtPrice = object.getString("decPriceList");
                                     String txtBasePoint = object.getString("decBasePoint");
                                     String txtDecBonus = object.getString("decBonus");
+                                    int intCampagn = object.getInt("intCampaign");
+                                    intCampagnGlobal = intCampagn;
+
                                     etDiscount.setText(txtDiscount);
                                     etPrice.setText(txtPrice);
                                     etBonusPoint.setText(txtDecBonus);
@@ -4474,7 +4667,11 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                                     String txtProductCode = object.getString("txtProductCode");
                                     HMtxtProductCategory.put(txtProductCode, txtProductCategory);
                                     String txtProductDesc = object.getString("txtProductDesc");
-
+                                    String decTax = object.getString("decTax");
+                                    double dblTax = 0;
+                                    if(decTax.equals("")){
+                                        dblTax = Double.parseDouble(decTax);
+                                    }
                                     item = new VMItems(promptView);
                                     item.setItemName(txtProductDesc);
                                     item.setGuiid(new Helper().GenerateGuid());
@@ -4484,7 +4681,7 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                                     item.setItemCode(txtProductCode);
                                     item.setDesc(txtProductDesc);
                                     item.setItemBrand(txtBrand);
-
+                                    item.setTaxAmount(dblTax);
                                     contentSearchResult.add(item);
                                 }
                                 lvSearchResult.setAdapter(new CardAdapterSearchResult(context, contentSearchResult, Color.WHITE));
@@ -4507,6 +4704,13 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
     }
 
     private void addDefaultSpinnerAlamat() {
+        categoriesProv = new ArrayList<>();
+        categoriesKabKot = new ArrayList<>();
+        categoriesKecamatan = new ArrayList<>();
+        categoriesPostCode = new ArrayList<>();
+        categoriesKelurahan = new ArrayList<>();
+        categoriesPostCode = new ArrayList<>();
+
         categoriesProv.add(STRSPINNEROPT);
         categoriesKabKot.add(STRSPINNEROPT);
         categoriesKecamatan.add(STRSPINNEROPT);

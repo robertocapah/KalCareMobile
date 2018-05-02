@@ -361,7 +361,23 @@ public class FragmentSalesOrder extends Fragment {
                                                     final TextView tvCityCustomerPrev = (TextView) promptView.findViewById(R.id.tvCityCustomerPrev);
                                                     final TextView tvRegionCustomerPrev = (TextView) promptView.findViewById(R.id.tvRegionCustomerPrev);
                                                     final TextView tvKelurahanCustomerPrev = (TextView) promptView.findViewById(R.id.tvKelurahanCustomerPrev);
-                                                    TextView tvHideCustPrev = (TextView) promptView.findViewById(R.id.tvHideCustPrev);
+
+                                                    final TextView tvHideCustPrev = (TextView) promptView.findViewById(R.id.tvHideCustPrev);
+                                                    final TextView tvTaxBaseAmount3Prev = (TextView) promptView.findViewById(R.id.tvTaxBaseAmount3Prev);
+                                                    final TextView tvTaxAmount3Prev = (TextView) promptView.findViewById(R.id.tvTaxAmount3Prev);
+                                                    final TextView tvTotalPrev = (TextView) promptView.findViewById(R.id.tvTotalPrev);
+                                                    final TextView tvDiscount3Prev = (TextView) promptView.findViewById(R.id.tvDiscount3Prev);
+                                                    final TextView tvTotalPrice3Prev = (TextView) promptView.findViewById(R.id.tvTotalPrice3Prev);
+                                                    final TextView tvRounded3Prev = (TextView) promptView.findViewById(R.id.tvRounded3Prev);
+                                                    final TextView tvPaymentEnd3Prev = (TextView) promptView.findViewById(R.id.tvPaymentEnd3Prev);
+
+                                                    final TextView tvKN1Poin3Prev = (TextView) promptView.findViewById(R.id.tvKN1Poin3Prev);
+                                                    final TextView tvKN2Poin3Prev = (TextView) promptView.findViewById(R.id.tvKN2Poin3Prev);
+                                                    final TextView tvKN3poin3Prev = (TextView) promptView.findViewById(R.id.tvKN3poin3Prev);
+                                                    final TextView tvKN4poin3Prev = (TextView) promptView.findViewById(R.id.tvKN4poin3Prev);
+                                                    final TextView tvKNOtherPoin3Prev = (TextView) promptView.findViewById(R.id.tvKNOtherPoin3Prev);
+                                                    final TextView tvBonusPoin3Prev = (TextView) promptView.findViewById(R.id.tvBonusPoin3Prev);
+                                                    final TextView tvTotalPoin3Prev = (TextView) promptView.findViewById(R.id.tvTotalPoin3Prev);
 
 
                                                     final LinearLayout lnAttacedCust = (LinearLayout) promptView.findViewById(R.id.lnAttacedCust);
@@ -437,7 +453,7 @@ public class FragmentSalesOrder extends Fragment {
                                                                             tvDeliveryByPrev.setText(txtDeliveryBy);
                                                                             tvCustomerPrev.setText(txtPickUpLocation);
 
-                                                                            if (intDeliveryBy.equals("1")) {
+//                                                                            if (intDeliveryBy.equals("1")) {
                                                                                 tvCustomerPrev.setText("Customer Detail");
                                                                                 etCustomerNamePrev.setText(txtCustomerName);
 //                                                                            etContactIDPrev.setText();
@@ -448,9 +464,9 @@ public class FragmentSalesOrder extends Fragment {
                                                                                 tvKelurahanCustomerPrev.setText(txtKelurahanName);
                                                                                 tvPostCodeCustomerPrev.setText(txtKodePos);
 
-                                                                            } else {
-                                                                                lnAttacedCust.setVisibility(View.GONE);
-                                                                            }
+//                                                                            } else {
+//                                                                                lnAttacedCust.setVisibility(View.GONE);
+//                                                                            }
                                                                             JSONObject objDataPayment = jsn.getJSONObject(0).getJSONObject("DataPayment");
                                                                             String txtPaymentMethodName = objDataPayment.getString("txtPaymentMethodName");
                                                                             String txtmediajasapayment = objDataPayment.getString("txtmediajasapayment");
@@ -464,12 +480,20 @@ public class FragmentSalesOrder extends Fragment {
                                                                             String decTotalPriceSO = objDataPayment.getString("decTotalPrice");
                                                                             String decRounded = objDataPayment.getString("decRounded");
                                                                             String decPayment = objDataPayment.getString("decPayment");
+                                                                            String decTotalPrice2 = objDataPayment.getString("decTotalPrice");
                                                                             etPaymentMethodPrev.setText(txtPaymentMethodName);
                                                                             etSourceMediaPaymentPrev.setText(txtmediajasapayment);
                                                                             etPaymentPrev.setText(txtmediajasa);
                                                                             etBcaTraceNumberPrev.setText(txtTraceNumber);
                                                                             etCardNumberPrev.setText(txtCardNumber);
                                                                             etNetPricePrev.setText(decTotalPriceSO);
+                                                                            tvTaxBaseAmount3Prev.setText(decTaxBaseAmount);
+                                                                            tvTaxAmount3Prev.setText(decAmount);
+                                                                            tvTotalPrev.setText(decTotal);
+                                                                            tvDiscount3Prev.setText(decTotDiscount);
+                                                                            tvTotalPrice3Prev.setText(decTotalPrice2);
+                                                                            tvRounded3Prev.setText(decRounded);
+                                                                            tvPaymentEnd3Prev.setText(decPayment);
 
                                                                             JSONArray arrayData = jsn.getJSONObject(0).getJSONArray("ListDataDetail");
                                                                             final List<VMItems> contentItems = new ArrayList<VMItems>();
@@ -721,6 +745,7 @@ public class FragmentSalesOrder extends Fragment {
                                                                             FragmentAddOrder fragmentAddOrder = new FragmentAddOrder();
                                                                             Bundle arguments = new Bundle();
                                                                             arguments.putString("noSO", "");
+                                                                            arguments.putString("bitSO", "1");
                                                                             fragmentAddOrder.setArguments(arguments);
                                                                             FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
                                                                             fragmentTransaction.replace(R.id.frame, fragmentAddOrder, "Fragment_AddOrder");

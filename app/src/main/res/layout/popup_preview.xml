@@ -342,6 +342,7 @@
                 android:layout_gravity="right"
                 android:layout_weight="1"
                 android:layout_margin="5dp"
+                android:id="@+id/lnContactIdPrev"
                 android:orientation="vertical"
                 android:visibility="visible">
 
@@ -375,6 +376,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="right"
                 android:layout_weight="1"
+                android:id="@+id/lnMemberIdPrev"
                 android:layout_margin="5dp"
                 android:orientation="vertical"
                 android:visibility="visible">
@@ -591,7 +593,7 @@
                 android:layout_gravity="right"
                 android:layout_weight="1"
                 android:orientation="vertical"
-                android:padding="5dp"
+                android:layout_margin="5dp"
                 android:visibility="gone">
                 <TextView
                     android:id="@+id/textView1"
@@ -651,6 +653,272 @@
                     android:focusable="false"
                     android:inputType="number"
                     android:clickable="false"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="right"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:padding="5dp"
+                android:visibility="gone">
+                <Button
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/btnSummarySO"
+                    android:text="Summary SO"/>
+            </LinearLayout>
+            <LinearLayout
+                android:id="@+id/linearLayoutMidLeft"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="right"
+                android:orientation="vertical"
+                android:layout_margin="5dp"
+                android:layout_weight="1"
+                android:background="@drawable/bg_rounded_select"
+                android:visibility="visible">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:textColor="@color/black"
+                    android:text="Payment Amount" />
+                <TextView
+                    android:id="@+id/textView21"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:textColor="@color/black"
+                    android:text="Tax Base Amount" />
+                <TextView
+                    android:id="@+id/tvTaxBaseAmount3"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/black"
+                    android:background="@drawable/bg_edtext"
+                    android:maxLength="20"/>
+                <TextView
+                    android:id="@+id/textView22"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/black"
+                    android:layout_marginTop="10dp"
+                    android:text="Tax Amount" />
+                <TextView
+                    android:id="@+id/tvTaxAmount3"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/black"
+                    android:inputType="number"
+                    android:background="@drawable/bg_edtext"
+                    android:maxLength="20"/>
+                <TextView
+                    android:id="@+id/textView23"
+                    android:layout_width="wrap_content"
+                    android:textColor="@color/black"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:text="Total" />
+                <TextView
+                    android:id="@+id/tvTotal"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/black"
+                    android:inputType="number"
+                    android:background="@drawable/bg_edtext"
+                    android:maxLength="20"/>
+                <TextView
+                    android:id="@+id/textView24"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/black"
+                    android:layout_marginTop="10dp"
+                    android:text="Discount" />
+                <TextView
+                    android:id="@+id/tvDiscount3"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/black"
+                    android:background="@drawable/bg_edtext"
+                    android:maxLength="20"/>
+
+                <TextView
+                    android:id="@+id/textView25"
+                    android:layout_width="wrap_content"
+                    android:textColor="@color/black"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:text="Total Price" />
+
+                <TextView
+                    android:id="@+id/tvTotalPrice3"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/black"
+                    android:background="@drawable/bg_edtext"
+                    android:maxLength="20"/>
+
+                <TextView
+                    android:id="@+id/textView26"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/black"
+                    android:layout_marginTop="10dp"
+                    android:text="Rounded" />
+
+                <TextView
+                    android:id="@+id/tvRounded3"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/black"
+                    android:background="@drawable/bg_edtext"
+                    android:maxLength="20"/>
+
+                <TextView
+                    android:id="@+id/textView27"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:textColor="@color/colorPrimary"
+                    android:textStyle="bold"
+                    android:text="PAYMENT" />
+
+                <TextView
+                    android:id="@+id/tvPaymentEnd3"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/black"
+                    android:background="@drawable/bg_edtext"
+                    android:maxLength="20"/>
+
+            </LinearLayout>
+            <LinearLayout
+                android:id="@+id/linearLayoutMidRight"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="right"
+                android:orientation="vertical"
+                android:layout_margin="5dp"
+                android:layout_weight="1"
+                android:background="@drawable/bg_rounded_select"
+                android:visibility="visible">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:textColor="@color/black"
+                    android:text="Point Reward" />
+                <TextView
+                    android:id="@+id/textView31"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:textColor="@color/black"
+                    android:text="KN 1" />
+                <TextView
+                    android:id="@+id/tvKN1Poin3"
+                    android:textColor="@color/black"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/bg_edtext"
+                    android:maxLength="20"/>
+                <TextView
+                    android:id="@+id/textView32"
+                    android:textColor="@color/black"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:text="KN 2" />
+                <TextView
+                    android:id="@+id/tvKN2Poin3"
+                    android:textColor="@color/black"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="number"
+                    android:background="@drawable/bg_edtext"
+                    android:maxLength="20"/>
+                <TextView
+                    android:id="@+id/textView33"
+                    android:textColor="@color/black"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:text="KN 3" />
+                <TextView
+                    android:id="@+id/tvKN3poin3"
+                    android:textColor="@color/black"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="number"
+                    android:background="@drawable/bg_edtext"
+                    android:maxLength="20"/>
+                <TextView
+                    android:id="@+id/textView34"
+                    android:textColor="@color/black"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:text="KN 4" />
+                <TextView
+                    android:id="@+id/tvKN4poin3"
+                    android:textColor="@color/black"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/bg_edtext"
+                    android:maxLength="20"/>
+
+                <TextView
+                    android:id="@+id/textView35"
+                    android:textColor="@color/black"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:text="Other" />
+
+                <TextView
+                    android:id="@+id/tvKNOtherPoin3"
+                    android:textColor="@color/black"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/bg_edtext"
+                    android:maxLength="20"/>
+
+                <TextView
+                    android:id="@+id/textView36"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:textColor="@color/red"
+                    android:textStyle="bold"
+                    android:text="BONUS POIN" />
+
+                <TextView
+                    android:id="@+id/tvBonusPoin3"
+                    android:textColor="@color/black"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/bg_edtext"
+                    android:maxLength="20"/>
+
+                <TextView
+                    android:id="@+id/textView37"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:textColor="@color/black"
+                    android:textStyle="bold"
+                    android:text="TOTAL POIN" />
+
+                <TextView
+                    android:id="@+id/tvTotalPoin3"
+                    android:textColor="@color/black"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/bg_edtext"
+                    android:maxLength="20"/>
+
             </LinearLayout>
         </LinearLayout>
       <!--  <View

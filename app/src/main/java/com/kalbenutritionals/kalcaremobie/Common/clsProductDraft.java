@@ -38,6 +38,16 @@ public class clsProductDraft implements Serializable {
     private String txtBonusPoint;
     @DatabaseField
     private double dblNetPrice;
+    @DatabaseField
+    private int intCampagn;
+
+    public int getIntCampagn() {
+        return intCampagn;
+    }
+
+    public void setIntCampagn(int intCampagn) {
+        this.intCampagn = intCampagn;
+    }
 
     public String getTxtItemBrand() {
         return txtItemBrand;

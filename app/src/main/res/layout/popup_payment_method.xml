@@ -69,7 +69,10 @@
                 android:id="@+id/etCardNumber2"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@drawable/bg_edtext" />
+                android:inputType="number"
+                android:digits="0123456789-"
+                android:background="@drawable/bg_edtext"
+                android:maxLength="20"/>
 
             <TextView
                 android:id="@+id/textView5"
@@ -82,7 +85,10 @@
                 android:id="@+id/etBcaTraceNumber2"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@drawable/bg_edtext" />
+                android:inputType="number"
+                android:digits="0123456789-"
+                android:background="@drawable/bg_edtext"
+                android:maxLength="20"/>
 
         </LinearLayout>
 

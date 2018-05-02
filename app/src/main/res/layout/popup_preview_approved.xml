@@ -7,19 +7,19 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
-        android:layout_margin="@dimen/_5sdp">
+        android:layout_margin="5dp">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="@dimen/_10sdp"
-            android:layout_margin="@dimen/_5sdp"
+            android:layout_margin="5dp"
+            android:layout_marginLeft="10dp"
             android:orientation="horizontal">
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/_10sdp"
+                android:layout_marginTop="10dp"
                 android:layout_weight="1"
                 android:textColor="@color/black"
                 android:text="SO Status" />
@@ -28,7 +28,7 @@
                 android:id="@+id/tvSOStatusPrev"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/_10sdp"
+                android:layout_marginTop="10dp"
                 android:textColor="@color/black"
                 android:background="@drawable/bg_edtext"
                 android:layout_weight="0.5"
@@ -38,14 +38,14 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="@dimen/_10sdp"
-            android:layout_margin="@dimen/_5sdp"
+            android:layout_margin="5dp"
+            android:layout_marginLeft="10dp"
             android:orientation="horizontal">
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/_10sdp"
+                android:layout_marginTop="10dp"
                 android:textColor="@color/black"
                 android:layout_weight="1"
                 android:text="SO Date" />
@@ -54,7 +54,7 @@
                 android:id="@+id/tvSoDatePrev"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/_10sdp"
+                android:layout_marginTop="10dp"
                 android:textColor="@color/black"
                 android:background="@drawable/bg_edtext"
                 android:layout_weight="0.5"
@@ -64,14 +64,14 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="@dimen/_10sdp"
-            android:layout_margin="@dimen/_5sdp"
+            android:layout_margin="5dp"
+            android:layout_marginLeft="10dp"
             android:orientation="horizontal">
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/_10sdp"
+                android:layout_marginTop="10dp"
                 android:layout_weight="1"
                 android:textColor="@color/black"
                 android:text="SO Source" />
@@ -80,7 +80,7 @@
                 android:id="@+id/tvSOSourcePrev"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/_10sdp"
+                android:layout_marginTop="10dp"
                 android:textColor="@color/black"
                 android:layout_weight="0.5"
                 android:background="@drawable/bg_edtext"
@@ -90,14 +90,14 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="@dimen/_5sdp"
-            android:layout_marginLeft="@dimen/_10sdp"
+            android:layout_margin="5dp"
+            android:layout_marginLeft="10dp"
             android:orientation="horizontal">
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/_10sdp"
+                android:layout_marginTop="10dp"
                 android:textColor="@color/black"
                 android:layout_weight="1"
                 android:text="Agent Name" />
@@ -106,7 +106,7 @@
                 android:id="@+id/tvAgentNamePrev"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/_10sdp"
+                android:layout_marginTop="10dp"
                 android:textColor="@color/black"
                 android:layout_weight="0.5"
                 android:background="@drawable/bg_edtext"
@@ -116,14 +116,14 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="@dimen/_10sdp"
-            android:layout_margin="@dimen/_5sdp"
+            android:layout_margin="5dp"
+            android:layout_marginLeft="10dp"
             android:orientation="horizontal">
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/_10sdp"
+                android:layout_marginTop="10dp"
                 android:textColor="@color/black"
                 android:layout_weight="1"
                 android:text="Order Location" />
@@ -132,7 +132,7 @@
                 android:id="@+id/tvOrderLocationPrev"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/_10sdp"
+                android:layout_marginTop="10dp"
                 android:textColor="@color/black"
                 android:layout_weight="0.5"
                 android:background="@drawable/bg_edtext"
@@ -142,14 +142,14 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="@dimen/_5sdp"
-            android:layout_marginLeft="@dimen/_10sdp"
+            android:layout_margin="5dp"
+            android:layout_marginLeft="10dp"
             android:orientation="horizontal">
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/_10sdp"
+                android:layout_marginTop="10dp"
                 android:textColor="@color/black"
                 android:layout_weight="1"
                 android:text="Delivery By" />
@@ -159,7 +159,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textColor="@color/black"
-                android:layout_marginTop="@dimen/_10sdp"
+                android:layout_marginTop="10dp"
                 android:layout_weight="0.5"
                 android:background="@drawable/bg_edtext"
                 android:text="Delivery By*" />
@@ -168,14 +168,14 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="@dimen/_5sdp"
-            android:layout_marginLeft="@dimen/_10sdp"
+            android:layout_margin="5dp"
+            android:layout_marginLeft="10dp"
             android:orientation="horizontal">
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/_10sdp"
+                android:layout_marginTop="10dp"
                 android:textColor="@color/black"
                 android:layout_weight="1"
                 android:text="Delivery Schedule" />
@@ -184,7 +184,7 @@
                 android:id="@+id/tvDeliverySchedulePrev"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/_10sdp"
+                android:layout_marginTop="10dp"
                 android:textColor="@color/black"
                 android:layout_weight="0.5"
                 android:background="@drawable/bg_edtext"
@@ -194,14 +194,14 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="@dimen/_5sdp"
-            android:layout_marginLeft="@dimen/_10sdp"
+            android:layout_margin="5dp"
+            android:layout_marginLeft="10dp"
             android:orientation="horizontal">
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/_10sdp"
+                android:layout_marginTop="10dp"
                 android:textColor="@color/black"
                 android:layout_weight="1"
                 android:text="Remarks" />
@@ -210,7 +210,7 @@
                 android:id="@+id/tvRemarksPreview"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/_10sdp"
+                android:layout_marginTop="10dp"
                 android:textColor="@color/black"
                 android:layout_weight="0.5"
                 android:background="@drawable/bg_edtext"
@@ -220,60 +220,62 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="@dimen/_5sdp"
-            android:layout_marginLeft="@dimen/_10sdp"
+            android:layout_margin="5dp"
+            android:layout_marginLeft="10dp"
             android:orientation="horizontal">
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/_10sdp"
+                android:layout_marginTop="10dp"
                 android:textColor="@color/black"
                 android:layout_weight="1"
-                android:text="Customer"/>
+                android:text="Customer"
+                android:visibility="gone"/>
 
             <TextView
                 android:id="@+id/tvCustomerPrev"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/_10sdp"
+                android:layout_marginTop="10dp"
                 android:layout_weight="0.5"
                 android:drawableLeft="@drawable/ic_contact_hololight"
                 android:textColor="@color/black"
                 android:background="@drawable/bg_edtext"
-                android:text="Customer detail" />
+                android:text="Customer detail"
+                android:visibility="gone"/>
         </LinearLayout>
         <View
             android:layout_width="match_parent"
             android:background="@color/black"
-            android:layout_height="@dimen/_2sdp"/>
+            android:layout_height="2dp"/>
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:id="@+id/lnAttacedCust"
             android:visibility="visible"
-            android:layout_margin="@dimen/_5sdp"
+            android:layout_margin="5dp"
             android:orientation="vertical"
             android:weightSum="2">
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_margin="@dimen/_15sdp"
+                android:layout_margin="10dp"
                 android:textColor="@color/black"
                 android:text="Customer's Detail" />
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_margin="@dimen/_5sdp"
+                android:layout_margin="5dp"
                 android:orientation="horizontal">
 
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:textColor="@color/black"
-                    android:layout_marginLeft="@dimen/_3sdp"
+                    android:layout_marginLeft="3dp"
                     android:layout_weight="1.2"
                     android:text="Name" />
 
@@ -283,7 +285,7 @@
                     android:layout_height="wrap_content"
                     android:textColor="@color/black"
                     android:background="@drawable/bg_edtext"
-                    android:layout_marginRight="@dimen/_3sdp"
+                    android:layout_marginRight="3dp"
                     android:ems="10"
                     android:clickable="false"
                     android:cursorVisible="false"
@@ -297,7 +299,7 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_margin="@dimen/_5sdp"
+                android:layout_margin="5dp"
                 android:orientation="horizontal"
                 android:visibility="gone">
 
@@ -305,7 +307,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:textColor="@color/black"
-                    android:layout_marginLeft="@dimen/_3sdp"
+                    android:layout_marginLeft="3dp"
                     android:layout_weight="1.2"
                     android:text="Contact ID" />
 
@@ -315,7 +317,7 @@
                     android:layout_height="wrap_content"
                     android:textColor="@color/black"
                     android:background="@drawable/bg_edtext"
-                    android:layout_marginRight="@dimen/_3sdp"
+                    android:layout_marginRight="3dp"
                     android:ems="10"
                     android:clickable="false"
                     android:cursorVisible="false"
@@ -329,14 +331,14 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_margin="@dimen/_5sdp"
+                android:layout_margin="5dp"
                 android:orientation="horizontal"
                 android:visibility="gone">
 
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="@dimen/_3sdp"
+                    android:layout_marginLeft="3dp"
                     android:layout_weight="1.2"
                     android:textColor="@color/black"
                     android:text="Member No" />
@@ -347,7 +349,7 @@
                     android:layout_height="wrap_content"
                     android:background="@drawable/bg_edtext"
                     android:textColor="@color/black"
-                    android:layout_marginRight="@dimen/_3sdp"
+                    android:layout_marginRight="3dp"
                     android:clickable="false"
                     android:cursorVisible="false"
                     android:focusable="false"
@@ -361,20 +363,20 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_margin="@dimen/_3sdp"
+                android:layout_margin="3dp"
                 android:orientation="horizontal">
 
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:textColor="@color/black"
-                    android:layout_marginLeft="@dimen/_5sdp"
+                    android:layout_marginLeft="5dp"
                     android:layout_weight="1.5"
                     android:text="Province" />
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="@dimen/_10sdp"
+                    android:layout_marginLeft="10dp"
                     android:background="@drawable/bg_edtext"
                     android:textColor="@color/black"
                     android:layout_weight="0.5"
@@ -386,13 +388,13 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_margin="@dimen/_3sdp"
+                android:layout_margin="3dp"
                 android:orientation="horizontal">
 
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="@dimen/_5sdp"
+                    android:layout_marginLeft="5dp"
                     android:layout_weight="1.5"
                     android:textColor="@color/black"
                     android:text="Kabupaten/Kota" />
@@ -401,7 +403,7 @@
                     android:layout_height="wrap_content"
                     android:id="@+id/tvCityCustomerPrev"
                     android:background="@drawable/bg_edtext"
-                    android:layout_marginLeft="@dimen/_10sdp"
+                    android:layout_marginLeft="10dp"
                     android:layout_weight="0.5"
                     android:textColor="@color/black"
                     android:text="City" />
@@ -411,14 +413,14 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_margin="@dimen/_3sdp"
+                android:layout_margin="3dp"
                 android:orientation="horizontal">
 
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:textColor="@color/black"
-                    android:layout_marginLeft="@dimen/_5sdp"
+                    android:layout_marginLeft="5dp"
                     android:layout_weight="1.5"
                     android:text="Kecamatan" />
                 <TextView
@@ -427,7 +429,7 @@
                     android:textColor="@color/black"
                     android:background="@drawable/bg_edtext"
                     android:id="@+id/tvRegionCustomerPrev"
-                    android:layout_marginLeft="@dimen/_10sdp"
+                    android:layout_marginLeft="10dp"
                     android:layout_weight="0.5"
                     android:text="Region" />
 
@@ -435,14 +437,14 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_margin="@dimen/_3sdp"
+                android:layout_margin="3dp"
                 android:orientation="horizontal">
 
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:textColor="@color/black"
-                    android:layout_marginLeft="@dimen/_5sdp"
+                    android:layout_marginLeft="5dp"
                     android:layout_weight="1.5"
                     android:text="Kelurahan" />
                 <TextView
@@ -451,7 +453,7 @@
                     android:textColor="@color/black"
                     android:background="@drawable/bg_edtext"
                     android:id="@+id/tvKelurahanCustomerPrev"
-                    android:layout_marginLeft="@dimen/_10sdp"
+                    android:layout_marginLeft="10dp"
                     android:layout_weight="0.5"
                     android:text="Region" />
 
@@ -460,13 +462,13 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_margin="@dimen/_3sdp"
+                android:layout_margin="3dp"
                 android:orientation="horizontal">
 
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="@dimen/_5sdp"
+                    android:layout_marginLeft="5dp"
                     android:layout_weight="1.5"
                     android:textColor="@color/black"
                     android:text="Post Code" />
@@ -476,14 +478,14 @@
                     android:textColor="@color/black"
                     android:background="@drawable/bg_edtext"
                     android:id="@+id/tvPostCodeCustomerPrev"
-                    android:layout_marginLeft="@dimen/_10sdp"
+                    android:layout_marginLeft="10dp"
                     android:layout_weight="0.5" />
             </LinearLayout>
             <View
                 android:layout_width="match_parent"
                 android:background="@color/black"
                 android:id="@+id/vwLineBot"
-                android:layout_height="@dimen/_2sdp"
+                android:layout_height="2dp"
                 />
             <TextView
                 android:layout_width="wrap_content"
@@ -537,7 +539,7 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="@dimen/_15sdp"
+            android:layout_margin="10dp"
             android:textColor="@color/black"
             android:text="Payment" />
         <LinearLayout
@@ -546,11 +548,13 @@
             android:layout_gravity="right"
             android:layout_weight="1"
             android:orientation="vertical"
+            android:background="@drawable/bg_rounded_select"
             android:padding="5dp">
             <TextView
                 android:id="@+id/textView0"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:textColor="@color/black"
                 android:layout_marginTop="10dp"
                 android:text="Payment Method " />
             <EditText
@@ -558,6 +562,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="@drawable/bg_edtext"
+                android:ems="10"
                 android:editable="false"
                 android:focusable="false"
                 android:clickable="false" />
@@ -566,6 +571,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
+                android:textColor="@color/black"
                 android:text="Source media payment " />
             <EditText
                 android:id="@+id/etSourceMediaPaymentPrev"
@@ -579,6 +585,7 @@
                 android:id="@+id/textView2"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:textColor="@color/black"
                 android:layout_marginTop="10dp"
                 android:text="Payment" />
             <EditText
@@ -593,6 +600,7 @@
                 android:id="@+id/textView3"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:textColor="@color/black"
                 android:layout_marginTop="10dp"
                 android:text="Card Number" />
             <EditText
@@ -607,6 +615,7 @@
                 android:id="@+id/textView4"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:textColor="@color/black"
                 android:layout_marginTop="10dp"
                 android:text="BCA trace number" />
             <EditText
@@ -621,8 +630,10 @@
                 android:id="@+id/textView5"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:textColor="@color/black"
                 android:layout_marginTop="10dp"
-                android:text="Net Price" />
+                android:text="Net Price"
+                android:visibility="gone"/>
             <EditText
                 android:id="@+id/etNetPricePrev"
                 android:layout_width="match_parent"
@@ -630,14 +641,266 @@
                 android:background="@drawable/bg_edtext"
                 android:editable="false"
                 android:focusable="false"
-                android:clickable="false"/>
+                android:clickable="false"
+                android:visibility="gone"/>
+        </LinearLayout>
+        <LinearLayout
+            android:id="@+id/linearLayoutMidLeftPrev"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="right"
+            android:orientation="vertical"
+            android:layout_margin="5dp"
+            android:layout_weight="1"
+            android:background="@drawable/bg_rounded_select"
+            android:visibility="visible">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:textColor="@color/black"
+                android:text="Payment Amount" />
+            <TextView
+                android:id="@+id/textView21Prev"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:textColor="@color/black"
+                android:text="Tax Base Amount" />
+            <TextView
+                android:id="@+id/tvTaxBaseAmount3Prev"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="@color/black"
+                android:background="@drawable/bg_edtext"
+                android:maxLength="20"/>
+            <TextView
+                android:id="@+id/textView22Prev"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/black"
+                android:layout_marginTop="10dp"
+                android:text="Tax Amount" />
+            <TextView
+                android:id="@+id/tvTaxAmount3Prev"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="@color/black"
+                android:inputType="number"
+                android:background="@drawable/bg_edtext"
+                android:maxLength="20"/>
+            <TextView
+                android:id="@+id/textView23Prev"
+                android:layout_width="wrap_content"
+                android:textColor="@color/black"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:text="Total" />
+            <TextView
+                android:id="@+id/tvTotalPrev"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="@color/black"
+                android:inputType="number"
+                android:background="@drawable/bg_edtext"
+                android:maxLength="20"/>
+            <TextView
+                android:id="@+id/textView24Prev"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/black"
+                android:layout_marginTop="10dp"
+                android:text="Discount" />
+            <TextView
+                android:id="@+id/tvDiscount3Prev"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="@color/black"
+                android:background="@drawable/bg_edtext"
+                android:maxLength="20"/>
+
+            <TextView
+                android:id="@+id/textView25Prev"
+                android:layout_width="wrap_content"
+                android:textColor="@color/black"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:text="Total Price" />
+
+            <TextView
+                android:id="@+id/tvTotalPrice3Prev"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="@color/black"
+                android:background="@drawable/bg_edtext"
+                android:maxLength="20"/>
+
+            <TextView
+                android:id="@+id/textView26Prev"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/black"
+                android:layout_marginTop="10dp"
+                android:text="Rounded" />
+
+            <TextView
+                android:id="@+id/tvRounded3Prev"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="@color/black"
+                android:background="@drawable/bg_edtext"
+                android:maxLength="20"/>
+
+            <TextView
+                android:id="@+id/textView27Prev"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:textColor="@color/colorPrimary"
+                android:textStyle="bold"
+                android:text="PAYMENT" />
+
+            <TextView
+                android:id="@+id/tvPaymentEnd3Prev"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="@color/black"
+                android:background="@drawable/bg_edtext"
+                android:maxLength="20"/>
+
+        </LinearLayout>
+        <LinearLayout
+            android:id="@+id/linearLayoutMidRightPrev"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="right"
+            android:orientation="vertical"
+            android:layout_margin="5dp"
+            android:layout_weight="1"
+            android:background="@drawable/bg_rounded_select"
+            android:visibility="visible">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:textColor="@color/black"
+                android:text="Point Reward" />
+            <TextView
+                android:id="@+id/textView31Prev"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:textColor="@color/black"
+                android:text="KN 1" />
+            <TextView
+                android:id="@+id/tvKN1Poin3Prev"
+                android:textColor="@color/black"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_edtext"
+                android:maxLength="20"/>
+            <TextView
+                android:id="@+id/textView32Prev"
+                android:textColor="@color/black"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:text="KN 2" />
+            <TextView
+                android:id="@+id/tvKN2Poin3Prev"
+                android:textColor="@color/black"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="number"
+                android:background="@drawable/bg_edtext"
+                android:maxLength="20"/>
+            <TextView
+                android:id="@+id/textView33Prev"
+                android:textColor="@color/black"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:text="KN 3" />
+            <TextView
+                android:id="@+id/tvKN3poin3Prev"
+                android:textColor="@color/black"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="number"
+                android:background="@drawable/bg_edtext"
+                android:maxLength="20"/>
+            <TextView
+                android:id="@+id/textView34Prev"
+                android:textColor="@color/black"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:text="KN 4" />
+            <TextView
+                android:id="@+id/tvKN4poin3Prev"
+                android:textColor="@color/black"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_edtext"
+                android:maxLength="20"/>
+
+            <TextView
+                android:id="@+id/textView35Prev"
+                android:textColor="@color/black"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:text="Other" />
+
+            <TextView
+                android:id="@+id/tvKNOtherPoin3Prev"
+                android:textColor="@color/black"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_edtext"
+                android:maxLength="20"/>
+
+            <TextView
+                android:id="@+id/textView36Prev"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:textColor="@color/red"
+                android:textStyle="bold"
+                android:text="BONUS POIN" />
+
+            <TextView
+                android:id="@+id/tvBonusPoin3Prev"
+                android:textColor="@color/black"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_edtext"
+                android:maxLength="20"/>
+
+            <TextView
+                android:id="@+id/textView37Prev"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:textColor="@color/black"
+                android:textStyle="bold"
+                android:text="TOTAL POIN" />
+
+            <TextView
+                android:id="@+id/tvTotalPoin3Prev"
+                android:textColor="@color/black"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_edtext"
+                android:maxLength="20"/>
+
         </LinearLayout>
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="@dimen/_10sdp"
-            android:layout_marginRight="@dimen/_10sdp"
-            android:layout_marginTop="@dimen/_15sdp"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:layout_marginTop="15dp"
             android:layout_weight="0.5"
             android:textColor="@color/black"
             android:text="Item List"
@@ -646,10 +909,10 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_marginLeft="@dimen/_10sdp"
-            android:layout_marginRight="@dimen/_10sdp"
-            android:layout_marginTop="@dimen/_5sdp"
-            android:layout_marginBottom="@dimen/_10sdp"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:layout_marginTop="5dp"
+            android:layout_marginBottom="10dp"
             android:orientation="horizontal">
 
             <ListView

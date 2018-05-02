@@ -11,7 +11,10 @@ import android.widget.TextView;
 import com.kalbenutritionals.kalcaremobie.R;
 import com.kalbenutritionals.kalcaremobie.ViewModel.VMItems;
 
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.util.List;
+import java.util.Locale;
 
 
 /**
@@ -56,11 +59,30 @@ public class CardAppAdapter extends BaseAdapter {
         holder.tvHeaderProductName.setText(item.getItemBrand());
         holder.tvItemCode.setText(item.getItemCode());
         holder.tvQty.setText(String.valueOf(item.getQty()));
-        holder.tvitemPrice.setText(String.valueOf(item.getPrice()));
-        holder.tvDiscount.setText(String.valueOf(item.getDiscount()));
-        holder.tvTotalPrice.setText(String.valueOf(item.getTotalPrice()));
-        holder.tvTaxAmount.setText(String.valueOf(item.getTaxAmount()));
-        holder.tvNetPrice.setText(String.valueOf(item.getNetPrice()));
+
+        String itemPrice = new DecimalFormat("##.##").format(item.getPrice());
+        String itemDiscount = new DecimalFormat("##.##").format(item.getDiscount());
+        String totalPrice = new DecimalFormat("##.##").format(item.getTotalPrice());
+        String taxAmount = new DecimalFormat("##.##").format(item.getTaxAmount());
+        String netPrice = new DecimalFormat("##.##").format(item.getNetPrice());
+
+        Locale localeID = new Locale("in", "ID");
+        NumberFormat formatRupiah = NumberFormat.getCurrencyInstance(localeID);
+        formatRupiah.setMaximumFractionDigits(2);
+        formatRupiah.setMinimumFractionDigits(2);
+
+        holder.tvitemPrice.setText(formatRupiah.format((double)item.getPrice()));
+        holder.tvDiscount.setText(formatRupiah.format((double)item.getDiscount()));
+        holder.tvTotalPrice.setText(formatRupiah.format((double)item.getTotalPrice()));
+        holder.tvTaxAmount.setText(formatRupiah.format((double)item.getTaxAmount()));
+        holder.tvNetPrice.setText(formatRupiah.format((double)item.getNetPrice()));
+
+        /*holder.tvitemPrice.setText(itemPrice);
+        holder.tvDiscount.setText(itemDiscount);
+        holder.tvTotalPrice.setText(totalPrice);
+        holder.tvTaxAmount.setText(taxAmount);
+        holder.tvNetPrice.setText(netPrice);
+        */
         holder.tvBasePoint.setText(item.getBasePoint());
         holder.tvBonusPoint.setText(item.getBonusPoint());
         holder.cardView.setCardBackgroundColor(color);
