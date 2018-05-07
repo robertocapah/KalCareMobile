@@ -17,17 +17,152 @@ public class VMItems extends RecyclerView.ViewHolder {
     String desc;
     String barcode;
     int qty;
+    int qtyPaket;
     double price;
     double discount;
     double totalPrice;
     double taxAmount;
     double netPrice;
     String basePoint;
+    String TotalBasePoint;
+    double decCalcTotalPrice;
+    double decCalcTaxAmount;
+    double decCalcNetPrice;
+    double decCalcTotalBasePoint;
+    double decCalcTotal;
+    double decTotalBasePoint;
+    double decBonusPoint;
+    String txtGroupProduct;
+    String txtDescription;
+    String txtUOM;
+    String txtItemPacketID;
+    int intPaket;
+    String decWeight;
     String bonusPoint;
     int intCampagn;
 
     public VMItems(View itemView) {
         super(itemView);
+    }
+
+    public String getTxtItemPacketID() {
+        return txtItemPacketID;
+    }
+
+    public void setTxtItemPacketID(String txtItemPacketID) {
+        this.txtItemPacketID = txtItemPacketID;
+    }
+
+    public int getQtyPaket() {
+        return qtyPaket;
+    }
+
+    public void setQtyPaket(int qtyPaket) {
+        this.qtyPaket = qtyPaket;
+    }
+
+    public String getTotalBasePoint() {
+        return TotalBasePoint;
+    }
+
+    public void setTotalBasePoint(String totalBasePoint) {
+        TotalBasePoint = totalBasePoint;
+    }
+
+    public double getDecCalcTotalPrice() {
+        return decCalcTotalPrice;
+    }
+
+    public void setDecCalcTotalPrice(double decCalcTotalPrice) {
+        this.decCalcTotalPrice = decCalcTotalPrice;
+    }
+
+    public double getDecCalcTaxAmount() {
+        return decCalcTaxAmount;
+    }
+
+    public void setDecCalcTaxAmount(double decCalcTaxAmount) {
+        this.decCalcTaxAmount = decCalcTaxAmount;
+    }
+
+    public double getDecCalcNetPrice() {
+        return decCalcNetPrice;
+    }
+
+    public void setDecCalcNetPrice(double decCalcNetPrice) {
+        this.decCalcNetPrice = decCalcNetPrice;
+    }
+
+    public double getDecCalcTotalBasePoint() {
+        return decCalcTotalBasePoint;
+    }
+
+    public void setDecCalcTotalBasePoint(double decCalcTotalBasePoint) {
+        this.decCalcTotalBasePoint = decCalcTotalBasePoint;
+    }
+
+    public double getDecCalcTotal() {
+        return decCalcTotal;
+    }
+
+    public void setDecCalcTotal(double decCalcTotal) {
+        this.decCalcTotal = decCalcTotal;
+    }
+
+    public double getDecTotalBasePoint() {
+        return decTotalBasePoint;
+    }
+
+    public void setDecTotalBasePoint(double decTotalBasePoint) {
+        this.decTotalBasePoint = decTotalBasePoint;
+    }
+
+    public double getDecBonusPoint() {
+        return decBonusPoint;
+    }
+
+    public void setDecBonusPoint(double decBonusPoint) {
+        this.decBonusPoint = decBonusPoint;
+    }
+
+    public String getTxtGroupProduct() {
+        return txtGroupProduct;
+    }
+
+    public void setTxtGroupProduct(String txtGroupProduct) {
+        this.txtGroupProduct = txtGroupProduct;
+    }
+
+    public String getTxtDescription() {
+        return txtDescription;
+    }
+
+    public void setTxtDescription(String txtDescription) {
+        this.txtDescription = txtDescription;
+    }
+
+    public String getTxtUOM() {
+        return txtUOM;
+    }
+
+    public void setTxtUOM(String txtUOM) {
+        this.txtUOM = txtUOM;
+    }
+
+    public int getIntPaket() {
+        return intPaket;
+    }
+
+    public void setIntPaket(int intPaket) {
+        this.intPaket = intPaket;
+    }
+
+    public String getDecWeight() {
+        return decWeight;
+    }
+
+    public void setDecWeight(String decWeight) {
+        this.decWeight = decWeight;
     }
 
     public int getIntCampagn() {

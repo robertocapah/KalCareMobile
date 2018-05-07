@@ -143,12 +143,22 @@ public class Helper {
                 jsnItem.put("txtDataId",item.getGuiid());
                 jsnItem.put("ProductCode",item.getItemCode());
                 jsnItem.put("ProductName",item.getItemName());
+                jsnItem.put("txtProductCategory",item.getProductCategory());
+                jsnItem.put("txtBrand",item.getItemBrand());
+                jsnItem.put("txtGroupProduct",item.getTxtGroupProduct());
+                jsnItem.put("txtProductBarcode",item.getBarcode());
+                jsnItem.put("txtGroupItem",item.getItemGroup());
+                jsnItem.put("txtItemPacketID",item.getTxtItemPacketID());
+                jsnItem.put("intItemID",item.getItemId());
+                jsnItem.put("intBitPaket",item.getIntPaket());
+
             } catch (JSONException e) {
                 e.printStackTrace();
             }
             items.put(jsnItem);
 //            new clsProductDraftRepo(context).createOrUpdate(product);
             saveDraftResult = true;
+            //07/05/2018 kurang retrieve data item
         }
         return items;
     }

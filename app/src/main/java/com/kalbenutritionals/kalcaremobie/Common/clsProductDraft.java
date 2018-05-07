@@ -19,6 +19,16 @@ public class clsProductDraft implements Serializable {
     @DatabaseField
     private String txtProductCategory;
     @DatabaseField
+    private String txtGroupItem;
+    @DatabaseField
+    private String txtItemPacketId;
+    @DatabaseField
+    private String txtItemSalesPackId;
+    @DatabaseField
+    private int intItemId;
+    @DatabaseField
+    private int intBitPaket;
+    @DatabaseField
     private int intQty;
     @DatabaseField
     private double dblItemDiscount;
@@ -40,6 +50,46 @@ public class clsProductDraft implements Serializable {
     private double dblNetPrice;
     @DatabaseField
     private int intCampagn;
+
+    public String getTxtGroupItem() {
+        return txtGroupItem;
+    }
+
+    public void setTxtGroupItem(String txtGroupItem) {
+        this.txtGroupItem = txtGroupItem;
+    }
+
+    public String getTxtItemPacketId() {
+        return txtItemPacketId;
+    }
+
+    public void setTxtItemPacketId(String txtItemPacketId) {
+        this.txtItemPacketId = txtItemPacketId;
+    }
+
+    public String getTxtItemSalesPackId() {
+        return txtItemSalesPackId;
+    }
+
+    public void setTxtItemSalesPackId(String txtItemSalesPackId) {
+        this.txtItemSalesPackId = txtItemSalesPackId;
+    }
+
+    public int getIntItemId() {
+        return intItemId;
+    }
+
+    public void setIntItemId(int intItemId) {
+        this.intItemId = intItemId;
+    }
+
+    public int getIntBitPaket() {
+        return intBitPaket;
+    }
+
+    public void setIntBitPaket(int intBitPaket) {
+        this.intBitPaket = intBitPaket;
+    }
 
     public int getIntCampagn() {
         return intCampagn;

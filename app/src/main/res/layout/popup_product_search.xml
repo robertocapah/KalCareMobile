@@ -60,6 +60,24 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@+id/svitem"
+        android:id="@+id/lnStatus"
+        android:layout_margin="@dimen/_5sdp">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Status"
+            android:textColor="@color/green_custom"
+            android:id="@+id/tvStatusProduct"
+            android:textStyle="bold"
+            android:layout_marginLeft="@dimen/_10sdp"
+            android:visibility="invisible"
+            android:layout_weight="1"/>
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/lnStatus"
         android:id="@+id/lnPrice"
         android:layout_margin="@dimen/_5sdp">
 

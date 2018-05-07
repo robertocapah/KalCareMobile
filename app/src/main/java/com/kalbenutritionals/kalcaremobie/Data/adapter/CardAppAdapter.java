@@ -56,7 +56,7 @@ public class CardAppAdapter extends BaseAdapter {
         VMItems item = getItem(position);
         ViewHolder holder = (ViewHolder) convertView.getTag();
         holder.tvItemName.setText(item.getItemName());
-        holder.tvHeaderProductName.setText(item.getItemBrand());
+        holder.tvHeaderProductName.setText(item.getItemBrand()+" - "+item.getTxtItemPacketID());
         holder.tvItemCode.setText(item.getItemCode());
         holder.tvQty.setText(String.valueOf(item.getQty()));
 
