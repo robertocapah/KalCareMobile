@@ -292,6 +292,7 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
     double dbldecTotDiscountFinal = 0;
     double dbldecTotalPriceFinal = 0;
     double dbldecdecRoundedFinal = 0;
+    double dbldecPaymentFinal = 0;
     double dbldecNetPriceFinal = 0;
 
     boolean boolPaymentFilled = false;
@@ -1915,6 +1916,7 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                     item.setTxtItemPacketID(productDraft.getTxtItemPacketId());
                     item.setIntItemId(productDraft.getIntItemId());
                     item.setIntPaket(productDraft.getIntBitPaket());
+                    item.setDesc(productDraft.getTxtItemPacketId());
                     boolean booladded = addItem(item);
                     addedSucces = booladded;
                 }
@@ -2520,6 +2522,7 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                                         dbldecdecRoundedFinal = jsnObjPaymentSO.getDouble("decRounded");
                                         intBitActiveFinal = jsnObjPaymentSO.getInt("bitActive");
                                         dbldecNetPriceFinal = jsnObjPaymentSO.getInt("decNetPrice");
+                                        dbldecPaymentFinal = jsnObjPaymentSO.getInt("decPayment");
 
                                         //HeaderSO
                                         String txtPropinsiID = jsnObjHeaderSO.getString("txtPropinsiID");
@@ -2729,7 +2732,7 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                                 tvTotalPrice3.setText(formatRupiah.format((double)dbldecTotalPriceFinal));
                                 tvDiscount3.setText(formatRupiah.format((double)dbldecTotDiscountFinal));
                                 tvRounded3.setText(formatRupiah.format((double)dbldecdecRoundedFinal));
-                                tvPaymentEnd3.setText(formatRupiah.format((double)dbldecNetPriceFinal));
+                                tvPaymentEnd3.setText(formatRupiah.format((double)dbldecPaymentFinal));
 
 
 
@@ -4402,7 +4405,7 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                                     etBasedPoint.setText(txtBasePoint);
                                     JSONArray arrListOfPoint = jsn.getJSONObject(n).getJSONArray("ListOfPoint");
                                     for (int m = 0; m < arrListOfPoint.length(); m++) {
-                                        JSONObject obj = jsn.getJSONObject(n);
+                                        JSONObject obj = arrListOfPoint.getJSONObject(n);
                                         int intBitCampaign = obj.getInt("intCampaignId");
                                         String txtGroupItem = obj.getString("txtGroupItem");
                                         intCampagnGlobal = intBitCampaign;
