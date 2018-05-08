@@ -37,6 +37,7 @@ public class VMItems extends RecyclerView.ViewHolder {
     String txtUOM;
     String txtItemPacketID;
     int intPaket;
+    int intItemId;
     String decWeight;
     String bonusPoint;
     int intCampagn;
@@ -51,6 +52,14 @@ public class VMItems extends RecyclerView.ViewHolder {
 
     public void setTxtItemPacketID(String txtItemPacketID) {
         this.txtItemPacketID = txtItemPacketID;
+    }
+
+    public int getIntItemId() {
+        return intItemId;
+    }
+
+    public void setIntItemId(int intItemId) {
+        this.intItemId = intItemId;
     }
 
     public int getQtyPaket() {

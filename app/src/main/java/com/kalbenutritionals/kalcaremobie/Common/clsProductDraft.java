@@ -21,7 +21,11 @@ public class clsProductDraft implements Serializable {
     @DatabaseField
     private String txtGroupItem;
     @DatabaseField
+    private String txtGroupProduct;
+    @DatabaseField
     private String txtItemPacketId;
+    @DatabaseField
+    private String txtItemBarcode;
     @DatabaseField
     private String txtItemSalesPackId;
     @DatabaseField
@@ -50,6 +54,22 @@ public class clsProductDraft implements Serializable {
     private double dblNetPrice;
     @DatabaseField
     private int intCampagn;
+
+    public String getTxtGroupProduct() {
+        return txtGroupProduct;
+    }
+
+    public void setTxtGroupProduct(String txtGroupProduct) {
+        this.txtGroupProduct = txtGroupProduct;
+    }
+
+    public String getTxtItemBarcode() {
+        return txtItemBarcode;
+    }
+
+    public void setTxtItemBarcode(String txtItemBarcode) {
+        this.txtItemBarcode = txtItemBarcode;
+    }
 
     public String getTxtGroupItem() {
         return txtGroupItem;

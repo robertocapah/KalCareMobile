@@ -237,7 +237,10 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
     double decTaxGlobal = 0;
     String txtBrandGlobal = "";
     String txtGroupProductGlobal = "";
+    String txtGroupItemGlobal = "";
     String txtDescriptionGlobal = "";
+    String txtBarcodeGlobal = "";
+    String txtProductGlobal = "";
     String txtUOMGlobal = "";
     int intPaketGlobal = 0;
     double decWeightGlobal = 0;
@@ -1905,7 +1908,13 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                     item.setTaxAmount(productDraft.getDblItemTax());
                     item.setNetPrice(productDraft.getDblNetPrice());
                     item.setBonusPoint(productDraft.getTxtBonusPoint());
+                    item.setTxtGroupProduct(productDraft.getTxtGroupProduct());
+                    item.setItemGroup(productDraft.getTxtGroupItem());
+                    item.setBarcode(productDraft.getTxtItemBarcode());
                     item.setIntCampagn(productDraft.getIntCampagn());
+                    item.setTxtItemPacketID(productDraft.getTxtItemPacketId());
+                    item.setIntItemId(productDraft.getIntItemId());
+                    item.setIntPaket(productDraft.getIntBitPaket());
                     boolean booladded = addItem(item);
                     addedSucces = booladded;
                 }
@@ -4107,7 +4116,7 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                                             if(!stQtySearch.equals("")){
                                                 qty = Integer.parseInt(stQtySearch);
                                             }
-                                            if (qty < 1 || itemBasePoint.equals("") || itemBonusPoint.equals("") || !boolListPaketOrProduct) {
+                                            if (qty < 1 || itemBasePoint.equals("") || itemBonusPoint.equals("")) {
                                                 ToastCustom.showToasty(context, "Invalid Data", 2);
                                             } else {
                                                 if (lvSearchResult.getCheckedItemPosition() > -1) {
@@ -4276,6 +4285,9 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                                                             item.setNetPrice(itemNetPrice);
                                                             item.setBonusPoint(itemBonusPoint);
                                                             item.setIntCampagn(intCampagn);
+                                                            item.setTxtGroupProduct(txtGroupProductGlobal);
+                                                            item.setBarcode(txtBarcodeGlobal);
+                                                            item.setItemGroup(txtGroupItemGlobal);
 
                                                             boolean booladded = addItem(item);
                                                             if (booladded) {
@@ -4358,8 +4370,10 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                                     String txtDecBonus = object.getString("decBonus");
                                     String txtBrand = object.getString("txtBrand");
                                     String txtGroupProduct = object.getString("txtGroupProduct");
+
                                     String txtProductCode = object.getString("txtProductCode");
                                     String txtProductDesc = object.getString("txtProductDesc");
+                                    String txtProductBarcode = object.getString("txtProductBarcode");
 //                                    String txtUOM = object.getString("txtUOM");
 //                                    int intCampagn = object.getInt("intCampaign");
                                     int intPaket = object.getInt("intPaket");
@@ -4373,6 +4387,7 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                                     txtBrandGlobal = txtBrand;
                                     txtGroupProductGlobal  = txtGroupProduct;
                                     txtDescriptionGlobal = txtProductDesc;
+                                    txtBarcodeGlobal = txtProductBarcode;
 //                                    txtUOMGlobal = txtUOM ;
                                     intPaketGlobal = intPaket;
 //                                    decWeightGlobal = decWeight;
@@ -4389,7 +4404,9 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                                     for (int m = 0; m < arrListOfPoint.length(); m++) {
                                         JSONObject obj = jsn.getJSONObject(n);
                                         int intBitCampaign = obj.getInt("intCampaignId");
+                                        String txtGroupItem = obj.getString("txtGroupItem");
                                         intCampagnGlobal = intBitCampaign;
+                                        txtGroupItemGlobal = txtGroupItem;
 
                                     }
                                     /*if(intPaket == 1){
