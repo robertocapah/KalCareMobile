@@ -714,9 +714,27 @@ public class FragmentSalesOrder extends Fragment {
                                                                                     String decTotalBasePoint = obj.getString("decTotalBasePoint");
                                                                                     String decBonusPoint = obj.getString("decBonusPoint");
                                                                                     String txtNoSO = obj.getString("txtNoSO");
+                                                                                    String txtProductCategory = obj.getString("txtProductCategory");
+                                                                                    String txtBrand = obj.getString("txtBrand");
+                                                                                    String txtGroupProduct = obj.getString("txtGroupProduct");
+                                                                                    String txtProductBarcode = obj.getString("txtProductBarcode");
+                                                                                    String txtGroupItem = obj.getString("txtGroupItem");
+                                                                                    String txtItemPacketID = obj.getString("txtItemPacketID");
+                                                                                    int intItemID = obj.getInt("intItemID");
+                                                                                    int intBitPaket = obj.getInt("intBitPaket");
 
                                                                                     clsProductDraft itemsDraft = new clsProductDraft();
                                                                                     itemsDraft.setTxtDraftGUI(txtNewIdSO);
+                                                                                    itemsDraft.setIntItemId(intItemID);
+                                                                                    itemsDraft.setTxtItemPacketId(txtItemPacketID);
+                                                                                    itemsDraft.setIntBitPaket(intBitPaket);
+                                                                                    itemsDraft.setTxtItemBrand(txtBrand);
+                                                                                    itemsDraft.setTxtBonusPoint(decBonusPoint);
+                                                                                    itemsDraft.setTxtBasedPoint(decTotalBasePoint);
+                                                                                    itemsDraft.setTxtGroupItem(txtGroupItem);
+                                                                                    itemsDraft.setTxtGroupProduct(txtGroupProduct);
+                                                                                    itemsDraft.setTxtItemBarcode(txtProductBarcode);
+                                                                                    itemsDraft.setTxtProductCategory(txtProductCategory);
                                                                                     itemsDraft.setTxtProductDraftGUI(txtNewId);
                                                                                     itemsDraft.setTxtItemCode(txtProductCode);
                                                                                     itemsDraft.setTxtItemName(txtProductName);
