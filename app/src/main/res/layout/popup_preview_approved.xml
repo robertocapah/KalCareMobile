@@ -928,8 +928,9 @@
             <ListView
                 android:id="@+id/lvItemPrev"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:visibility="visible">
+                android:layout_height="300dp"
+                android:visibility="visible"
+                android:nestedScrollingEnabled="true">
 
             </ListView>
             <android.support.v7.widget.RecyclerView

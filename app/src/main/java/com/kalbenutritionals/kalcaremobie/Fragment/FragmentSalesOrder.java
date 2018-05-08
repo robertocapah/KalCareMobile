@@ -496,37 +496,87 @@ public class FragmentSalesOrder extends Fragment {
                                                                             tvPaymentEnd3Prev.setText(decPayment);
 
                                                                             JSONArray arrayData = jsn.getJSONObject(0).getJSONArray("ListDataDetail");
-                                                                            final List<VMItems> contentItems = new ArrayList<VMItems>();
-                                                                            for (int n = 0; n < jsn.length(); n++) {
+                                                                            List<VMItems> contentItems = new ArrayList<VMItems>();
+                                                                            for (int n = 0; n < arrayData.length(); n++) {
                                                                                 JSONObject obj = arrayData.getJSONObject(n);
+
+                                                                               /* double decCalcTotalPrice = obj.getDouble("decCalcTotalPrice");
+                                                                                double decCalcTaxAmount = obj.getDouble("decCalcTaxAmount");
+                                                                                double decCalcNetPrice = obj.getDouble("decCalcNetPrice");
+                                                                                double decCalcTotalBasePoint = obj.getDouble("decCalcTotalBasePoint");
+                                                                                double decCalcTotal = obj.getDouble("decCalcTotal");*/
                                                                                 String txtNewId = obj.getString("txtNewId");
+                                                                                String txtNoSO = obj.getString("txtNoSO");
+                                                                                String txtProductCode = obj.getString("txtProductCode");
+                                                                                String txtProductName = obj.getString("txtProductName");
+                                                                                String txtBrand = obj.getString("txtBrand");
+                                                                                String txtGroupProduct = obj.getString("txtGroupProduct");
+                                                                                String txtProductBarcode = obj.getString("txtProductBarcode");
+                                                                                String txtGroupItem = obj.getString("txtGroupItem");
+                                                                                String txtItemPacketID = obj.getString("txtItemPacketID");
+                                                                                String txtProductCategory = obj.getString("txtProductCategory");
+                                                                                int intItemID = obj.getInt("intItemID");
+                                                                                int intQty = obj.getInt("intQty");
+                                                                                double decPrice = obj.getInt("decPrice");
+                                                                                double decDiscount = obj.getInt("decDiscount");
+                                                                                double decBasePoint = obj.getInt("decBasePoint");
+                                                                                String decTotalBasePoint = obj.getString("decTotalBasePoint");
+                                                                                double decBonusPoint = obj.getInt("decBonusPoint");
+                                                                                int intBitPaket = obj.getInt("intBitPaket");
+//                                                                                int bitActive = obj.getInt("bitActive");
+
+                                                                                /*String txtNewId = obj.getString("txtNewId");
                                                                                 String txtProductCode = obj.getString("txtProductCode");
                                                                                 String txtProductName = obj.getString("txtProductName");
                                                                                 String intQty = obj.getString("intQty");
                                                                                 String decPrice = obj.getString("decPrice");
-                                                                                String decDiscount = obj.getString("decDiscount");
+                                                                                String decDiscount = obj.getString("decDiscount");*/
                                                                                 String decTotalPrice = obj.getString("decTotalPrice");
                                                                                 String decTaxAmount = obj.getString("decTaxAmount");
                                                                                 String decNetPrice = obj.getString("decNetPrice");
-                                                                                String decBasePoint = obj.getString("decBasePoint");
+                                                                                /*String decBasePoint = obj.getString("decBasePoint");
                                                                                 String decTotalBasePoint = obj.getString("decTotalBasePoint");
                                                                                 String decBonusPoint = obj.getString("decBonusPoint");
-                                                                                String txtNoSO = obj.getString("txtNoSO");
+                                                                                String txtNoSO = obj.getString("txtNoSO");*/
+
                                                                                 VMItems item = new VMItems(getView());
                                                                                 item.setItemName(txtProductName);
                                                                                 item.setGuiid(new Helper().GenerateGuid());
                                                                                 item.setItemCode(txtProductCode);
-                                                                                item.setPrice(Double.parseDouble(decPrice));
+                                                                                item.setPrice(decPrice);
 //                                                                            item.setProductCategory(HMtxtProductCategory.get(itemCodeAdd));
-                                                                                item.setBasePoint(decBasePoint);
-                                                                                double dbQty = Double.parseDouble(intQty);
-                                                                                int intQtyi = (int) dbQty;
+                                                                                item.setBasePoint(String.valueOf(decBasePoint));
+                                                                                int intQtyi = (int) intQty;
                                                                                 item.setQty(intQtyi);
-                                                                                item.setDiscount(Double.parseDouble(decDiscount));
+                                                                                item.setDiscount(decDiscount);
                                                                                 item.setTotalPrice(Double.parseDouble(decTotalPrice));
                                                                                 item.setTaxAmount(Double.parseDouble(decTaxAmount));
                                                                                 item.setNetPrice(Double.parseDouble(decNetPrice));
-                                                                                item.setBonusPoint(decBonusPoint);
+                                                                                item.setBonusPoint(String.valueOf(decBonusPoint));
+
+                                                                                item.setItemName(txtProductName);
+                                                                                item.setGuiid(new Helper().GenerateGuid());
+                                                                                item.setItemCode(txtProductCode);
+                                                                                item.setPrice(decPrice);
+                                                                                item.setTxtItemPacketID(txtItemPacketID);
+                                                                                item.setItemBrand(txtBrand);
+                                                                                item.setItemGroup(txtGroupItem);
+                                                                                item.setTxtGroupProduct(txtGroupProduct);
+                                                                                item.setProductCategory(txtProductCategory);
+                                                                                item.setBasePoint(String.valueOf(decBasePoint));
+                                                                                item.setQty(intQty);
+                                                                                item.setBarcode(txtProductBarcode);
+                                                                                item.setDiscount(decDiscount);
+//                                                                                item.setTotalPrice(decCalcTotalPrice);
+//                                                                                item.setDecCalcTotalPrice(decCalcTotalPrice);
+//                                                                                item.setTaxAmount(decCalcTaxAmount);
+//                                                                                item.setDecCalcTaxAmount(decCalcTaxAmount);
+//                                                                                item.setNetPrice(decCalcNetPrice);
+                                                                                item.setDesc(txtItemPacketID);
+//                                                                                item.setDecCalcNetPrice(decCalcNetPrice);
+                                                                                item.setBonusPoint(String.valueOf(decBonusPoint));
+                                                                                item.setIntPaket(intBitPaket);
+//                                                                                item.setQtyPaket(intQtyPaket);
 
                                                                                 contentItems.add(item);
                                                                             }
