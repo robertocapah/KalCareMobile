@@ -53,7 +53,7 @@ public class CardAdapterSearchResult extends BaseAdapter {
         CardAdapterSearchResult.ViewHolder holder = (CardAdapterSearchResult.ViewHolder) convertView.getTag();
         holder.tvItemName.setText(String.valueOf(item.getItemName()));
         holder.tvitemPrice.setText(String.valueOf(item.getPrice()));
-        holder.tvItemGroupName.setText(item.getDesc());
+        holder.tvItemGroupName.setText(item.getItemCode());
         holder.tvDesc.setText(item.getDesc());
         holder.cardView.setCardBackgroundColor(color);
         return convertView;
