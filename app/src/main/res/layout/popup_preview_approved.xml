@@ -26,6 +26,31 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:textColor="@color/black"
+                android:layout_weight="1"
+                android:text="SO Number" />
+
+            <TextView
+                android:id="@+id/tvSoNumberPrev"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:textColor="@color/black"
+                android:background="@drawable/bg_edtext"
+                android:layout_weight="0.5"
+                android:text="22-08-20" />
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dp"
+            android:layout_marginLeft="10dp"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
                 android:layout_weight="1"
                 android:textColor="@color/black"
@@ -487,6 +512,28 @@
                     android:textColor="@color/black"
                     android:background="@drawable/bg_edtext"
                     android:id="@+id/tvPostCodeCustomerPrev"
+                    android:layout_marginLeft="10dp"
+                    android:layout_weight="0.5" />
+            </LinearLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="3dp"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="5dp"
+                    android:layout_weight="1.5"
+                    android:textColor="@color/black"
+                    android:text="Address" />
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/black"
+                    android:background="@drawable/bg_edtext"
+                    android:id="@+id/tvAddressCustomerPrev"
                     android:layout_marginLeft="10dp"
                     android:layout_weight="0.5" />
             </LinearLayout>

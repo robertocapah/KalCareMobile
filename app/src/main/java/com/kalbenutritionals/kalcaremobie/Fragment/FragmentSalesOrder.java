@@ -338,6 +338,8 @@ public class FragmentSalesOrder extends Fragment {
                                                     final View promptView = layoutInflater.inflate(R.layout.popup_preview_approved, null);
                                                     final ListView lvPreview = (ListView) promptView.findViewById(R.id.lvItemPrev);
                                                     final TextView tvSOStatusPrev = (TextView) promptView.findViewById(R.id.tvSOStatusPrev);
+                                                    final TextView tvSoNumberPrev = (TextView) promptView.findViewById(R.id.tvSoNumberPrev);
+                                                    final TextView tvAddressCustomerPrev = (TextView) promptView.findViewById(R.id.tvAddressCustomerPrev);
                                                     final TextView tvSoDatePrev = (TextView) promptView.findViewById(R.id.tvSoDatePrev);
                                                     final TextView tvSOSourcePrev = (TextView) promptView.findViewById(R.id.tvSOSourcePrev);
                                                     final TextView tvAgentNamePrev = (TextView) promptView.findViewById(R.id.tvAgentNamePrev);
@@ -452,7 +454,7 @@ public class FragmentSalesOrder extends Fragment {
                                                                             tvRemarksPreview.setText(txtRemarks);
                                                                             tvDeliveryByPrev.setText(txtDeliveryBy);
                                                                             tvCustomerPrev.setText(txtPickUpLocation);
-
+                                                                            tvSoNumberPrev.setText(txtNoSo);
 //                                                                            if (intDeliveryBy.equals("1")) {
                                                                                 tvCustomerPrev.setText("Customer Detail");
                                                                                 etCustomerNamePrev.setText(txtCustomerName);
@@ -463,6 +465,7 @@ public class FragmentSalesOrder extends Fragment {
                                                                                 tvRegionCustomerPrev.setText(txtKecamatanName);
                                                                                 tvKelurahanCustomerPrev.setText(txtKelurahanName);
                                                                                 tvPostCodeCustomerPrev.setText(txtKodePos);
+                                                                            tvAddressCustomerPrev.setText(txtDelivery);
 
 //                                                                            } else {
 //                                                                                lnAttacedCust.setVisibility(View.GONE);

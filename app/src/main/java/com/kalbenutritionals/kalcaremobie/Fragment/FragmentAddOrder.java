@@ -1303,10 +1303,13 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                                                         categoriesPostCode.add(postCodeCustomer);
                                                         SpinnerCustom.setAdapterSpinner(spnPostCodeAddOrder, context, R.layout.custom_spinner, categoriesPostCode);
                                                         SpinnerCustom.selectedItemByText(context, spnPostCodeAddOrder, categoriesPostCode, postCodeCustomer);*/
-
-                                                        alertD.dismiss();
-                                                        lnCustomerDetail.setVisibility(View.VISIBLE);
-                                                        boolAttachCustomer = true;
+                                                        if(provinceCustomer.equals("")||kabKotCustomer.equals("")||kecamatanCustomer.equals("")||kelurahanCustomer.equals("")||postCodeCustomer.equals("")){
+                                                            ToastCustom.showToasty(context,"Invalid Data Customer",3);
+                                                        }else{
+                                                            alertD.dismiss();
+                                                            lnCustomerDetail.setVisibility(View.VISIBLE);
+                                                            boolAttachCustomer = true;
+                                                        }
                                                     }
                                                 }
                                             } catch (JSONException e) {
