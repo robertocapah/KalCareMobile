@@ -21,6 +21,7 @@ public class VMItems extends RecyclerView.ViewHolder {
     double price;
     double discount;
     double totalPrice;
+    double dectax;
     double taxAmount;
     double netPrice;
     String basePoint;
@@ -44,6 +45,14 @@ public class VMItems extends RecyclerView.ViewHolder {
 
     public VMItems(View itemView) {
         super(itemView);
+    }
+
+    public double getDectax() {
+        return dectax;
+    }
+
+    public void setDectax(double dectax) {
+        this.dectax = dectax;
     }
 
     public String getTxtItemPacketID() {

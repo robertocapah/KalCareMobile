@@ -484,6 +484,8 @@ public class FragmentSalesOrder extends Fragment {
                                                                             String decRounded = objDataPayment.getString("decRounded");
                                                                             String decPayment = objDataPayment.getString("decPayment");
                                                                             String decTotalPrice2 = objDataPayment.getString("decTotalPrice");
+                                                                            String decTotalBonusPoin = objDataPayment.getString("decTotalBonusPoin");
+                                                                            String decTotalPoin = objDataPayment.getString("decTotalPoin");
                                                                             etPaymentMethodPrev.setText(txtPaymentMethodName);
                                                                             etSourceMediaPaymentPrev.setText(txtmediajasapayment);
                                                                             etPaymentPrev.setText(txtmediajasa);
@@ -497,6 +499,8 @@ public class FragmentSalesOrder extends Fragment {
                                                                             tvTotalPrice3Prev.setText(decTotalPrice2);
                                                                             tvRounded3Prev.setText(decRounded);
                                                                             tvPaymentEnd3Prev.setText(decPayment);
+                                                                            tvTotalPoin3Prev.setText(decTotalPoin);
+                                                                            tvBonusPoin3Prev.setText(decTotalBonusPoin);
 
                                                                             JSONArray arrayData = jsn.getJSONObject(0).getJSONArray("ListDataDetail");
                                                                             List<VMItems> contentItems = new ArrayList<VMItems>();

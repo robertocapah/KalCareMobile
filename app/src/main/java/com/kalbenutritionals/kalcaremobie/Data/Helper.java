@@ -122,7 +122,7 @@ public class Helper {
             double decDiscount = item.getDiscount();
             double intTotalBonus = 0;
             int intCampagn = item.getIntCampagn();
-            double decTax = item.getTaxAmount();
+            double decTax = item.getDectax();
             String strBonusPoint = item.getBonusPoint();
             if (!strBonusPoint.equals("") || !strBonusPoint.equals("null")){
                 intTotalBonus = Double.parseDouble(item.getBonusPoint());

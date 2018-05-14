@@ -234,7 +234,7 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
     List<String> listItem = new ArrayList<String>();
 
     int intCampagnGlobal = 0;
-    double decTaxGlobal = 0;
+    double decTaxGlobal = 10;
     String txtBrandGlobal = "";
     String txtGroupProductGlobal = "";
     String txtGroupItemGlobal = "";
@@ -294,6 +294,8 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
     double dbldecdecRoundedFinal = 0;
     double dbldecPaymentFinal = 0;
     double dbldecNetPriceFinal = 0;
+    double dbldecTotalBonusPoin = 0;
+    double dbldecTotalPoin = 0;
 
     boolean boolPaymentFilled = false;
     boolean keyDel = false;
@@ -1662,6 +1664,7 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                                                         item.setTaxAmount(itemTaxAmount);
                                                         item.setNetPrice(itemNetPrice);
                                                         item.setBonusPoint(itemBonusPoint);
+                                                        item.setDectax(decTaxGlobal);
 
 
                                                         boolean booladded = addItem(item);
@@ -1920,6 +1923,7 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                     item.setIntItemId(productDraft.getIntItemId());
                     item.setIntPaket(productDraft.getIntBitPaket());
                     item.setDesc(productDraft.getTxtItemPacketId());
+                    item.setDectax(decTaxGlobal);
                     boolean booladded = addItem(item);
                     addedSucces = booladded;
                 }
@@ -2526,6 +2530,8 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                                         intBitActiveFinal = jsnObjPaymentSO.getInt("bitActive");
                                         dbldecNetPriceFinal = jsnObjPaymentSO.getInt("decNetPrice");
                                         dbldecPaymentFinal = jsnObjPaymentSO.getInt("decPayment");
+                                        dbldecTotalBonusPoin = jsnObjPaymentSO.getInt("decTotalBonusPoin");
+                                        dbldecTotalPoin = jsnObjPaymentSO.getInt("decTotalPoin");
 
                                         //HeaderSO
                                         String txtPropinsiID = jsnObjHeaderSO.getString("txtPropinsiID");
@@ -2674,7 +2680,6 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                                     item.setPartnerName(txtPartnerName);
                                     item.setProductCode(txtProductCode);
                                     item.setProductName(txtProductDesc);
-                                    ;
                                     item.setPartnerPhone(txtPartnerPhone);
                                     item.setQtyAvailable(intQtyAvailable);
                                     item.setQty(txtQTY);
@@ -2746,6 +2751,9 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                                 final TextView tvKNOtherPoin3 = (TextView) promptView.findViewById(R.id.tvKNOtherPoin3);
                                 final TextView tvBonusPoin3 = (TextView) promptView.findViewById(R.id.tvBonusPoin3);
                                 final TextView tvTotalPoin3 = (TextView) promptView.findViewById(R.id.tvTotalPoin3);
+
+                                tvBonusPoin3.setText(String.valueOf(dbldecTotalBonusPoin));
+                                tvTotalPoin3.setText(String.valueOf(dbldecTotalPoin));
 
                                 final Button btnSummarySO = (Button) promptView.findViewById(R.id.btnSummarySO);
                                 TextView tvHideCustPrev = (TextView) promptView.findViewById(R.id.tvHideCustPrev);
@@ -3343,6 +3351,8 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                                             resJsonFinalCheckout.put("decTotDiscount",dbldecTotDiscountFinal);
                                             resJsonFinalCheckout.put("decTotalPrice",dbldecTotalPriceFinal);
                                             resJsonFinalCheckout.put("txtmediajasapayment",txtmediajasapaymentFinal);
+                                            resJsonFinalCheckout.put("decTotalBonusPoin",dbldecTotalBonusPoin);
+                                            resJsonFinalCheckout.put("decTotalPoin",dbldecTotalPoin);
 
                                             /*resJsonFinalCheckout.put("intNilaiPembulatan", 0);
                                             resJsonFinalCheckout.put("txtPaymentMethodID", "");
@@ -3859,6 +3869,7 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                                                                                     item.setBonusPoint(String.valueOf(decBonusPoint));
                                                                                     item.setIntPaket(intBitPaket);
                                                                                     item.setQtyPaket(intQtyPaket);
+                                                                                    item.setDectax(decTaxGlobal);
 //                                                                                                item.setIntCampagn(intCampagn);
 
                                                                                     boolean booladded = addItem(item);
@@ -3895,6 +3906,7 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                                                     item.setTaxAmount(itemTaxAmount);
                                                     item.setNetPrice(itemNetPrice);
                                                     item.setBonusPoint(itemBonusPoint);
+                                                    item.setDectax(decTaxGlobal);
                                                     if (intbitPaket == 1){
                                                         item.setIntCampagn(intBitCampaignPaket);
                                                     }else{
@@ -4252,6 +4264,7 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                                                                                                 item.setBonusPoint(String.valueOf(decBonusPoint));
                                                                                                 item.setIntPaket(intBitPaket);
                                                                                                 item.setQtyPaket(intQtyPaket);
+                                                                                                item.setDectax(decTaxGlobal);
 //                                                                                                item.setIntCampagn(intCampagn);
 
                                                                                                 boolean booladded = addItem(item);
@@ -4294,6 +4307,7 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                                                             item.setTxtGroupProduct(txtGroupProductGlobal);
                                                             item.setBarcode(txtBarcodeGlobal);
                                                             item.setItemGroup(txtGroupItemGlobal);
+                                                            item.setDectax(decTaxGlobal);
 
                                                             boolean booladded = addItem(item);
                                                             if (booladded) {

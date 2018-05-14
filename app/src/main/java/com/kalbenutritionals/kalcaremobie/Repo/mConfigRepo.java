@@ -17,8 +17,8 @@ public class mConfigRepo {
     DatabaseHelper helper;
 //    public String API = "http://10.171.10.19:8020/NHD/";
 //    public String APIToken = "http://10.171.10.19:8020/token";
-//    public String strDomain = "10.171.10.28:8020";
-    public String strDomain = "10.171.10.13:8020";
+    public String strDomain = "10.171.10.28:8020";
+//    public String strDomain = "10.171.10.13:8020";
 //    public String strDomain = "appgw.kalbenutritionals.com/api/kalcaremobile";
     public String API = "http://"+strDomain+"/NHD/";
     public String APIToken = "http://"+strDomain+"/token";
