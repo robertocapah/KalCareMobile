@@ -47,6 +47,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.text.DateFormat;
+import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -185,7 +186,7 @@ public class FragmentSalesOrder extends Fragment {
                                     String txtPickUpLocation = object.getString("txtPickUpLocation");
                                     String intWalkIn = object.getString("intWalkIn");
                                     String intDeliveryBy = object.getString("intDeliveryBy");
-                                    String txtDeliveryBy = object.getString("txtDeliveryBy");
+                                    String txtDeliveryBy = object.getString("txtDeliveryByID");
                                     String txtCustomer = object.getString("txtCustomer");
                                     String txtCustomerName = object.getString("txtCustomerName");
                                     String txtDelivery = object.getString("txtDelivery");
@@ -425,9 +426,11 @@ public class FragmentSalesOrder extends Fragment {
                                                                             String dtDelivery = objData.getString("dtDelivery");
                                                                             String txtAgentName = objData.getString("txtAgentName");
                                                                             String txtPickUpLocation = objData.getString("txtPickUpLocation");
+                                                                            String txtPickUpLocationName = objData.getString("txtPickUpLocationName");
                                                                             String intWalkIn = objData.getString("intWalkIn");
                                                                             String intDeliveryBy = objData.getString("intDeliveryBy");
-                                                                            String txtDeliveryBy = objData.getString("txtDeliveryBy");
+                                                                            String txtDeliveryBy = objData.getString("txtDeliveryByID");
+                                                                            String txtDeliveryByName = objData.getString("txtDeliveryByName");
                                                                             String txtCustomer = objData.getString("txtCustomer");
                                                                             String txtCustomerName = objData.getString("txtCustomerName");
                                                                             String txtDelivery = objData.getString("txtDelivery");
@@ -444,15 +447,17 @@ public class FragmentSalesOrder extends Fragment {
                                                                             String txtDeviceId = objData.getString("txtDeviceId");
                                                                             String intStatus = objData.getString("intStatus");
                                                                             String txtStatus_code = objData.getString("txtStatus_code");
+                                                                            String txtSourceOrderName = objData.getString("txtSourceOrderName");
 
-                                                                            tvSOSourcePrev.setText(txtSourceOrder);
+
+                                                                            tvSOSourcePrev.setText(txtSourceOrderName);
                                                                             tvSoDatePrev.setText(dtDate);
                                                                             tvSOStatusPrev.setText(txtStatus_code);
                                                                             tvDeliverySchedulePrev.setText(dtDelivery);
                                                                             tvAgentNamePrev.setText(txtAgentName);
-                                                                            tvOrderLocationPrev.setText(txtPickUpLocation);
+                                                                            tvOrderLocationPrev.setText(txtPickUpLocationName);
                                                                             tvRemarksPreview.setText(txtRemarks);
-                                                                            tvDeliveryByPrev.setText(txtDeliveryBy);
+                                                                            tvDeliveryByPrev.setText(txtDeliveryByName);
                                                                             tvCustomerPrev.setText(txtPickUpLocation);
                                                                             tvSoNumberPrev.setText(txtNoSo);
 //                                                                            if (intDeliveryBy.equals("1")) {
@@ -467,6 +472,7 @@ public class FragmentSalesOrder extends Fragment {
                                                                                 tvPostCodeCustomerPrev.setText(txtKodePos);
                                                                             tvAddressCustomerPrev.setText(txtDelivery);
 
+
 //                                                                            } else {
 //                                                                                lnAttacedCust.setVisibility(View.GONE);
 //                                                                            }
@@ -476,14 +482,14 @@ public class FragmentSalesOrder extends Fragment {
                                                                             String txtmediajasa = objDataPayment.getString("txtmediajasa");
                                                                             String txtTraceNumber = objDataPayment.getString("txtTraceNumber");
                                                                             String txtCardNumber = objDataPayment.getString("txtCardNumber");
-                                                                            String decTaxBaseAmount = objDataPayment.getString("decTaxBaseAmount");
-                                                                            String decAmount = objDataPayment.getString("decAmount");
-                                                                            String decTotal = objDataPayment.getString("decTotal");
-                                                                            String decTotDiscount = objDataPayment.getString("decTotDiscount");
-                                                                            String decTotalPriceSO = objDataPayment.getString("decTotalPrice");
-                                                                            String decRounded = objDataPayment.getString("decRounded");
-                                                                            String decPayment = objDataPayment.getString("decPayment");
-                                                                            String decTotalPrice2 = objDataPayment.getString("decTotalPrice");
+                                                                            double decTaxBaseAmount = objDataPayment.getDouble("decTaxBaseAmount");
+                                                                            double decAmount = objDataPayment.getDouble("decAmount");
+                                                                            double decTotal = objDataPayment.getDouble("decTotal");
+                                                                            double decTotDiscount = objDataPayment.getDouble("decTotDiscount");
+                                                                            double decTotalPriceSO = objDataPayment.getDouble("decTotalPrice");
+                                                                            double decRounded = objDataPayment.getDouble("decRounded");
+                                                                            double decPayment = objDataPayment.getDouble("decPayment");
+                                                                            double decTotalPrice2 = objDataPayment.getDouble("decTotalPrice");
                                                                             String decTotalBonusPoin = objDataPayment.getString("decTotalBonusPoin");
                                                                             String decTotalPoin = objDataPayment.getString("decTotalPoin");
                                                                             etPaymentMethodPrev.setText(txtPaymentMethodName);
@@ -491,19 +497,24 @@ public class FragmentSalesOrder extends Fragment {
                                                                             etPaymentPrev.setText(txtmediajasa);
                                                                             etBcaTraceNumberPrev.setText(txtTraceNumber);
                                                                             etCardNumberPrev.setText(txtCardNumber);
-                                                                            etNetPricePrev.setText(decTotalPriceSO);
-                                                                            tvTaxBaseAmount3Prev.setText(decTaxBaseAmount);
-                                                                            tvTaxAmount3Prev.setText(decAmount);
-                                                                            tvTotalPrev.setText(decTotal);
-                                                                            tvDiscount3Prev.setText(decTotDiscount);
-                                                                            tvTotalPrice3Prev.setText(decTotalPrice2);
-                                                                            tvRounded3Prev.setText(decRounded);
-                                                                            tvPaymentEnd3Prev.setText(decPayment);
+                                                                            etNetPricePrev.setText(new Helper().formatRupiah(decTotalPriceSO));
+                                                                            tvTaxBaseAmount3Prev.setText(new Helper().formatRupiah(decTaxBaseAmount));
+                                                                            tvTaxAmount3Prev.setText(new Helper().formatRupiah(decAmount));
+                                                                            tvTotalPrev.setText(new Helper().formatRupiah(decTotal));
+                                                                            tvDiscount3Prev.setText(new Helper().formatRupiah(decTotDiscount));
+                                                                            tvTotalPrice3Prev.setText(new Helper().formatRupiah(decTotalPrice2));
+                                                                            tvRounded3Prev.setText(new Helper().formatRupiah(decRounded));
+                                                                            tvPaymentEnd3Prev.setText(new Helper().formatRupiah(decPayment));
                                                                             tvTotalPoin3Prev.setText(decTotalPoin);
                                                                             tvBonusPoin3Prev.setText(decTotalBonusPoin);
 
                                                                             JSONArray arrayData = jsn.getJSONObject(0).getJSONArray("ListDataDetail");
                                                                             List<VMItems> contentItems = new ArrayList<VMItems>();
+                                                                            double poinKN1 = 0;
+                                                                            double poinKN2 = 0;
+                                                                            double poinKN3 = 0;
+                                                                            double poinKN4 = 0;
+                                                                            double poinOther = 0;
                                                                             for (int n = 0; n < arrayData.length(); n++) {
                                                                                 JSONObject obj = arrayData.getJSONObject(n);
 
@@ -522,15 +533,37 @@ public class FragmentSalesOrder extends Fragment {
                                                                                 String txtGroupItem = obj.getString("txtGroupItem");
                                                                                 String txtItemPacketID = obj.getString("txtItemPacketID");
                                                                                 String txtProductCategory = obj.getString("txtProductCategory");
+                                                                                String txtKN = obj.getString("txtKN");
+                                                                                String txtGroupKN = obj.getString("txtGroupKN");
                                                                                 int intItemID = obj.getInt("intItemID");
                                                                                 int intQty = obj.getInt("intQty");
                                                                                 double decPrice = obj.getInt("decPrice");
+
                                                                                 double decDiscount = obj.getInt("decDiscount");
                                                                                 double decBasePoint = obj.getInt("decBasePoint");
                                                                                 String decTotalBasePoint = obj.getString("decTotalBasePoint");
                                                                                 double decBonusPoint = obj.getInt("decBonusPoint");
                                                                                 int intBitPaket = obj.getInt("intBitPaket");
 //                                                                                int bitActive = obj.getInt("bitActive");
+
+
+                                                                                double totalBasedPoint = decBasePoint;
+                                                                                switch (txtKN){
+                                                                                    case "KN1" :
+                                                                                        poinKN1 = poinKN1+totalBasedPoint;
+                                                                                        break;
+                                                                                    case "KN2" :
+                                                                                        poinKN2 = poinKN2+totalBasedPoint;
+                                                                                        break;
+                                                                                    case "KN3" :
+                                                                                        poinKN3 = poinKN3+totalBasedPoint;
+                                                                                        break;
+                                                                                    case "KN4" :
+                                                                                        poinKN4 = poinKN4+totalBasedPoint;
+                                                                                        break;
+                                                                                    default  :
+                                                                                        poinOther = poinOther+totalBasedPoint;
+                                                                                }
 
                                                                                 /*String txtNewId = obj.getString("txtNewId");
                                                                                 String txtProductCode = obj.getString("txtProductCode");
@@ -541,6 +574,10 @@ public class FragmentSalesOrder extends Fragment {
                                                                                 String decTotalPrice = obj.getString("decTotalPrice");
                                                                                 String decTaxAmount = obj.getString("decTaxAmount");
                                                                                 String decNetPrice = obj.getString("decNetPrice");
+                                                                                Double b = Double.parseDouble(decNetPrice);
+                                                                                DecimalFormat twoDForm = new DecimalFormat("#");
+                                                                                Double a =  Double.valueOf(twoDForm.format(b));
+                                                                                Double itemNetPrice = a;
                                                                                 /*String decBasePoint = obj.getString("decBasePoint");
                                                                                 String decTotalBasePoint = obj.getString("decTotalBasePoint");
                                                                                 String decBonusPoint = obj.getString("decBonusPoint");
@@ -558,7 +595,7 @@ public class FragmentSalesOrder extends Fragment {
                                                                                 item.setDiscount(decDiscount);
                                                                                 item.setTotalPrice(Double.parseDouble(decTotalPrice));
                                                                                 item.setTaxAmount(Double.parseDouble(decTaxAmount));
-                                                                                item.setNetPrice(Double.parseDouble(decNetPrice));
+                                                                                item.setNetPrice(itemNetPrice);
                                                                                 item.setBonusPoint(String.valueOf(decBonusPoint));
 
                                                                                 item.setItemName(txtProductName);
@@ -587,6 +624,13 @@ public class FragmentSalesOrder extends Fragment {
 
                                                                                 contentItems.add(item);
                                                                             }
+                                                                            tvKN1Poin3Prev.setText(String.valueOf(poinKN1));
+                                                                            tvKN2Poin3Prev.setText(String.valueOf(poinKN2));
+                                                                            tvKN3poin3Prev.setText(String.valueOf(poinKN3));
+                                                                            tvKN4poin3Prev.setText(String.valueOf(poinKN4));
+                                                                            tvKNOtherPoin3Prev.setText(String.valueOf(poinOther));
+//                                                                            tvBonusPoin3.setText(String.valueOf(dbldecTotalBonusPoin));
+//                                                                            tvTotalPoin3.setText(String.valueOf(dbldecTotalPoin));
 
                                                                             lvPreview.setAdapter(new CardAppAdapter(context, contentItems, Color.WHITE));
 
@@ -666,7 +710,7 @@ public class FragmentSalesOrder extends Fragment {
                                                                             String txtPickUpLocation = objData.getString("txtPickUpLocation");
                                                                             String intWalkIn = objData.getString("intWalkIn");
                                                                             String intDeliveryBy = objData.getString("intDeliveryBy");
-                                                                            String txtDeliveryBy = objData.getString("txtDeliveryBy");
+                                                                            String txtDeliveryBy = objData.getString("txtDeliveryByID");
                                                                             String txtCustomer = objData.getString("txtCustomer");
                                                                             String txtCustomerName = objData.getString("txtCustomerName");
                                                                             String txtDelivery = objData.getString("txtDelivery");
@@ -777,12 +821,17 @@ public class FragmentSalesOrder extends Fragment {
                                                                                     String txtProductBarcode = obj.getString("txtProductBarcode");
                                                                                     String txtGroupItem = obj.getString("txtGroupItem");
                                                                                     String txtItemPacketID = obj.getString("txtItemPacketID");
+                                                                                    String txtKN = obj.getString("txtKN");
+                                                                                    String txtGroupKN = obj.getString("txtGroupKN");
+
                                                                                     int intItemID = obj.getInt("intItemID");
                                                                                     int intBitPaket = obj.getInt("intBitPaket");
 
                                                                                     clsProductDraft itemsDraft = new clsProductDraft();
                                                                                     itemsDraft.setTxtDraftGUI(txtNewIdSO);
                                                                                     itemsDraft.setIntItemId(intItemID);
+                                                                                    itemsDraft.setTxtKN(txtKN);
+                                                                                    itemsDraft.setTxtGroupKN(txtGroupKN);
                                                                                     itemsDraft.setTxtItemPacketId(txtItemPacketID);
                                                                                     itemsDraft.setIntBitPaket(intBitPaket);
                                                                                     itemsDraft.setTxtItemBrand(txtBrand);

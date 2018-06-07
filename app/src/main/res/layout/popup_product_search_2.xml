@@ -1,18 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
-
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:weightSum="4">
+    android:padding="10dp"
+    android:weightSum="5">
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:id="@+id/lnSearchItemOnSearch"
-        android:layout_weight="1"
-        android:layout_margin="@dimen/_10sdp">
+        android:layout_weight="0.2">
         <TextView
             android:id="@+id/tvItemName"
             android:layout_width="wrap_content"
@@ -35,54 +34,27 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/_5sdp"
-        android:layout_weight="1"
+        android:layout_weight="4"
         android:layout_below="@+id/lnSearchItemOnSearch"
         android:id="@+id/svitem">
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical">
-            <LinearLayout
+            android:layout_height="wrap_content">
+            <ListView
+                android:id="@+id/lvItemSearchResult"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-                <ListView
-                    android:id="@+id/lvItemSearchResult"
-                    android:layout_width="match_parent"
-                    android:background="@drawable/bg_search_selected"
-                    android:choiceMode="singleChoice"
-                    android:listSelector="#666666"
-                    android:layout_height="@dimen/_300sdp">
-
-
-                </ListView>
-            </LinearLayout>
+                android:layout_height="@dimen/_200sdp"
+                android:background="@drawable/bg_search_selected"
+                android:choiceMode="singleChoice"
+                android:listSelector="#666666">
+            </ListView>
         </LinearLayout>
-
     </ScrollView>
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_weight="1"
+        android:layout_weight="0.1"
         android:orientation="vertical">
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/svitem"
-            android:visibility="gone"
-            android:id="@+id/lnStatus"
-            android:layout_margin="@dimen/_5sdp">
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Status"
-                android:textColor="@color/green_custom"
-                android:id="@+id/tvStatusProduct"
-                android:textStyle="bold"
-                android:layout_marginLeft="@dimen/_10sdp"
-                android:visibility="invisible"
-                android:layout_weight="1"/>
-        </LinearLayout>
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

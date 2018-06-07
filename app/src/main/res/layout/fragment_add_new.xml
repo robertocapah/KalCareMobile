@@ -1,0 +1,233 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingLeft="24dp"
+        android:paddingRight="24dp"
+        android:paddingTop="56dp">
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="72dp"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginBottom="24dp"
+            android:src="@drawable/ic_kalcare_v2" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:text="Add New Customer"
+            android:textStyle="bold" />
+
+        <!--  Name Label -->
+        <android.support.design.widget.TextInputLayout
+            android:id="@+id/textInputFirstName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:layout_marginTop="8dp">
+
+            <EditText
+                android:id="@+id/input_firstname"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Nama Depan"
+                android:digits=".ABCDEFGHIJKLMNOPQRSTUVWXYZ'abcdefghijklmnopqrstuvwxyz "
+                android:maxLength="100"
+                android:maxLines="1"
+                android:inputType="textPersonName" />
+
+        </android.support.design.widget.TextInputLayout>
+        <!--  Name Label -->
+        <android.support.design.widget.TextInputLayout
+            android:id="@+id/textInputLastName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:layout_marginTop="8dp">
+
+            <EditText
+                android:id="@+id/input_lastName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Nama Belakang"
+                android:digits=".ABCDEFGHIJKLMNOPQRSTUVWXYZ'abcdefghijklmnopqrstuvwxyz "
+                android:maxLength="100"
+                android:maxLines="1"
+                android:inputType="textPersonName" />
+        </android.support.design.widget.TextInputLayout>
+
+        <android.support.design.widget.TextInputLayout
+            android:id="@+id/textInputEmail"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:layout_marginTop="8dp">
+
+            <EditText
+                android:id="@+id/input_email"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Email"
+                android:inputType="textEmailAddress" />
+        </android.support.design.widget.TextInputLayout>
+
+        <android.support.design.widget.TextInputLayout
+            android:id="@+id/textInputNoHp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:layout_marginTop="8dp">
+
+            <EditText
+                android:id="@+id/input_noHp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="No Telpon / No HP"
+                android:digits="0123456789-"
+                android:inputType="number"
+                android:maxLength="13" />
+        </android.support.design.widget.TextInputLayout>
+
+        <android.support.design.widget.TextInputLayout
+            android:id="@+id/textInputNamaKartu"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:layout_marginTop="8dp">
+
+            <EditText
+                android:id="@+id/input_nama_kartu"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Nama di Kartu Membership"
+                android:digits=".ABCDEFGHIJKLMNOPQRSTUVWXYZ'abcdefghijklmnopqrstuvwxyz "
+                android:maxLength="100"
+                android:maxLines="1"
+                android:inputType="textPersonName" />
+        </android.support.design.widget.TextInputLayout>
+
+
+        <LinearLayout
+            android:id="@+id/linearLayoutTop"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:layout_marginTop="8dp"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/textViewSpnProv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:text="Propinsi" />
+
+            <Spinner
+                android:id="@+id/spnPropinsiNew"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="@drawable/spinner_background"
+                android:popupBackground="@color/white"></Spinner>
+
+            <TextView
+                android:id="@+id/textViewSpnKabKot"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:text="Kabupaten Kota" />
+
+            <Spinner
+                android:id="@+id/spnKabKotNew"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="@drawable/spinner_background"
+                android:popupBackground="@color/white"></Spinner>
+
+            <TextView
+                android:id="@+id/textViewSpnKec"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:text="Kecamatan" />
+
+            <Spinner
+                android:id="@+id/spnKecamatanNew"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="@drawable/spinner_background"
+                android:popupBackground="@color/white"></Spinner>
+
+            <TextView
+                android:id="@+id/textView4"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:text="Kelurahan" />
+
+            <Spinner
+                android:id="@+id/spnKeLurahanNew"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="@drawable/spinner_background"
+                android:popupBackground="@color/white"></Spinner>
+
+            <TextView
+                android:id="@+id/textView5"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:text="Kode Pos" />
+
+            <Spinner
+                android:id="@+id/spnKodePosNew"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="@drawable/spinner_background"
+                android:popupBackground="@color/white"></Spinner>
+        </LinearLayout>
+        <!-- Alamat Label -->
+        <android.support.design.widget.TextInputLayout
+            android:id="@+id/textInputAlamat"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:layout_marginTop="8dp">
+
+            <EditText
+                android:id="@+id/input_address"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="top|left"
+                android:hint="Alamat"
+                android:inputType="textMultiLine"
+                android:lines="3"
+                android:maxLines="8" />
+        </android.support.design.widget.TextInputLayout>
+
+        <!-- Signup Button -->
+        <android.support.v7.widget.AppCompatButton
+            android:id="@+id/btn_signup"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="24dp"
+            android:layout_marginTop="24dp"
+            android:padding="12dp"
+            android:text="Create Customer" />
+
+
+    </LinearLayout>
+</ScrollView>

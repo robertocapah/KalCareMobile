@@ -83,8 +83,12 @@ public class CardAppAdapter extends BaseAdapter {
         holder.tvTaxAmount.setText(taxAmount);
         holder.tvNetPrice.setText(netPrice);
         */
-        holder.tvBasePoint.setText(item.getBasePoint());
-        holder.tvBonusPoint.setText(item.getBonusPoint());
+        double basePoint = Double.parseDouble(item.getBasePoint());
+        int intBasePoint = (int)basePoint;
+        double bonusPoint = Double.parseDouble(item.getBonusPoint());
+        int intBonusPoint = (int) bonusPoint;
+        holder.tvBasePoint.setText(String.valueOf(intBasePoint));
+        holder.tvBonusPoint.setText(String.valueOf(intBonusPoint));
         holder.cardView.setCardBackgroundColor(color);
         return convertView;
     }

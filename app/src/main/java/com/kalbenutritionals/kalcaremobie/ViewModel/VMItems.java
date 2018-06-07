@@ -14,6 +14,8 @@ public class VMItems extends RecyclerView.ViewHolder {
     String itemName;
     String itemBrand;
     String itemGroup;
+    String txtGroupKN;
+    String txtKN;
     String desc;
     String barcode;
     int qty;
@@ -42,9 +44,52 @@ public class VMItems extends RecyclerView.ViewHolder {
     String decWeight;
     String bonusPoint;
     int intCampagn;
+    double decHJPOriginal;
+    int intTotalBonusPoint;
+    int intTotalItemBasePoint;
 
     public VMItems(View itemView) {
         super(itemView);
+    }
+
+    public double getDecHJPOriginal() {
+        return decHJPOriginal;
+    }
+
+    public void setDecHJPOriginal(double decHJPOriginal) {
+        this.decHJPOriginal = decHJPOriginal;
+    }
+
+    public int getIntTotalBonusPoint() {
+        return intTotalBonusPoint;
+    }
+
+    public void setIntTotalBonusPoint(int intTotalBonusPoint) {
+        this.intTotalBonusPoint = intTotalBonusPoint;
+    }
+
+    public int getIntTotalItemBasePoint() {
+        return intTotalItemBasePoint;
+    }
+
+    public void setIntTotalItemBasePoint(int intTotalItemBasePoint) {
+        this.intTotalItemBasePoint = intTotalItemBasePoint;
+    }
+
+    public String getTxtGroupKN() {
+        return txtGroupKN;
+    }
+
+    public void setTxtGroupKN(String txtGroupKN) {
+        this.txtGroupKN = txtGroupKN;
+    }
+
+    public String getTxtKN() {
+        return txtKN;
+    }
+
+    public void setTxtKN(String txtKN) {
+        this.txtKN = txtKN;
     }
 
     public double getDectax() {

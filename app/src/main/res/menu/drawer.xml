@@ -27,6 +27,14 @@
             android:orderInCategory="0"
             android:title="Sales Order"
             app:actionLayout="@layout/menu_counter"/>
+        <item
+            android:id="@+id/addNew"
+            android:checked="true"
+            android:visible="true"
+            android:icon="@drawable/ic_so_black"
+            android:orderInCategory="0"
+            android:title="Add New Customer"
+            app:actionLayout="@layout/menu_counter"/>
 
     </group>
     <group
@@ -42,6 +50,7 @@
             android:id="@+id/copydb"
             android:checked="false"
             android:orderInCategory="2"
+            android:visible="false"
             android:title="Copydb" />
         <item
             android:id="@+id/logout"

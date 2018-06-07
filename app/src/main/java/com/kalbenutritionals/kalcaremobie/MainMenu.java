@@ -59,6 +59,7 @@ import com.kalbenutritionals.kalcaremobie.Common.mMenuData;
 import com.kalbenutritionals.kalcaremobie.Data.DatabaseHelper;
 import com.kalbenutritionals.kalcaremobie.Data.DatabaseManager;
 import com.kalbenutritionals.kalcaremobie.Data.clsHardCode;
+import com.kalbenutritionals.kalcaremobie.Fragment.FragmentAddNewCustomer;
 import com.kalbenutritionals.kalcaremobie.Fragment.FragmentInformation;
 import com.kalbenutritionals.kalcaremobie.Fragment.FragmentProfile;
 import com.kalbenutritionals.kalcaremobie.Fragment.FragmentSalesOrder;
@@ -80,7 +81,7 @@ import java.util.Locale;
 import de.hdodenhof.circleimageview.CircleImageView;
 
 /**
- * Created by Rian Andrivani on 11/22/2017.
+ * Created by Roberto on 11/22/2017.
  */
 
 public class MainMenu extends AppCompatActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, ResultCallback<LocationSettingsResult> {
@@ -119,27 +120,41 @@ public class MainMenu extends AppCompatActivity implements GoogleApiClient.Conne
     public void onBackPressed() {
         android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(this);
 
-        builder.setTitle("Exit");
-        builder.setMessage("Are you sure to exit?");
+        int count = getFragmentManager().getBackStackEntryCount();
 
-        builder.setPositiveButton("EXIT", new DialogInterface.OnClickListener() {
+        Fragment currentFragment = getSupportFragmentManager()
+                .findFragmentByTag("Fragment_AddOrder");
 
-            public void onClick(DialogInterface dialog, int which) {
-                System.exit(0);
-                finishAffinity();
-            }
-        });
+        if (currentFragment != null){
+            FragmentSalesOrder SOFragment = new FragmentSalesOrder();
+            FragmentTransaction fragmentTransactionSO = getSupportFragmentManager().beginTransaction();
+            fragmentTransactionSO.replace(R.id.frame, SOFragment,"FragmentSalesOrder");
+            fragmentTransactionSO.commit();
+            selectedId = 99;
+        }else{
+            builder.setTitle("Exit");
+            builder.setMessage("Are you sure to exit?");
 
-        builder.setNegativeButton("CANCEL", new DialogInterface.OnClickListener() {
+            builder.setPositiveButton("EXIT", new DialogInterface.OnClickListener() {
 
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.dismiss();
-            }
-        });
+                public void onClick(DialogInterface dialog, int which) {
+                    System.exit(0);
+                    finishAffinity();
+                }
+            });
 
-        android.app.AlertDialog alert = builder.create();
-        alert.show();
+            builder.setNegativeButton("CANCEL", new DialogInterface.OnClickListener() {
+
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    dialog.dismiss();
+                }
+            });
+
+            android.app.AlertDialog alert = builder.create();
+            alert.show();
+        }
+
     }
 
     @Override
@@ -356,6 +371,19 @@ public class MainMenu extends AppCompatActivity implements GoogleApiClient.Conne
                         FragmentTransaction fragmentTransactionSO = getSupportFragmentManager().beginTransaction();
                         fragmentTransactionSO.replace(R.id.frame, SOFragment,"FragmentSalesOrder");
                         fragmentTransactionSO.commit();
+                        selectedId = 99;
+
+                        return true;
+
+                    case R.id.addNew:
+                        toolbar.setTitle("Add New Customer");
+
+                        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_FULL_SENSOR);
+
+                        FragmentAddNewCustomer fragmentAddNewCustomer = new FragmentAddNewCustomer();
+                        FragmentTransaction fragmentTransactionAddNewCustomer = getSupportFragmentManager().beginTransaction();
+                        fragmentTransactionAddNewCustomer.replace(R.id.frame, fragmentAddNewCustomer,"FragmentAddNewCustomer");
+                        fragmentTransactionAddNewCustomer.commit();
                         selectedId = 99;
 
                         return true;

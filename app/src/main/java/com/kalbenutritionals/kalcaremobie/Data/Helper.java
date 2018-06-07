@@ -16,11 +16,13 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.text.NumberFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.UUID;
 
 /**
@@ -151,6 +153,11 @@ public class Helper {
                 jsnItem.put("txtItemPacketID",item.getTxtItemPacketID());
                 jsnItem.put("intItemID",item.getItemId());
                 jsnItem.put("intBitPaket",item.getIntPaket());
+                if (item.getIntPaket()==1){
+                    jsnItem.put("decHJPOriginal",item.getDecHJPOriginal());
+                }
+                jsnItem.put("txtKN",item.getTxtKN());
+                jsnItem.put("txtGroupKN",item.getTxtGroupKN());
 
             } catch (JSONException e) {
                 e.printStackTrace();
@@ -161,6 +168,15 @@ public class Helper {
             //07/05/2018 kurang retrieve data item
         }
         return items;
+    }
+    public String formatRupiah(double number){
+        String money = "";
+        Locale localeID = new Locale("in", "ID");
+        NumberFormat formatRupiah = NumberFormat.getCurrencyInstance(localeID);
+        formatRupiah.setMaximumFractionDigits(2);
+        formatRupiah.setMinimumFractionDigits(2);
+        money = formatRupiah.format((double)number);
+        return money;
     }
     public JSONArray writeJSONSaveDataFinal(Context context, clsDraft draft, List<VMItems> contentLibs){
         boolean saveDraftResult = false;

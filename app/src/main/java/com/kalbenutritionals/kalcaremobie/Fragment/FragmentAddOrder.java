@@ -32,12 +32,14 @@ import android.widget.RadioGroup;
 import android.widget.ScrollView;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.kalbe.mobiledevknlibs.DeviceInformation.DeviceInformation;
 import com.kalbe.mobiledevknlibs.DeviceInformation.ModelDevice;
 import com.kalbe.mobiledevknlibs.Spinner.SpinnerCustom;
 import com.kalbe.mobiledevknlibs.Toast.ToastCustom;
 import com.kalbe.mobiledevknlibs.library.pulltorefresh.interfaces.IXListViewListener;
+import com.kalbe.mobiledevknlibs.library.toasty.Toasty;
 import com.kalbenutritionals.kalcaremobie.Common.clsCustomerData;
 import com.kalbenutritionals.kalcaremobie.Common.clsDraft;
 import com.kalbenutritionals.kalcaremobie.Common.clsListMediaJasa;
@@ -85,6 +87,7 @@ import org.json.JSONObject;
 
 import java.sql.SQLException;
 import java.text.DateFormat;
+import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -240,10 +243,18 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
     String txtGroupItemGlobal = "";
     String txtDescriptionGlobal = "";
     String txtBarcodeGlobal = "";
+    String txtKNGlobal = "";
+    String txtGroupKNGlobal = "";
     String txtProductGlobal = "";
     String txtUOMGlobal = "";
     int intPaketGlobal = 0;
     double decWeightGlobal = 0;
+    double poinKN1Global = 0;
+    double poinKN2Global = 0;
+    double poinKN3Global = 0;
+    double poinKN4Global = 0;
+    double poinOtherGlobal = 0;
+    int intWalkin = 1;
 
 
     private HashMap<String, String> HMPaymentmethodList = new HashMap<String, String>();
@@ -947,11 +958,13 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
 //                Debug.waitForDebugger();
                 if (isChecked) {
+                    intWalkin = 1;
 //                    cbAttach.setChecked(true);
                     cbAttach.setChecked(false);
                     cbAttach.setVisibility(View.GONE);
                     lnCustomerDetail.setVisibility(View.GONE);
                 } else {
+                    intWalkin = 0;
                     cbAttach.setChecked(true);
                     cbAttach.setVisibility(View.VISIBLE);
                     /*if (!cbAttach.isChecked()) {
@@ -969,6 +982,7 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (!boolRestore) {
                     if (isChecked) {
+                        intWalkin = 0;
                         LayoutInflater layoutInflater = LayoutInflater.from(context);
                         AlertDialog.Builder alertDialogBuilderAttch = new AlertDialog.Builder(getActivity());
                         final View promptView = layoutInflater.inflate(R.layout.popup_customer, null);
@@ -1326,6 +1340,7 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                             }
                         });
                     } else {
+                        intWalkin = 1;
                         lnCustomerDetail.setVisibility(View.GONE);
                         tvContactIDHeader.setText("");
                         tvMemberNoHeader.setText("");
@@ -1489,18 +1504,26 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
 
                                         LayoutInflater layoutInflater = LayoutInflater.from(context);
                                         final View promptView = layoutInflater.inflate(R.layout.popup_product_search_barcode, null);
-                                        final ListView lvSearchResult = (ListView) promptView.findViewById(R.id.lvItemSearchResult);
+                                        /*final ListView lvSearchResult = (ListView) promptView.findViewById(R.id.lvItemSearchResult);
                                         final EditText etQtySearch = (EditText) promptView.findViewById(R.id.etQty);
                                         final EditText etDiscount = (EditText) promptView.findViewById(R.id.etDiscount);
                                         final EditText etPrice = (EditText) promptView.findViewById(R.id.etPrice);
                                         final EditText etBonusPoint = (EditText) promptView.findViewById(R.id.etBonusPoint);
-                                        final EditText etBasedPoint = (EditText) promptView.findViewById(R.id.etBasePoint);
+                                        final EditText etBasedPoint = (EditText) promptView.findViewById(R.id.etBasePoint);*/
+
+                                        lvSearchResult = (ListView) promptView.findViewById(R.id.lvItemSearchResult);
+                                        etQtySearch = (EditText) promptView.findViewById(R.id.etQty);
+//                                        etSearchOnPopUp = (EditText) promptView.findViewById(R.id.etItemName);
+                                        etDiscount = (EditText) promptView.findViewById(R.id.etDiscount);
+                                        etPrice = (EditText) promptView.findViewById(R.id.etPrice);
+                                        etBonusPoint = (EditText) promptView.findViewById(R.id.etBonusPoint);
+                                        etBasedPoint = (EditText) promptView.findViewById(R.id.etBasePoint);
                                         final List<VMItems> contentSearchResult = new ArrayList<VMItems>();
                                         VMItems item = new VMItems(promptView);
 
                                         JSONArray jsn = jsonObject.getJSONArray("ListData");
                                         for (int n = 0; n < jsn.length(); n++) {
-                                            JSONObject object = jsn.getJSONObject(n);
+                                            /*JSONObject object = jsn.getJSONObject(n);
                                             String txtProductCategory = object.getString("txtProductCategory");
                                             String txtBrand = object.getString("txtBrand");
                                             String txtGroupProduct = object.getString("txtGroupProduct");
@@ -1518,6 +1541,31 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                                             item.setDesc(txtProductDesc);
                                             item.setItemBrand(txtBrand);
 
+                                            contentSearchResult.add(item);*/
+                                            JSONObject object = jsn.getJSONObject(n);
+                                            String txtProductCategory = object.getString("txtProductCategory");
+                                            String txtBrand = object.getString("txtBrand");
+                                            String txtGroupProduct = object.getString("txtGroupProduct");
+                                            String txtProductBarcode = object.getString("txtProductBarcode");
+                                            String txtProductCode = object.getString("txtProductCode");
+                                            HMtxtProductCategory.put(txtProductCode, txtProductCategory);
+                                            String txtProductDesc = object.getString("txtProductDesc");
+//                                    int intCampagn = object.getInt("intCampaign");
+//                                    double dbltax = object.getDouble("decTax");
+
+
+                                            item = new VMItems(promptView);
+                                            item.setItemName(txtProductDesc);
+                                            item.setGuiid(new Helper().GenerateGuid());
+//                                    item.setPrice(80000);
+                                            item.setItemGroup(txtGroupProduct);
+                                            item.setBarcode(txtProductBarcode);
+                                            item.setItemCode(txtProductCode);
+                                            item.setDesc(txtProductDesc);
+                                            item.setItemBrand(txtBrand);
+//                                    item.setIntCampagn(intCampagn);
+
+
                                             contentSearchResult.add(item);
 
                                         }
@@ -1527,69 +1575,7 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                                         lvSearchResult.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                                             @Override
                                             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                                                view.setSelected(true);
-                                                VMItems itemSelected = null;
-                                                itemSelected = contentSearchResult.get(position);
-                                                String txtGroupUser = itemSelected.getItemGroup();
-                                                String txtItemCode = itemSelected.getItemCode();
-                                                int Qty = itemSelected.getQty();
-                                                String intQty = String.valueOf(Qty);
-                                                String txtKontakID = dataLogin.getTxtKontakID();
-                                                String txtNoLangganan = "";
-                                                String intPeriodeLangganan = "0";
-                                                final String strLinkAPI = new clsHardCode().linkGetPrice;
-                                                final JSONObject resJson = new JSONObject();
-                                                try {
-                                                    resJson.put("txtGroupUser", txtGroupUser);
-                                                    resJson.put("txtItemCode", txtItemCode);
-                                                    resJson.put("intQty", intQty);
-                                                    resJson.put("txtKontakID", txtKontakID);
-                                                    resJson.put("txtNoLangganan", txtNoLangganan);
-                                                    resJson.put("intPeriodeLangganan", intPeriodeLangganan);
-                                                } catch (JSONException e) {
-                                                    e.printStackTrace();
-                                                }
-
-                                                final String mRequestBody = resJson.toString();
-                                                new VolleyUtils().makeJsonObjectRequestWithToken(getActivity(), strLinkAPI, mRequestBody, access_token, "Please Wait...", new VolleyResponseListener() {
-                                                    @Override
-                                                    public void onError(String response) {
-                                                        ToastCustom.showToasty(context, response, 2);
-                                                    }
-
-                                                    @Override
-                                                    public void onResponse(String response, Boolean status, String strErrorMsg) {
-                                                        JSONObject jsonObjectPrice = null;
-                                                        if (response != null) {
-                                                            try {
-                                                                jsonObjectPrice = new JSONObject(response);
-                                                                int result = jsonObjectPrice.getInt("intResult");
-                                                                String warn = jsonObjectPrice.getString("txtMessage");
-                                                                if (result == 1) {
-                                                                    if (!jsonObjectPrice.getString("ListData").equals("null")) {
-                                                                        JSONArray jsn = jsonObjectPrice.getJSONArray("ListData");
-                                                                        for (int n = 0; n < jsn.length(); n++) {
-                                                                            JSONObject object = jsn.getJSONObject(n);
-                                                                            String txtDiscount = object.getString("decDiscount");
-                                                                            String txtPrice = object.getString("decPriceList");
-                                                                            String txtBasePoint = object.getString("decBasePoint");
-                                                                            String txtDecBonus = object.getString("decBonus");
-                                                                            etDiscount.setText(txtDiscount);
-                                                                            etPrice.setText(txtPrice);
-                                                                            etBonusPoint.setText(txtDecBonus);
-                                                                            etBasedPoint.setText(txtBasePoint);
-                                                                        }
-                                                                    }
-                                                                }
-                                                            } catch (JSONException e) {
-
-                                                            }
-
-                                                            String a = "";
-                                                        }
-                                                    }
-                                                });
-
+                                                getDetailItem(contentSearchResult, position);
                                             }
                                         });
                                         AlertDialog.Builder alertDialogBuilderAttch = new AlertDialog.Builder(getActivity());
@@ -1606,78 +1592,240 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                                                 .setNegativeButton("No", new DialogInterface.OnClickListener() {
                                                     public void onClick(DialogInterface dialog, int id) {
                                                         dialog.cancel();
-                                                        cbAttach.setChecked(false);
-                                                        lvSearchResult.setSelected(false);
+//                                                        cbAttach.setChecked(false);
+//                                                        lvSearchResult.setSelected(false);
                                                     }
                                                 });
                                         final AlertDialog alertD = alertDialogBuilderAttch.create();
-                                        alertD.show();
-                                        alertD.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
-                                            @Override
-                                            public void onClick(View v) {
-                                                if (lvSearchResult.getCheckedItemPosition() > -1) {
-                                                    if (etQtySearch.getText().toString().equals("")) {
-                                                        ToastCustom.showToasty(context, "Quantity Empty", 3);
-                                                        etQtySearch.setBackgroundResource(R.drawable.bg_edtext_error_border);
+                                        if (lvSearchResult.getCount() == 0){
+                                            ToastCustom.showToasty(context,"Barcode Item Not Found",2);
+                                        }else{
+                                            getDetailItem(contentSearchResult, 0);
+                                            alertD.show();
+                                            alertD.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
+                                                @Override
+                                                public void onClick(View v) {
+                                                    String stQtySearch = etQtySearch.getText().toString();
+                                                    if (!stQtySearch.equals("") && Integer.parseInt(stQtySearch) < 1) {
+                                                        ToastCustom.showToasty(context, "Invalid Qty", 2);
                                                     } else {
-                                                        Object checkedItem = lvSearchResult.getAdapter().getItem(lvSearchResult.getCheckedItemPosition());
-                                                        VMItems itemResult = new VMItems(promptView);
-                                                        int position = lvSearchResult.getCheckedItemPosition();
-                                                        String itemNameAdd = contentSearchResult.get(position).getItemName();
-                                                        String itemBrandAdd = contentSearchResult.get(position).getItemBrand();
-                                                        String itemCodeAdd = contentSearchResult.get(position).getItemCode();
-                                                        String txtPrice = etPrice.getText().toString();
-                                                        double itemPriceSearch = 0;
-                                                        if (!txtPrice.equals("0")) {
-                                                            itemPriceSearch = Double.parseDouble(txtPrice);
-                                                        }
-                                                        String txtDisc = etDiscount.getText().toString();
-                                                        double itemDiscount = 0;
-                                                        if (!txtDisc.equals("0")) {
-                                                            itemDiscount = Double.parseDouble(txtDisc);
-                                                        }
+//                                                        if (lvSearchResult.getCheckedItemPosition() > -1) {
+                                                            if (etQtySearch.getText().toString().equals("")) {
+                                                                ToastCustom.showToasty(context, "Quantity Empty", 3);
+                                                                etQtySearch.setBackgroundResource(R.drawable.bg_edtext_error_border);
+                                                            } else {
 
-                                                        String itemQtyAdd = etQtySearch.getText().toString();
+//                                                                Object checkedItem = lvSearchResult.getAdapter().getItem(lvSearchResult.getCheckedItemPosition());
+//                                                                VMItems itemResult = new VMItems(promptView);
+                                                                int positionResult = lvSearchResult.getCheckedItemPosition();
+                                                                String itemNameAdd = contentSearchResult.get(0).getItemName();
+                                                                String itemCodeAdd = contentSearchResult.get(0).getItemCode();
+                                                                String itemBrand = contentSearchResult.get(0).getItemBrand();
+                                                                String itemDesc = contentSearchResult.get(0).getDesc();
+                                                                double itemTax = decTaxGlobal;
+                                                                int intCampagn = intCampagnGlobal;
+                                                                int intbitPaket = contentSearchResult.get(0).getIntPaket();;
+                                                                int intBitCampaignPaket = contentSearchResult.get(0).getIntCampagn();;
+                                                                String txtPrice = etPrice.getText().toString();
+                                                                double itemPriceSearch = 0;
+                                                                if (!txtPrice.equals("0")) {
+                                                                    itemPriceSearch = Double.parseDouble(txtPrice);
+                                                                }
+                                                                String txtDisc = etDiscount.getText().toString();
+                                                                double itemDiscount = 0;
+                                                                if (!txtDisc.equals("0")) {
+                                                                    itemDiscount = Double.parseDouble(txtDisc);
+                                                                }
+                                                                String itemQtyAdd = etQtySearch.getText().toString();
 
+                                                                int itemQty = Integer.parseInt(itemQtyAdd);
 
-                                                        int itemQty = Integer.parseInt(itemQtyAdd);
-
-                                                        Double itemTotalPrice = (itemPriceSearch * itemQty) - itemDiscount;
-
-                                                        Double itemTaxAmount = itemTotalPrice * 0.1;
-
-                                                        Double itemNetPrice = itemTotalPrice + itemTaxAmount;
-
-                                                        String itemBasePoint = etBasedPoint.getText().toString();
-                                                        String itemBonusPoint = etBonusPoint.getText().toString();
-
-                                                        VMItems item = new VMItems(promptView);
-                                                        item.setItemName(itemNameAdd);
-                                                        item.setItemBrand(itemBrandAdd);
-                                                        item.setItemCode(itemCodeAdd);
-                                                        item.setProductCategory(HMtxtProductCategory.get(itemCodeAdd));
-                                                        item.setPrice(itemPriceSearch);
-                                                        item.setBasePoint(itemBasePoint);
-                                                        item.setQty(itemQty);
-                                                        item.setDiscount(itemDiscount);
-                                                        item.setTotalPrice(itemTotalPrice);
-                                                        item.setTaxAmount(itemTaxAmount);
-                                                        item.setNetPrice(itemNetPrice);
-                                                        item.setBonusPoint(itemBonusPoint);
-                                                        item.setDectax(decTaxGlobal);
+                                                                Double itemTotalPrice = (itemPriceSearch * itemQty) - itemDiscount;
 
 
-                                                        boolean booladded = addItem(item);
-                                                        if (booladded) {
-                                                            alertD.dismiss();
-                                                        }
+
+//                                                Double itemTaxAmount = itemTotalPrice * 0.1;
+                                                                Double itemTaxAmount = itemTotalPrice * (itemTax/100);
+
+//                                                            Double itemNetPrice = itemTotalPrice + itemTaxAmount;
+                                                                Double b = itemTotalPrice + itemTaxAmount;;
+                                                                DecimalFormat twoDForm = new DecimalFormat("#");
+                                                                Double a =  Double.valueOf(twoDForm.format(b));
+                                                                Double itemNetPrice = a;
+                                                                String itemBasePoint1 = etBasedPoint.getText().toString();
+                                                                int intItemBasePoint = Integer.parseInt(itemBasePoint1);
+                                                                String itemBonusPoint1 = etBonusPoint.getText().toString();
+                                                                double intBonusPoint = Double.parseDouble(itemBonusPoint1);
+
+                                                                int totalBasePoinProduct = itemQty * intItemBasePoint;
+                                                                double totalBonusPointProduct = itemQty * intBonusPoint;
+
+                                                                VMItems item = new VMItems(promptView);
+
+                                                                if(intPaketGlobal == 1){
+                                                                    String intQty = String.valueOf(itemQtyAdd);
+                                                                    String txtKontakID = dataLogin.getTxtKontakID();
+                                                                    String txtNoLangganan = "";
+                                                                    String intPeriodeLangganan = "0";
+                                                                    final String strLinkAPIPaketItem = new clsHardCode().linkGetPrice;
+                                                                    final JSONObject resJsonPaketItem = new JSONObject();
+                                                                    try {
+                                                                        resJsonPaketItem.put("txtGroupUser", dataLogin.getGrpUser());
+                                                                        resJsonPaketItem.put("txtItemCode", itemCodeAdd);
+                                                                        resJsonPaketItem.put("intQty", intQty.toString());
+                                                                        resJsonPaketItem.put("txtKontakID", txtKontakID);
+                                                                        resJsonPaketItem.put("txtNoLangganan", txtNoLangganan);
+                                                                        resJsonPaketItem.put("intPeriodeLangganan", intPeriodeLangganan);
+                                                                        resJsonPaketItem.put("txtCabang", "KALCARE");
+                                                                        resJsonPaketItem.put("intQty", itemQty);
+                                                                    } catch (JSONException e) {
+                                                                        e.printStackTrace();
+                                                                    }
+                                                                    final String mRequestBodyPaketItem = resJsonPaketItem.toString();
+                                                                    new VolleyUtils().makeJsonObjectRequestWithToken(getActivity(), strLinkAPIPaketItem, mRequestBodyPaketItem, access_token, "Please Wait...", new VolleyResponseListener() {
+                                                                        @Override
+                                                                        public void onError(String response) {
+                                                                            ToastCustom.showToasty(context, response, 2);
+                                                                        }
+
+                                                                        @Override
+                                                                        public void onResponse(String response, Boolean status, String strErrorMsg) {
+                                                                            if (response != null) {
+                                                                                JSONObject jsonObject = null;
+                                                                                try {
+                                                                                    jsonObject = new JSONObject(response);
+                                                                                    int result = jsonObject.getInt("intResult");
+                                                                                    String warn = jsonObject.getString("txtMessage");
+                                                                                    if (result == 1) {
+                                                                                        if (!jsonObject.getString("ListData").equals("null")) {
+                                                                                            JSONArray jsn = jsonObject.getJSONArray("ListData");
+                                                                                            for (int n = 0; n < jsn.length(); n++) {
+//                                                                                            JSONObject object = jsn.getJSONObject(n);
+//                                                                                            String txtDiscount = object.getString("decDiscount");
+                                                                                                JSONArray arrListOfPoint = jsn.getJSONObject(n).getJSONArray("ListOfPoint");
+                                                                                                JSONObject objHeader  = jsn.getJSONObject(n).getJSONObject("dtclsProductKHDData");
+                                                                                                int intQtyPaket = objHeader.getInt("intQty");
+                                                                                                for (int m = 0; m < arrListOfPoint.length(); m++) {
+                                                                                                    JSONObject obj = arrListOfPoint.getJSONObject(m);
+                                                                                                    double decCalcTotalPrice = obj.getDouble("decCalcTotalPrice");
+                                                                                                    double decCalcTaxAmount = obj.getDouble("decCalcTaxAmount");
+                                                                                                    double decCalcNetPrice = obj.getDouble("decCalcNetPrice");
+                                                                                                    double decCalcTotalBasePoint = obj.getDouble("decCalcTotalBasePoint");
+                                                                                                    double decCalcTotal = obj.getDouble("decCalcTotal");
+                                                                                                    String txtNewId = obj.getString("txtNewId");
+                                                                                                    String txtNoSO = obj.getString("txtNoSO");
+                                                                                                    String txtProductCode = obj.getString("txtProductCode");
+                                                                                                    String txtProductName = obj.getString("txtProductName");
+                                                                                                    String txtBrand = obj.getString("txtBrand");
+                                                                                                    String txtGroupProduct = obj.getString("txtGroupProduct");
+                                                                                                    String txtProductBarcode = obj.getString("txtProductBarcode");
+                                                                                                    String txtGroupItem = obj.getString("txtGroupItem");
+                                                                                                    String txtItemPacketID = obj.getString("txtItemPacketID");
+                                                                                                    String txtProductCategory = obj.getString("txtProductCategory");
+                                                                                                    int intItemID = obj.getInt("intItemID");
+                                                                                                    int intQty = obj.getInt("intQty");
+                                                                                                    double decPrice = obj.getInt("decPrice");
+                                                                                                    double decDiscount = obj.getInt("decDiscount");
+                                                                                                    double decBasePoint = obj.getInt("decBasePoint");
+                                                                                                    String decTotalBasePoint = obj.getString("decTotalBasePoint");
+                                                                                                    double decBonusPoint = obj.getInt("decBonusPoint");
+                                                                                                    int intBitPaket = obj.getInt("intBitPaket");
+                                                                                                    int bitActive = obj.getInt("bitActive");
+                                                                                                    String txtKN = obj.getString("txtKN");
+                                                                                                    String txtGroupKN = obj.getString("txtGroupKN");
+                                                                                                    VMItems item = new VMItems(promptView);
+                                                                                                    item.setItemName(txtProductName);
+                                                                                                    item.setGuiid(new Helper().GenerateGuid());
+                                                                                                    item.setItemCode(txtProductCode);
+                                                                                                    item.setPrice(decPrice);
+                                                                                                    item.setTxtItemPacketID(txtItemPacketID);
+                                                                                                    item.setItemBrand(txtBrand);
+                                                                                                    item.setItemGroup(txtGroupItem);
+                                                                                                    item.setTxtGroupProduct(txtGroupProduct);
+                                                                                                    item.setProductCategory(txtProductCategory);
+                                                                                                    item.setBasePoint(String.valueOf(decBasePoint));
+                                                                                                    item.setQty(intQty);
+                                                                                                    item.setBarcode(txtProductBarcode);
+                                                                                                    item.setDiscount(decDiscount);
+                                                                                                    item.setTotalPrice(decCalcTotalPrice);
+                                                                                                    item.setDecCalcTotalPrice(decCalcTotalPrice);
+                                                                                                    item.setTaxAmount(decCalcTaxAmount);
+                                                                                                    item.setDecCalcTaxAmount(decCalcTaxAmount);
+                                                                                                    item.setNetPrice(decCalcNetPrice);
+                                                                                                    item.setDesc(txtItemPacketID);
+                                                                                                    item.setDecCalcNetPrice(decCalcNetPrice);
+                                                                                                    item.setBonusPoint(String.valueOf(decBonusPoint));
+                                                                                                    item.setIntPaket(intBitPaket);
+                                                                                                    item.setQtyPaket(intQtyPaket);
+                                                                                                    item.setDectax(decTaxGlobal);
+                                                                                                    item.setTxtGroupKN(txtGroupKN);
+                                                                                                    item.setTxtKN(txtKN);
+//                                                                                                item.setIntCampagn(intCampagn);
+
+                                                                                                    boolean booladded = addItem(item);
+                                                                                                    if (booladded) {
+                                                                                                        alertD.dismiss();
+                                                                                                    } else {
+                                                                                                        ToastCustom.showToasty(context, "error system", 2);
+                                                                                                    }
+                                                                                                }
+                                                                                            }
+                                                                                        }
+                                                                                    }else{
+                                                                                        ToastCustom.showToasty(context,warn, 2);
+
+                                                                                    }
+                                                                                }catch (JSONException ex){
+                                                                                    String x = ex.getMessage();
+                                                                                }
+                                                                            }
+                                                                        }
+                                                                    });
+
+                                                                }else{
+                                                                    item.setItemName(itemNameAdd);
+                                                                    item.setDesc(itemNameAdd);
+                                                                    item.setGuiid(new Helper().GenerateGuid());
+                                                                    item.setItemCode(itemCodeAdd);
+                                                                    item.setPrice(itemPriceSearch);
+                                                                    item.setItemBrand(itemBrand);
+                                                                    item.setProductCategory(HMtxtProductCategory.get(itemCodeAdd));
+                                                                    item.setBasePoint(Integer.toString(totalBasePoinProduct));
+                                                                    item.setQty(itemQty);
+                                                                    item.setTxtItemPacketID(itemNameAdd);
+                                                                    item.setDiscount(itemDiscount);
+                                                                    item.setTotalPrice(itemTotalPrice);
+                                                                    item.setTxtItemPacketID(itemDesc);
+                                                                    item.setTaxAmount(itemTaxAmount);
+                                                                    item.setNetPrice(itemNetPrice);
+                                                                    item.setBonusPoint(String.valueOf(totalBonusPointProduct));
+                                                                    item.setDectax(decTaxGlobal);
+                                                                    item.setTxtGroupKN(txtGroupKNGlobal);
+                                                                    item.setBarcode(txtBarcodeGlobal);
+                                                                    item.setTxtGroupKN(txtGroupKNGlobal);
+                                                                    item.setTxtGroupProduct(txtGroupProductGlobal);
+                                                                    item.setItemGroup(txtGroupItemGlobal);
+                                                                    item.setTxtKN(txtKNGlobal);
+                                                                    if (intbitPaket == 1){
+                                                                        item.setIntCampagn(intBitCampaignPaket);
+                                                                    }else{
+                                                                        item.setIntCampagn(intCampagn);
+                                                                    }
+                                                                    boolean boolMatch = addItem(item);
+                                                                }
+                                                                lvItemAdd.setAdapter(new CardAppAdapter(context, contentLibs, Color.WHITE));
+//                                                            alertDi.dismiss();
+                                                                alertD.dismiss();
+                                                            }
+
+                                                        /*} else {
+                                                            ToastCustom.showToasty(context, "Pick the item first", 4);
+                                                        }*/
                                                     }
-
-                                                } else {
-                                                    ToastCustom.showToasty(context, "Pick the item first", 4);
                                                 }
-                                            }
-                                        });
+                                            });
+                                        }
+
 
                                     }
                                 }
@@ -1714,227 +1862,8 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
 
     @OnClick(R.id.btnNext)
     public void onBtnNextClicked() {
-        boolean boolValidNext = true;
-        if (etDeliverySchedule.getText().toString().equals("")) {
-            ToastCustom.showToasty(context, "Please set delivery schedule", 3);
-        } else {
-            lvItemAdd.setAdapter(new CardAppAdapter(context, new ArrayList<VMItems>(), Color.WHITE));
-            rvParent.setAdapter(new RVParentAdapter(context, new ArrayList<VMItems>(), Color.WHITE));
-            String noSO = etNoSo.getText().toString();
-            String soStatus = etSoStatus.getText().toString();
-            String soDate = etDate.getText().toString();
-            String kontakID = tvContactIDHeader.getText().toString();
-            String soSource = etSOSource.getText().toString();
-            String deliverySche = etDeliverySchedule.getText().toString();
-            String agentName = etAgentName.getText().toString();
-            String orderLocation = etOrderLocation.getText().toString();
-            boolean deliverByWalkIn = cbWalkIn.isChecked();
-            boolean attchCust = cbAttach.isChecked();
-            String remarks = etRemarks.getText().toString();
-            String guiid = new Helper().GenerateGuid();
+        getPeriodeActive();
 
-            try {
-                clsDraft draft = new clsDraftRepo(context).findByBitActive();
-                if (draft != null) {
-                    draft.setBoolAttachCustomer(attchCust);
-                    draft.setTxtNoSO(noSO);
-                    draft.setIntStatus(0);
-                    if (!soDate.equals("")) {
-                        DateFormat dateFormat = new SimpleDateFormat("dd MMM yyyy");
-//                    Calendar cal = Calendar.getInstance();
-//                    String now = dateFormat.format(cal.getTime()).toString();
-                        Date dtSoDate = null;
-                        try {
-                            dtSoDate = dateFormat.parse(soDate);
-                            draft.setDtSODate(dtSoDate);
-                        } catch (ParseException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                    draft.setTxtSoSource(soSource);
-                    if (!deliverySche.equals("")) {
-                        DateFormat dateFormat = new SimpleDateFormat("dd MMM yyyy");
-                        Date dtDeliverySche = null;
-                        try {
-                            dtDeliverySche = dateFormat.parse(soDate);
-                            draft.setDtDeliverySche(dtDeliverySche);
-                        } catch (ParseException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                    draft.setTxtAgentName(agentName);
-                    draft.setTxtOrderLocation(orderLocation);
-                    draft.setBoolWalkin(deliverByWalkIn);
-                    if (!deliverByWalkIn && attchCust) {
-                        String contactId = tvContactIDHeader.getText().toString();
-                        String memberNo = tvMemberNoHeader.getText().toString();
-                        String customername = tvCustomerNameHeader.getText().toString();
-                        String province = spnProvinceAddOrder.getSelectedItem().toString();
-                        String provinceID = HMProvinceID.get(province);
-                        String kabKot = spnKabKotAddOrder.getSelectedItem().toString();
-                        String kabKotID = HMKabKotID.get(kabKot);
-                        String Kec = spnKecamatanAddOrder.getSelectedItem().toString();
-                        String kecID = HMKecID.get(Kec);
-                        String kel = spnKelurahanAddOrder.getSelectedItem().toString();
-                        String kelID = HMKel.get(kel);
-                        String postCodeKel = spnPostCodeAddOrder.getSelectedItem().toString();
-                        String postCode = HMKodePos.get(postCodeKel);
-                        String phoneNumber = tvPhoneNumb.getText().toString();
-                        String address = etAddress.getText().toString();
-                        draft.setTxtContactID(contactId);
-                        draft.setTxtMemberID(memberNo);
-                        draft.setTxtPhoneNumber(phoneNumber);
-                        draft.setTxtCustomerName(customername);
-                        draft.setTxtProvinceID(provinceID);
-                        draft.setTxtProvince(province);
-                        draft.setTxtKabKot(kabKot);
-                        draft.setTxtKabKotID(kabKotID);
-                        draft.setTxtKontakID(kontakID);
-                        draft.setTxtKecamatan(Kec);
-                        draft.setTxtKecamatanID(kecID);
-                        draft.setTxtKelurahan(kel);
-                        draft.setTxtKelurahanID(kelID);
-                        draft.setTxtPostCode(postCode);
-                        draft.setTxtAddress(address);
-
-                        if(kelID.equals("0")||provinceID.equals("0")||kabKotID.equals("0")||postCode.equals("0")||kecID.equals("0")){
-                         boolValidNext = false;
-                         ToastCustom.showToasty(context,"Invalid Customer Address",3);
-                        }
-                    } else {
-                        draft.setTxtContactID("");
-                        draft.setTxtMemberID("");
-                        draft.setTxtCustomerName("");
-                        draft.setTxtProvince("");
-                        draft.setTxtKabKot("");
-                        draft.setTxtKecamatan("");
-                        draft.setTxtPostCode("");
-                        draft.setTxtAddress("");
-                        draft.setTxtKontakID("");
-                    }
-                    draft.setTxtRemarks(remarks);
-                    draft.setIntStatus(0);
-                    new clsDraftRepo(context).createOrUpdate(draft);
-                } else {
-                    draft = new clsDraft();
-                    draft.setGuiId(guiid);
-                    draft.setBoolAttachCustomer(attchCust);
-                    draft.setTxtNoSO(noSO);
-                    draft.setIntStatus(0);
-                    if (!soDate.equals("")) {
-                        DateFormat dateFormat = new SimpleDateFormat("dd MMM yyyy");
-//                    Calendar cal = Calendar.getInstance();
-//                    String now = dateFormat.format(cal.getTime()).toString();
-                        Date dtSoDate = null;
-                        try {
-                            dtSoDate = dateFormat.parse(soDate);
-                            draft.setDtSODate(dtSoDate);
-                        } catch (ParseException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                    draft.setTxtSoSource(soSource);
-                    if (!deliverySche.equals("")) {
-                        DateFormat dateFormat = new SimpleDateFormat("dd MMM yyyy");
-                        Date dtDeliverySche = null;
-                        try {
-                            dtDeliverySche = dateFormat.parse(deliverySche);
-                            draft.setDtDeliverySche(dtDeliverySche);
-                        } catch (ParseException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                    draft.setTxtAgentName(agentName);
-                    draft.setTxtOrderLocation(orderLocation);
-                    draft.setBoolWalkin(deliverByWalkIn);
-                    draft.setBoolAttachCustomer(attchCust);
-
-                    if (attchCust) {
-                        String contactId = tvContactIDHeader.getText().toString();
-                        String memberNo = tvMemberNoHeader.getText().toString();
-                        String customername = tvCustomerNameHeader.getText().toString();
-                        String province = spnProvinceAddOrder.getSelectedItem().toString();
-                        String provinceID = HMProvinceID.get(province);
-                        String kabKot = spnKabKotAddOrder.getSelectedItem().toString();
-                        String kabKotID = HMKabKotID.get(kabKot);
-                        String Kec = spnKecamatanAddOrder.getSelectedItem().toString();
-                        String kecID = HMKecID.get(Kec);
-                        String kel = spnKelurahanAddOrder.getSelectedItem().toString();
-                        String kelID = HMKel.get(kel);
-                        String postCodeKel = spnPostCodeAddOrder.getSelectedItem().toString();
-                        String postCode = HMKodePos.get(postCodeKel);
-                        String address = etAddress.getText().toString();
-                        if(kelID.equals("0")||provinceID.equals("0")||kabKotID.equals("0")||postCode.equals("0")||kecID.equals("0")){
-                            boolValidNext = false;
-                            ToastCustom.showToasty(context,"Invalid Customer Address",3);
-                        }
-                        draft.setTxtContactID(contactId);
-                        draft.setTxtMemberID(memberNo);
-                        draft.setTxtCustomerName(customername);
-                        draft.setTxtProvinceID(provinceID);
-                        draft.setTxtProvince(province);
-                        draft.setTxtKabKot(kabKot);
-                        draft.setTxtKabKotID(kabKotID);
-                        draft.setTxtKecamatan(Kec);
-                        draft.setTxtKecamatanID(kecID);
-                        draft.setTxtKelurahan(kel);
-                        draft.setTxtKelurahanID(kelID);
-                        draft.setTxtPostCode(postCode);
-                        draft.setTxtAddress(address);
-                        draft.setIntStatus(0);
-                    }
-                    draft.setTxtRemarks(remarks);
-                    new clsDraftRepo(context).createOrUpdate(draft);
-                }
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-            draftData = new clsDraft();
-            draftData.setGuiId(guiid);
-
-            if (boolValidNext){
-                linearLayoutTop.setVisibility(View.GONE);
-                linearLayoutBottom.setVisibility(View.VISIBLE);
-            }
-            try {
-                List<clsProductDraft> itemsDraft = new clsProductDraftRepo(context).findAll();
-                boolean addedSucces = false;
-                contentLibs = new ArrayList<VMItems>();
-                for (clsProductDraft productDraft : itemsDraft) {
-                    VMItems item = new VMItems(getView());
-                    item.setItemName(productDraft.getTxtItemName());
-                    item.setItemBrand(productDraft.getTxtItemBrand());
-                    item.setItemCode(productDraft.getTxtItemCode());
-                    item.setProductCategory(productDraft.getTxtProductCategory());
-                    item.setGuiid(productDraft.getTxtProductDraftGUI());
-                    item.setPrice(productDraft.getDblPrice());
-                    item.setBasePoint(productDraft.getTxtBasedPoint());
-                    item.setQty(productDraft.getIntQty());
-                    item.setDiscount(productDraft.getDblItemDiscount());
-                    item.setTotalPrice(productDraft.getDblTotalPrice());
-                    item.setTaxAmount(productDraft.getDblItemTax());
-                    item.setNetPrice(productDraft.getDblNetPrice());
-                    item.setBonusPoint(productDraft.getTxtBonusPoint());
-                    item.setTxtGroupProduct(productDraft.getTxtGroupProduct());
-                    item.setItemGroup(productDraft.getTxtGroupItem());
-                    item.setBarcode(productDraft.getTxtItemBarcode());
-                    item.setIntCampagn(productDraft.getIntCampagn());
-                    item.setTxtItemPacketID(productDraft.getTxtItemPacketId());
-                    item.setIntItemId(productDraft.getIntItemId());
-                    item.setIntPaket(productDraft.getIntBitPaket());
-                    item.setDesc(productDraft.getTxtItemPacketId());
-                    item.setDectax(decTaxGlobal);
-                    boolean booladded = addItem(item);
-                    addedSucces = booladded;
-                }
-
-                if (addedSucces) {
-                    ToastCustom.showToasty(context, "Draft items restored", 3);
-                }
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-        }
     }
 
     @OnClick(R.id.imageScanner)
@@ -2514,6 +2443,7 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                                         JSONObject jsnObjStatusSO = jsn.getJSONObject(0).getJSONObject("StatusSO");
                                         JSONObject jsnObjPaymentSO = jsn.getJSONObject(0).getJSONObject("PaymentSO");
                                         JSONObject jsnObjHeaderSO = jsn.getJSONObject(0).getJSONObject("HeaderSO");
+                                        JSONArray jsnDetailSO = jsn.getJSONObject(0).getJSONArray("DetailSO");
 
                                         //StatusSO
                                         String txtNoSO = jsnObjStatusSO.getString("txtNoSO");
@@ -2547,6 +2477,44 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                                         String txtCustomerName = jsnObjHeaderSO.getString("txtCustomerName");
                                         String txtPickUpLocationName = jsnObjHeaderSO.getString("txtPickUpLocationName");
                                         String txtDelivery = jsnObjHeaderSO.getString("txtDelivery");
+
+                                        //Detail buat ambil poin per KN
+                                        double poinKN1 = 0;
+                                        double poinKN2 = 0;
+                                        double poinKN3 = 0;
+                                        double poinKN4 = 0;
+                                        double poinOther = 0;
+                                        for (int n = 0; n < jsnDetailSO.length(); n++) {
+                                            JSONObject object = jsnDetailSO.getJSONObject(n);
+                                            String txtKN = object.getString("txtKN");
+                                            String txtGroupKN = object.getString("txtGroupKN");
+                                            double decBasePoint = object.getDouble("decBasePoint");
+                                            double decBonusPoint = object.getDouble("decBonusPoint");
+                                            int qty = object.getInt("intQty");
+                                            double totalBasedPoint = decBasePoint;
+                                            switch (txtKN){
+                                                case "KN1" :
+                                                    poinKN1 = poinKN1+totalBasedPoint;
+                                                    break;
+                                                case "KN2" :
+                                                    poinKN2 = poinKN2+totalBasedPoint;
+                                                    break;
+                                                case "KN3" :
+                                                    poinKN3 = poinKN3+totalBasedPoint;
+                                                    break;
+                                                case "KN4" :
+                                                    poinKN4 = poinKN4+totalBasedPoint;
+                                                    break;
+                                                default  :
+                                                    poinOther = poinOther+totalBasedPoint;
+                                            }
+
+                                        }
+                                         poinKN1Global = poinKN1;
+                                         poinKN2Global = poinKN2;
+                                         poinKN3Global = poinKN3;
+                                         poinKN4Global = poinKN4;
+                                         poinOtherGlobal = poinOther;
 
                                         txtCustomerFinal = txtCustomer;
                                         txtCustomerNameFinal = txtCustomerName;
@@ -2734,13 +2702,13 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
 //                                tvDiscount3.setText(new DecimalFormat("##.##").format(dbldecTotDiscountFinal));
 //                                tvRounded3.setText(new DecimalFormat("##.##").format(dbldecdecRoundedFinal));
 
-                                tvTaxBaseAmount3.setText(formatRupiah.format((double)dblTaxBasedAmountFinal));
-                                tvTaxAmount3.setText(formatRupiah.format((double)dbldecTaxAmountFinal));
-                                tvTotal.setText(formatRupiah.format((double)dbldecTotalFinal));
-                                tvTotalPrice3.setText(formatRupiah.format((double)dbldecTotalPriceFinal));
-                                tvDiscount3.setText(formatRupiah.format((double)dbldecTotDiscountFinal));
-                                tvRounded3.setText(formatRupiah.format((double)dbldecdecRoundedFinal));
-                                tvPaymentEnd3.setText(formatRupiah.format((double)dbldecPaymentFinal));
+                                tvTaxBaseAmount3.setText(new Helper().formatRupiah(dblTaxBasedAmountFinal));
+                                tvTaxAmount3.setText(new Helper().formatRupiah(dbldecTaxAmountFinal));
+                                tvTotal.setText(new Helper().formatRupiah(dbldecTotalFinal));
+                                tvTotalPrice3.setText(new Helper().formatRupiah(dbldecTotalPriceFinal));
+                                tvDiscount3.setText(new Helper().formatRupiah(dbldecTotDiscountFinal));
+                                tvRounded3.setText(new Helper().formatRupiah(dbldecdecRoundedFinal));
+                                tvPaymentEnd3.setText(new Helper().formatRupiah(dbldecPaymentFinal));
 
 
 
@@ -2752,6 +2720,11 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                                 final TextView tvBonusPoin3 = (TextView) promptView.findViewById(R.id.tvBonusPoin3);
                                 final TextView tvTotalPoin3 = (TextView) promptView.findViewById(R.id.tvTotalPoin3);
 
+                                tvKN1Poin3.setText(String.valueOf(poinKN1Global));
+                                tvKN2Poin3.setText(String.valueOf(poinKN2Global));
+                                tvKN3poin3.setText(String.valueOf(poinKN3Global));
+                                tvKN4poin3.setText(String.valueOf(poinKN4Global));
+                                tvKNOtherPoin3.setText(String.valueOf(poinOtherGlobal));
                                 tvBonusPoin3.setText(String.valueOf(dbldecTotalBonusPoin));
                                 tvTotalPoin3.setText(String.valueOf(dbldecTotalPoin));
 
@@ -2823,76 +2796,6 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
 
                                         final EditText etCardNumber2 = (EditText) promptView.findViewById(R.id.etCardNumber2);
                                         final EditText etBcaTraceNumber2 = (EditText) promptView.findViewById(R.id.etBcaTraceNumber2);
-                                        /*etCardNumber2.setOnKeyListener(new View.OnKeyListener() {
-                                            @Override
-                                            public boolean onKey(View v, int keyCode, KeyEvent event) {
-                                                if (keyCode == KeyEvent.KEYCODE_DEL){
-                                                    String txtEtCardNumb = etCardNumber2.getText().toString();
-                                                    if (txtEtCardNumb.length() != 4 && txtEtCardNumb.length() != 9 && txtEtCardNumb.length() != 14) {
-                                                        keyDel = true;
-                                                    }else{
-                                                        keyDel = false;
-                                                    }
-                                                }else{
-                                                    keyDel = false;
-                                                }
-                                                return false;
-                                            }
-                                        });
-                                        etCardNumber2.addTextChangedListener(new TextWatcher() {
-                                            @Override
-                                            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-                                            }
-
-                                            @Override
-                                            public void onTextChanged(CharSequence s, int start, int before, int count) {
-
-                                            }
-
-                                            @Override
-                                            public void afterTextChanged(Editable text) {
-                                                if(!keyDel){
-                                                    if (text.length() == 4 || text.length() == 9 || text.length() == 14) {
-                                                        text.append('-');
-                                                    }
-                                                }
-                                                keyDel = false;
-                                            }
-                                        });
-                                        etBcaTraceNumber2.setOnKeyListener(new View.OnKeyListener() {
-                                            @Override
-                                            public boolean onKey(View v, int keyCode, KeyEvent event) {
-                                                if (keyCode == KeyEvent.KEYCODE_DEL){
-                                                    keyDel = true;
-                                                }else{
-                                                    keyDel = false;
-                                                }
-                                                return false;
-                                            }
-                                        });
-                                        etBcaTraceNumber2.addTextChangedListener(new TextWatcher() {
-                                            @Override
-                                            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-                                            }
-
-                                            @Override
-                                            public void onTextChanged(CharSequence s, int start, int before, int count) {
-
-                                            }
-
-                                            @Override
-                                            public void afterTextChanged(Editable text) {
-                                                if(!keyDel){
-                                                    if (text.length() == 4 || text.length() == 9 || text.length() == 14) {
-                                                        text.append('-');
-                                                    }
-                                                }
-                                                keyDel = false;
-                                            }
-                                        });*/
-
                                         final String txtPaymentMth1 = tvPaymentMethod.getText().toString();
                                         final String txtSourceMediaPayment1 = etSourceMediaPayment.getText().toString();
                                         final String txtCardNumber1 = etCardNumber.getText().toString();
@@ -2955,9 +2858,19 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                                             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                                                 String txtPaymentMethod = paymentMethodList.get(position);
                                                 String idPaymentMethod = HMPaymentmethodList.get(txtPaymentMethod);
+                                                if(!boolPaymentFilled){
+                                                    etBcaTraceNumber2.setText("");
+                                                    etCardNumber2.setText("");
+                                                }
+
                                                 if (!idPaymentMethod.equals("999")) {
                                                     try {
-
+                                                        if(idPaymentMethod.equals("000")){
+                                                            etCardNumber2.setFocusable(false);
+                                                            etCardNumber2.setEnabled(false);
+                                                            etBcaTraceNumber2.setFocusable(false);
+                                                            etBcaTraceNumber2.setEnabled(false);
+                                                        }
                                                         List<clsListPaymentMethodAndTipe> listPaymentMethodAndTipeSelected = new clsListPaymentMethodAndTipeRepo(context).findById2(idPaymentMethod);
                                                         paymentMethodAndTipe = new ArrayList<>();
                                                         paymentMethodAndTipe.add(SPNCHOOSEONE);
@@ -2974,6 +2887,8 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                                                                 SpinnerCustom.selectedItemByText(context, spnPaymentMethodAndTipe, paymentMethodAndTipe, txtSourceMediaPayment1);
                                                             }else{
                                                                 SpinnerCustom.selectedItemByText(context, spnPaymentMethodAndTipe, paymentMethodAndTipe, SPNCHOOSEONE);
+                                                                etBcaTraceNumber2.setText("");
+                                                                etCardNumber2.setText("");
                                                             }
                                                         }
 
@@ -2994,7 +2909,10 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                                             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                                                 String txtPaymentMethodAndTipe = paymentMethodAndTipe.get(position);
                                                 String idTxtSourceMedia = HMpaymentMethodAndTipe.get(txtPaymentMethodAndTipe);
-
+                                                if(!boolPaymentFilled){
+                                                    etBcaTraceNumber2.setText("");
+                                                    etCardNumber2.setText("");
+                                                }
                                                 if (!idTxtSourceMedia.equals("999")) {
                                                     int cardNumber = HMCardNumber.get(txtPaymentMethodAndTipe);
                                                     int traceNumber = HMTraceNumber.get(txtPaymentMethodAndTipe);
@@ -3046,6 +2964,11 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                                                             }
                                                         }
                                                     }
+                                                }else{
+                                                    sourceMediaPaymentList = new ArrayList<>();
+                                                    sourceMediaPaymentList.add(SPNCHOOSEONE);
+                                                    HMsourceMediaPaymentList.put(SPNCHOOSEONE, "999");
+                                                    SpinnerCustom.setAdapterSpinner(spnSourceMediaPaymentList, context, R.layout.custom_spinner, sourceMediaPaymentList);
                                                 }
                                             }
 
@@ -3058,7 +2981,11 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                                         spnSourceMediaPaymentList.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                                             @Override
                                             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-
+                                                if (!boolPaymentFilled){
+                                                    etBcaTraceNumber2.setText("");
+                                                    etCardNumber2.setText("");
+                                                }
+                                                boolPaymentFilled = false;
                                             }
 
                                             @Override
@@ -3089,50 +3016,22 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                                             public void onClick(View v) {
                                                 String paymentMethod = spnPaymentMethod.getSelectedItem().toString();
                                                 String idPaymentMethod = HMPaymentmethodList.get(paymentMethod);
+                                                String payment = "";
+                                                String sourceMediaPayment = "";
                                                 boolean boolPaymentValid = true;
                                                 if (!idPaymentMethod.equals("999")) {
                                                     txtPaymentMethodID = idPaymentMethod;
-                                                    tvPaymentMethod.setText(paymentMethod);
                                                     boolPaymentValid = true;
                                                 } else {
                                                     boolPaymentValid = false;
                                                 }
                                                 if (spnPaymentMethodAndTipe.getSelectedItem() != null && boolPaymentValid) {
-                                                    String sourceMediaPayment = spnPaymentMethodAndTipe.getSelectedItem().toString();
+                                                    sourceMediaPayment = spnPaymentMethodAndTipe.getSelectedItem().toString();
                                                     String idSourceMediaPayment = HMpaymentMethodAndTipe.get(sourceMediaPayment);
                                                     if (!idSourceMediaPayment.equals("999")) {
                                                         txtMediaJasaID = idSourceMediaPayment;
                                                         txtMediaJasaName = sourceMediaPayment;
                                                         txtmediajasapaymentFinal = txtMediaJasaName;
-                                                        etSourceMediaPayment.setText(sourceMediaPayment);
-
-
-                                                        int cardNumb = HMCardNumber.get(sourceMediaPayment);
-                                                        int traceBca = HMTraceNumber.get(sourceMediaPayment);
-                                                        if (cardNumb == 1){
-                                                            String cn = etCardNumber2.getText().toString();
-                                                            etCardNumber.setText(cn);
-                                                            cn = cn.replace(" ","");
-                                                            cn = cn.replace("-","");
-                                                            txtCardNumber = cn;
-                                                        }else{
-                                                            etCardNumber.setText("0");
-                                                            txtCardNumber = "0";
-                                                        }
-                                                        if (traceBca == 1){
-                                                            String bcaTN = etBcaTraceNumber2.getText().toString();
-                                                            etBcaTraceNumber.setText(bcaTN);
-                                                            bcaTN = bcaTN.replace(" ","");
-                                                            bcaTN = bcaTN.replace("-","");
-                                                            txtBCATraceNo = bcaTN;
-                                                            if (bcaTN.equals("")){
-
-                                                            }
-                                                        }else{
-                                                            etBcaTraceNumber.setText("0");
-                                                            txtBCATraceNo = "0";
-                                                        }
-
                                                         boolPaymentValid = true;
                                                     } else {
                                                         boolPaymentValid = false;
@@ -3142,19 +3041,57 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                                                     boolPaymentValid = false;
                                                 }
                                                 if (spnSourceMediaPaymentList.getSelectedItem()!=null && boolPaymentValid){
-                                                    String payment= spnSourceMediaPaymentList.getSelectedItem().toString();
+                                                    payment= spnSourceMediaPaymentList.getSelectedItem().toString();
                                                     String paymentId = HMsourceMediaPaymentList.get(payment);
                                                     if (!paymentId.equals("999")) {
                                                         txtMediaJasaPaymentID = paymentId;
-                                                        etPayment.setText(payment);
+
 
                                                     }else{
                                                         boolPaymentValid = false;
                                                     }
 
                                                 }
+                                                if (!idPaymentMethod.equals("000")){
+                                                    String a = etCardNumber2.getText().toString();
+                                                    String b = etBcaTraceNumber2.getText().toString();
+                                                    if (a.equals("") || b.equals("")){
+                                                        boolPaymentValid = false;
+                                                    }
+                                                }
+//                                                String paymentMethod = spnPaymentMethod.getSelectedItem().toString();
+//                                                String idPaymentMethod = HMPaymentmethodList.get(paymentMethod);
                                                 if (boolPaymentValid) {
                                                     alertD.dismiss();
+
+                                                    int cardNumb = HMCardNumber.get(sourceMediaPayment);
+                                                    int traceBca = HMTraceNumber.get(sourceMediaPayment);
+                                                    if (cardNumb == 1){
+                                                        String cn = etCardNumber2.getText().toString();
+                                                        etCardNumber.setText(cn);
+                                                        cn = cn.replace(" ","");
+                                                        cn = cn.replace("-","");
+                                                        txtCardNumber = cn;
+                                                    }else{
+                                                        etCardNumber.setText("0");
+                                                        txtCardNumber = "0";
+                                                    }
+                                                    if (traceBca == 1){
+                                                        String bcaTN = etBcaTraceNumber2.getText().toString();
+                                                        etBcaTraceNumber.setText(bcaTN);
+                                                        bcaTN = bcaTN.replace(" ","");
+                                                        bcaTN = bcaTN.replace("-","");
+                                                        txtBCATraceNo = bcaTN;
+                                                        if (bcaTN.equals("")){
+
+                                                        }
+                                                    }else{
+                                                        etBcaTraceNumber.setText("0");
+                                                        txtBCATraceNo = "0";
+                                                    }
+                                                    tvPaymentMethod.setText(paymentMethod);
+                                                    etPayment.setText(payment);
+                                                    etSourceMediaPayment.setText(sourceMediaPayment);
                                                     linearLayoutPaymentDetail.setVisibility(View.VISIBLE);
                                                     linearLayoutPaymentDetail.setBackgroundResource(R.drawable.bg_rounded_select);
                                                 } else {
@@ -3406,7 +3343,7 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                                                 resJsonFinalCheckout.put("txtAlamatKirim", draft.getTxtAddress());
                                                 resJsonFinalCheckout.put("txtCustPhone", draft.getTxtPhoneNumber());
                                                 resJsonFinalCheckout.put("txtCustName", draft.getTxtCustomerName());
-                                                resJsonFinalCheckout.put("txtKontakID", draft.getTxtKontakID());
+                                                resJsonFinalCheckout.put("txtKontakID", draft.getTxtContactID());
                                                 resJsonFinalCheckout.put("txtPickUpLocation", draft.getTxtProvince());
 
 //                                                    SimpleDateFormat sdfFinalCheckout = new SimpleDateFormat("yyyy-MM-dd");
@@ -3490,7 +3427,7 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
 
                                                             } else {
                                                                 ToastCustom.showToasty(context, warn, 2);
-
+//                                                                ToastCustom.showToasty(context, "Barang tidak tersedia", 2);
                                                             }
                                                         } catch (JSONException ex) {
                                                             String x = ex.getMessage();
@@ -3570,9 +3507,17 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
             boolean boolMatch = false;
             int j = 0;
             for (VMItems i : contentLibs) {
-                if (i.getItemCode().equals(item.getItemCode())) {
+                if (i.getItemCode().equals(item.getItemCode())&&i.getDesc().equals(item.getDesc())) {
                     int intQty = item.getQty();
                     i.setQty(intQty);
+                    i.setPrice(item.getPrice());
+                    i.setNetPrice(item.getNetPrice());
+                    i.setTotalPrice(item.getTotalPrice());
+                    i.setTotalBasePoint(item.getTotalBasePoint());
+                    i.setBasePoint(item.getBasePoint());
+                    i.setBonusPoint(item.getBonusPoint());
+                    i.setDiscount(item.getDiscount());
+                    i.setTaxAmount(item.getTaxAmount());
                     boolMatch = true;
                     contentLibs.set(j, i);
                 }
@@ -3708,6 +3653,7 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
 
                             etDiscount.setText(String.valueOf(itemDiscount));
                             etPrice.setText(String.valueOf(itemPrice));
+
                             etBasedPoint.setText(itemBasedPoint);
                             etBonusPoint.setText(itemBonusPoint);
 
@@ -3731,7 +3677,7 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                                 public void onClick(View v) {
 
                                     String stQtySearch = etQtySearch.getText().toString();
-                                    if (Integer.parseInt(stQtySearch) < 1) {
+                                    if (!stQtySearch.equals("") && Integer.parseInt(stQtySearch) < 1) {
                                         ToastCustom.showToasty(context, "Invalid Qty", 2);
                                     } else {
                                         if (lvSearchResult.getCheckedItemPosition() > -1) {
@@ -3771,8 +3717,13 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
 
                                                 Double itemNetPrice = itemTotalPrice + itemTaxAmount;
 
-                                                String itemBasePoint = etBasedPoint.getText().toString();
-                                                String itemBonusPoint = etBonusPoint.getText().toString();
+                                                String itemBasePoint1 = etBasedPoint.getText().toString();
+                                                int intItemBasePoint = Integer.parseInt(itemBasePoint1);
+                                                String itemBonusPoint1 = etBonusPoint.getText().toString();
+                                                double intBonusPoint = Double.parseDouble(itemBonusPoint1);
+
+                                                int totalBasePoinProduct = itemQty * intItemBasePoint;
+                                                double totalBonusPointProduct = itemQty * intBonusPoint;
 
                                                 VMItems item = new VMItems(promptView);
 
@@ -3845,6 +3796,8 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                                                                                     double decBonusPoint = obj.getInt("decBonusPoint");
                                                                                     int intBitPaket = obj.getInt("intBitPaket");
                                                                                     int bitActive = obj.getInt("bitActive");
+                                                                                    String txtKN = obj.getString("txtKN");
+                                                                                    String txtGroupKN = obj.getString("txtGroupKN");
                                                                                     VMItems item = new VMItems(promptView);
                                                                                     item.setItemName(txtProductName);
                                                                                     item.setGuiid(new Helper().GenerateGuid());
@@ -3870,6 +3823,8 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                                                                                     item.setIntPaket(intBitPaket);
                                                                                     item.setQtyPaket(intQtyPaket);
                                                                                     item.setDectax(decTaxGlobal);
+                                                                                    item.setTxtGroupKN(txtGroupKN);
+                                                                                    item.setTxtKN(txtKN);
 //                                                                                                item.setIntCampagn(intCampagn);
 
                                                                                     boolean booladded = addItem(item);
@@ -3899,14 +3854,17 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                                                     item.setPrice(itemPriceSearch);
                                                     item.setItemBrand(itemBrand);
                                                     item.setProductCategory(HMtxtProductCategory.get(itemCodeAdd));
-                                                    item.setBasePoint(itemBasePoint);
+                                                    item.setBasePoint(Integer.toString(totalBasePoinProduct));
                                                     item.setQty(itemQty);
+                                                    item.setDesc(itemNameAdd);
                                                     item.setDiscount(itemDiscount);
                                                     item.setTotalPrice(itemTotalPrice);
                                                     item.setTaxAmount(itemTaxAmount);
                                                     item.setNetPrice(itemNetPrice);
-                                                    item.setBonusPoint(itemBonusPoint);
+                                                    item.setBonusPoint(String.valueOf(totalBonusPointProduct));
                                                     item.setDectax(decTaxGlobal);
+                                                    item.setTxtGroupKN(txtGroupKNGlobal);
+                                                    item.setTxtKN(txtKNGlobal);
                                                     if (intbitPaket == 1){
                                                         item.setIntCampagn(intBitCampaignPaket);
                                                     }else{
@@ -4014,7 +3972,7 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
         final JSONObject resJson = new JSONObject();
         try {
             resJson.put("txtProductBarcode", "");
-            resJson.put("txtProductCode", itemCode);
+            resJson.put("txtProductCode", itemCode.toUpperCase());
             resJson.put("txtProductDesc", itemName);
 //            resJson.put("txtRefreshToken", token);
         } catch (JSONException e) {
@@ -4040,7 +3998,7 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                             if (!jsonObject.getString("ListData").equals("null")) {
 
                                 LayoutInflater layoutInflater = LayoutInflater.from(context);
-                                final View promptView = layoutInflater.inflate(R.layout.popup_product_search, null);
+                                final View promptView = layoutInflater.inflate(R.layout.popup_product_search_2, null);
                                 lvSearchResult = (ListView) promptView.findViewById(R.id.lvItemSearchResult);
                                 etQtySearch = (EditText) promptView.findViewById(R.id.etQty);
                                 etSearchOnPopUp = (EditText) promptView.findViewById(R.id.etItemName);
@@ -4115,8 +4073,8 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                                         .setNegativeButton("No", new DialogInterface.OnClickListener() {
                                             public void onClick(DialogInterface dialog, int id) {
                                                 dialog.cancel();
-                                                cbAttach.setChecked(false);
-                                                lvSearchResult.setSelected(false);
+//                                                cbAttach.setChecked(false);
+//                                                lvSearchResult.setSelected(false);
                                             }
                                         });
                                 final AlertDialog alertD = alertDialogBuilderAttch.create();
@@ -4167,8 +4125,16 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                                                         Double itemTotalPrice = (itemPriceSearch * itemQty) - itemDiscount;
 
                                                         Double itemTaxAmount = itemTotalPrice * 0.1;
-
-                                                        Double itemNetPrice = itemTotalPrice + itemTaxAmount;
+                                                        Double b = itemTotalPrice + itemTaxAmount;;
+                                                        DecimalFormat twoDForm = new DecimalFormat("#");
+                                                        Double a =  Double.valueOf(twoDForm.format(b));
+                                                        Double itemNetPrice = a;
+                                                        String itemBasePoint1 = etBasedPoint.getText().toString();
+                                                        double intItemBasePoint = Double.parseDouble(itemBasePoint1);
+                                                        double intTotalItemBasePoint = intItemBasePoint * itemQty;
+                                                        String itemBonusPoint1 = etBonusPoint.getText().toString();
+                                                        double intBonusPoint = Double.parseDouble(itemBonusPoint1);
+                                                        double intTotalBonusPoint = intBonusPoint * itemQty;
 
 
                                                         if(intPaketGlobal == 1){
@@ -4231,6 +4197,7 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                                                                                                 String txtGroupItem = obj.getString("txtGroupItem");
                                                                                                 String txtItemPacketID = obj.getString("txtItemPacketID");
                                                                                                 String txtProductCategory = obj.getString("txtProductCategory");
+                                                                                                double decHJPOriginal = obj.getDouble("decHJPOriginal");
                                                                                                 int intItemID = obj.getInt("intItemID");
                                                                                                 int intQty = obj.getInt("intQty");
                                                                                                 double decPrice = obj.getInt("decPrice");
@@ -4240,6 +4207,8 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                                                                                                 double decBonusPoint = obj.getInt("decBonusPoint");
                                                                                                 int intBitPaket = obj.getInt("intBitPaket");
                                                                                                 int bitActive = obj.getInt("bitActive");
+                                                                                                String txtKN = obj.getString("txtKN");
+                                                                                                String txtGroupKN = obj.getString("txtGroupKN");
                                                                                                 VMItems item = new VMItems(promptView);
                                                                                                 item.setItemName(txtProductName);
                                                                                                 item.setGuiid(new Helper().GenerateGuid());
@@ -4263,8 +4232,11 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                                                                                                 item.setDecCalcNetPrice(decCalcNetPrice);
                                                                                                 item.setBonusPoint(String.valueOf(decBonusPoint));
                                                                                                 item.setIntPaket(intBitPaket);
+                                                                                                item.setDecHJPOriginal(decHJPOriginal);
                                                                                                 item.setQtyPaket(intQtyPaket);
                                                                                                 item.setDectax(decTaxGlobal);
+                                                                                                item.setTxtKN(txtKN);
+                                                                                                item.setTxtGroupKN(txtGroupKN);
 //                                                                                                item.setIntCampagn(intCampagn);
 
                                                                                                 boolean booladded = addItem(item);
@@ -4295,19 +4267,22 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                                                             item.setPrice(itemPriceSearch);
                                                             item.setItemBrand(itemBrand);
                                                             item.setProductCategory(HMtxtProductCategory.get(itemCodeAdd));
-                                                            item.setBasePoint(itemBasePoint);
+                                                            item.setBasePoint(String.valueOf(intTotalItemBasePoint));
                                                             item.setQty(itemQty);
                                                             item.setTxtItemPacketID(itemDesc);
                                                             item.setDiscount(itemDiscount);
                                                             item.setTotalPrice(itemTotalPrice);
+                                                            item.setDesc(itemNameAdd);
                                                             item.setTaxAmount(itemTaxAmount);
                                                             item.setNetPrice(itemNetPrice);
-                                                            item.setBonusPoint(itemBonusPoint);
+                                                            item.setBonusPoint(String.valueOf(intTotalBonusPoint));
                                                             item.setIntCampagn(intCampagn);
                                                             item.setTxtGroupProduct(txtGroupProductGlobal);
                                                             item.setBarcode(txtBarcodeGlobal);
                                                             item.setItemGroup(txtGroupItemGlobal);
                                                             item.setDectax(decTaxGlobal);
+                                                            item.setTxtKN(txtKNGlobal);
+                                                            item.setTxtGroupKN(txtGroupKNGlobal);
 
                                                             boolean booladded = addItem(item);
                                                             if (booladded) {
@@ -4338,15 +4313,336 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
         });
 
     }
+    private String getPeriodeActive(){
+        final String strLinkAPI = new clsHardCode().linkGetPeriodeActive;
+        final JSONObject resJson = new JSONObject();
+        final String mRequestBody = resJson.toString();
+        new VolleyUtils().makeJsonObjectRequestWithToken(getActivity(), strLinkAPI, mRequestBody, access_token, "Please Wait...", new VolleyResponseListener() {
+            @Override
+            public void onError(String response) {
+                ToastCustom.showToasty(context, response, 2);
+            }
 
+            @Override
+            public void onResponse(String response, Boolean status, String strErrorMsg) {
+                if (response != null) {
+                    JSONObject jsonObject = null;
+                    try {
+                        jsonObject = new JSONObject(response);
+                        int result = jsonObject.getInt("intResult");
+                        String warn = jsonObject.getString("txtMessage");
+                        DateFormat inputFormat = new SimpleDateFormat("yyyyMM");
+
+                        if (result == 1) {
+                            try {
+                                Date date = inputFormat.parse(warn);
+                                Date dtLogin = dataLogin.getDtLogin();
+                                Calendar cal1 = Calendar.getInstance();
+                                Calendar cal2 = Calendar.getInstance();
+                                cal1.setTime(date);
+                                cal2.setTime(dtLogin);
+                                boolean valid = cal1.get(Calendar.YEAR) == cal2.get(Calendar.YEAR) && cal1.get(Calendar.MONTH) == cal2.get(Calendar.MONTH);
+                                //testing
+//                                valid = true;
+                                if(valid){
+                                    getNext();
+                                }else{
+                                    SimpleDateFormat  inputFormat2 = new SimpleDateFormat("yyyy MM");
+                                    String b = inputFormat2.format(date);
+                                    String a = "Periode saat ini "+b+" tidak sama dengan SO Date. Pastikan proses Monthly Closing sudah dilakukan";
+//                                    ToastCustom.showToasty(context,a,4);
+                                    Toasty.warning(context, a, Toast.LENGTH_LONG, true).show();
+                                }
+                            } catch (ParseException e) {
+                                e.printStackTrace();
+                            }
+                        }else{
+                            ToastCustom.showToasty(context,warn, 2);
+
+                        }
+                    }catch (JSONException ex){
+                        String x = ex.getMessage();
+                    }
+                }
+            }
+        });
+
+        return "";
+    }
+    private void getNext(){
+        boolean boolValidNext = true;
+        if (etDeliverySchedule.getText().toString().equals("")) {
+            ToastCustom.showToasty(context, "Please set delivery schedule", 3);
+        } else {
+            lvItemAdd.setAdapter(new CardAppAdapter(context, new ArrayList<VMItems>(), Color.WHITE));
+            rvParent.setAdapter(new RVParentAdapter(context, new ArrayList<VMItems>(), Color.WHITE));
+            String noSO = etNoSo.getText().toString();
+            String soStatus = etSoStatus.getText().toString();
+            String soDate = etDate.getText().toString();
+            String kontakID = tvContactIDHeader.getText().toString();
+            String soSource = etSOSource.getText().toString();
+            String deliverySche = etDeliverySchedule.getText().toString();
+            String agentName = etAgentName.getText().toString();
+            String orderLocation = etOrderLocation.getText().toString();
+            boolean deliverByWalkIn = cbWalkIn.isChecked();
+            boolean attchCust = cbAttach.isChecked();
+            String remarks = etRemarks.getText().toString();
+            String guiid = new Helper().GenerateGuid();
+
+            try {
+                clsDraft draft = new clsDraftRepo(context).findByBitActive();
+                if (draft != null) {
+                    draft.setBoolAttachCustomer(attchCust);
+                    draft.setTxtNoSO(noSO);
+                    draft.setIntStatus(0);
+                    if (!soDate.equals("")) {
+                        DateFormat dateFormat = new SimpleDateFormat("dd MMM yyyy");
+//                    Calendar cal = Calendar.getInstance();
+//                    String now = dateFormat.format(cal.getTime()).toString();
+                        Date dtSoDate = null;
+                        try {
+                            dtSoDate = dateFormat.parse(soDate);
+                            draft.setDtSODate(dtSoDate);
+                        } catch (ParseException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    draft.setTxtSoSource(soSource);
+                    if (!deliverySche.equals("")) {
+                        DateFormat dateFormat = new SimpleDateFormat("dd MMM yyyy");
+                        Date dtDeliverySche = null;
+                        try {
+                            dtDeliverySche = dateFormat.parse(soDate);
+                            draft.setDtDeliverySche(dtDeliverySche);
+                        } catch (ParseException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    draft.setTxtAgentName(agentName);
+                    draft.setTxtOrderLocation(orderLocation);
+                    draft.setBoolWalkin(deliverByWalkIn);
+                    if (!deliverByWalkIn && attchCust) {
+                        String contactId = tvContactIDHeader.getText().toString();
+                        String memberNo = tvMemberNoHeader.getText().toString();
+                        String customername = tvCustomerNameHeader.getText().toString();
+                        String province = spnProvinceAddOrder.getSelectedItem().toString();
+                        String provinceID = HMProvinceID.get(province);
+                        String kabKot = spnKabKotAddOrder.getSelectedItem().toString();
+                        String kabKotID = HMKabKotID.get(kabKot);
+                        String Kec = spnKecamatanAddOrder.getSelectedItem().toString();
+                        String kecID = HMKecID.get(Kec);
+                        String kel = spnKelurahanAddOrder.getSelectedItem().toString();
+                        String kelID = HMKel.get(kel);
+                        String postCodeKel = spnPostCodeAddOrder.getSelectedItem().toString();
+                        String postCode = HMKodePos.get(postCodeKel);
+                        String phoneNumber = tvPhoneNumb.getText().toString();
+                        String address = etAddress.getText().toString();
+                        draft.setTxtContactID(contactId);
+                        draft.setTxtMemberID(memberNo);
+                        draft.setTxtPhoneNumber(phoneNumber);
+                        draft.setTxtCustomerName(customername);
+                        draft.setTxtProvinceID(provinceID);
+                        draft.setTxtProvince(province);
+                        draft.setTxtKabKot(kabKot);
+                        draft.setTxtKabKotID(kabKotID);
+                        draft.setTxtKontakID(kontakID);
+                        draft.setTxtKecamatan(Kec);
+                        draft.setTxtKecamatanID(kecID);
+                        draft.setTxtKelurahan(kel);
+                        draft.setTxtKelurahanID(kelID);
+                        draft.setTxtPostCode(postCode);
+                        draft.setTxtAddress(address);
+                        draft.setBoolWalkin(false);
+                        draft.setBoolAttachCustomer(true);
+
+                        if(kelID.equals("0")||provinceID.equals("0")||kabKotID.equals("0")||postCode.equals("0")||kecID.equals("0")){
+                         boolValidNext = false;
+                         ToastCustom.showToasty(context,"Invalid Customer Address",3);
+                        }
+                    } else {
+                        draft.setTxtContactID("");
+                        draft.setTxtMemberID("");
+                        draft.setTxtCustomerName("");
+                        draft.setTxtProvince("");
+                        draft.setTxtKabKot("");
+                        draft.setTxtKecamatan("");
+                        draft.setTxtPostCode("");
+                        draft.setTxtAddress("");
+                        draft.setTxtKontakID("");
+                    }
+                    draft.setTxtRemarks(remarks);
+                    draft.setIntStatus(0);
+                    new clsDraftRepo(context).clearAllData();
+                    new clsDraftRepo(context).createOrUpdate(draft);
+                } else {
+                    draft = new clsDraft();
+                    draft.setGuiId(guiid);
+                    draft.setBoolAttachCustomer(attchCust);
+                    draft.setTxtNoSO(noSO);
+                    draft.setIntStatus(0);
+                    if (!soDate.equals("")) {
+                        DateFormat dateFormat = new SimpleDateFormat("dd MMM yyyy");
+//                    Calendar cal = Calendar.getInstance();
+//                    String now = dateFormat.format(cal.getTime()).toString();
+                        Date dtSoDate = null;
+                        try {
+                            dtSoDate = dateFormat.parse(soDate);
+                            draft.setDtSODate(dtSoDate);
+                        } catch (ParseException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    draft.setTxtSoSource(soSource);
+                    if (!deliverySche.equals("")) {
+                        DateFormat dateFormat = new SimpleDateFormat("dd MMM yyyy");
+                        Date dtDeliverySche = null;
+                        try {
+                            dtDeliverySche = dateFormat.parse(deliverySche);
+                            draft.setDtDeliverySche(dtDeliverySche);
+                        } catch (ParseException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    draft.setTxtAgentName(agentName);
+                    draft.setTxtOrderLocation(orderLocation);
+                    draft.setBoolWalkin(deliverByWalkIn);
+                    draft.setBoolAttachCustomer(attchCust);
+
+                    if (attchCust) {
+                        String contactId = tvContactIDHeader.getText().toString();
+                        String memberNo = tvMemberNoHeader.getText().toString();
+                        String customername = tvCustomerNameHeader.getText().toString();
+                        String province = spnProvinceAddOrder.getSelectedItem().toString();
+                        String provinceID = HMProvinceID.get(province);
+                        String kabKot = spnKabKotAddOrder.getSelectedItem().toString();
+                        String kabKotID = HMKabKotID.get(kabKot);
+                        String Kec = spnKecamatanAddOrder.getSelectedItem().toString();
+                        String kecID = HMKecID.get(Kec);
+                        String kel = spnKelurahanAddOrder.getSelectedItem().toString();
+                        String kelID = HMKel.get(kel);
+                        String postCodeKel = spnPostCodeAddOrder.getSelectedItem().toString();
+                        String postCode = HMKodePos.get(postCodeKel);
+                        String address = etAddress.getText().toString();
+                        String phoneNumber = tvPhoneNumb.getText().toString();
+                        if(kelID.equals("0")||provinceID.equals("0")||kabKotID.equals("0")||postCode.equals("0")||kecID.equals("0")){
+                            boolValidNext = false;
+                            ToastCustom.showToasty(context,"Invalid Customer Address",3);
+                        }
+
+
+                        /* draft.setTxtContactID(contactId);
+                        draft.setTxtMemberID(memberNo);
+                        draft.setTxtPhoneNumber(phoneNumber);
+                        draft.setTxtCustomerName(customername);
+                        draft.setTxtProvinceID(provinceID);
+                        draft.setTxtProvince(province);
+                        draft.setTxtKabKot(kabKot);
+                        draft.setTxtKabKotID(kabKotID);
+                        draft.setTxtKontakID(kontakID);
+                        draft.setTxtKecamatan(Kec);
+                        draft.setTxtKecamatanID(kecID);
+                        draft.setTxtKelurahan(kel);
+                        draft.setTxtKelurahanID(kelID);
+                        draft.setTxtPostCode(postCode);
+                        draft.setTxtAddress(address);
+                        */
+
+                        draft.setTxtContactID(contactId);
+                        draft.setTxtMemberID(memberNo);
+                        draft.setTxtCustomerName(customername);
+                        draft.setTxtProvinceID(provinceID);
+                        draft.setTxtProvince(province);
+                        draft.setTxtKabKot(kabKot);
+                        draft.setTxtKabKotID(kabKotID);
+                        draft.setTxtKecamatan(Kec);
+                        draft.setTxtKecamatanID(kecID);
+                        draft.setTxtKelurahan(kel);
+                        draft.setTxtKelurahanID(kelID);
+                        draft.setTxtPostCode(postCode);
+                        draft.setTxtAddress(address);
+                        draft.setTxtPhoneNumber(phoneNumber);
+                        draft.setIntStatus(0);
+                    }
+                    draft.setTxtRemarks(remarks);
+                    new clsDraftRepo(context).clearAllData();
+                    new clsDraftRepo(context).createOrUpdate(draft);
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+            draftData = new clsDraft();
+            draftData.setGuiId(guiid);
+
+            if (boolValidNext){
+                linearLayoutTop.setVisibility(View.GONE);
+                linearLayoutBottom.setVisibility(View.VISIBLE);
+            }
+            try {
+                List<clsProductDraft> itemsDraft = new clsProductDraftRepo(context).findAll();
+                boolean addedSucces = false;
+                contentLibs = new ArrayList<VMItems>();
+                for (clsProductDraft productDraft : itemsDraft) {
+                    VMItems item = new VMItems(getView());
+                    item.setItemName(productDraft.getTxtItemName());
+                    item.setItemBrand(productDraft.getTxtItemBrand());
+                    item.setItemCode(productDraft.getTxtItemCode());
+                    item.setProductCategory(productDraft.getTxtProductCategory());
+                    item.setGuiid(productDraft.getTxtProductDraftGUI());
+                    item.setPrice(productDraft.getDblPrice());
+                    item.setBasePoint(productDraft.getTxtBasedPoint());
+                    item.setQty(productDraft.getIntQty());
+                    item.setDiscount(productDraft.getDblItemDiscount());
+                    item.setTotalPrice(productDraft.getDblTotalPrice());
+                    item.setTaxAmount(productDraft.getDblItemTax());
+                    item.setNetPrice(productDraft.getDblNetPrice());
+                    item.setBonusPoint(productDraft.getTxtBonusPoint());
+                    item.setTxtGroupProduct(productDraft.getTxtGroupProduct());
+                    item.setItemGroup(productDraft.getTxtGroupItem());
+                    item.setBarcode(productDraft.getTxtItemBarcode());
+                    item.setIntCampagn(productDraft.getIntCampagn());
+                    item.setTxtItemPacketID(productDraft.getTxtItemPacketId());
+                    item.setIntItemId(productDraft.getIntItemId());
+                    item.setIntPaket(productDraft.getIntBitPaket());
+                    if(productDraft.getIntBitPaket()==1){
+                        item.setDesc(productDraft.getTxtItemPacketId());
+                    }else{
+                        item.setDesc(productDraft.getTxtItemName());
+                    }
+                    item.setDectax(decTaxGlobal);
+                    item.setTxtKN(productDraft.getTxtKN());
+                    item.setTxtGroupKN(productDraft.getTxtGroupKN());
+                    boolean booladded = addItem(item);
+                    addedSucces = booladded;
+                }
+
+                if (addedSucces) {
+                    ToastCustom.showToasty(context, "Draft items restored", 3);
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+    }
     private void getDetailItem(List<VMItems> contentSearchResult, int position) {
         VMItems itemSelected = null;
         itemSelected = contentSearchResult.get(position);
         String txtGroupUser = dataLogin.getGrpUser();
         final String txtItemCode = itemSelected.getItemCode();
+        final String txtItemDesc = itemSelected.getDesc();
         int Qty = itemSelected.getQty();
         String intQty = String.valueOf(Qty);
-        String txtKontakID = dataLogin.getTxtKontakID();
+        String txtKontakID = "";
+        try {
+            draft = new clsDraftRepo(context).findByBitActive();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        if(cbWalkIn.isChecked()){
+            txtKontakID = dataLogin.getTxtKontakID();
+        }else{
+            txtKontakID = draft.getTxtContactID();
+        }
+
         String txtNoLangganan = "";
         String intPeriodeLangganan = "0";
         final String strLinkAPI = new clsHardCode().linkGetPrice;
@@ -4386,14 +4682,16 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                                     JSONObject object = jsn.getJSONObject(n).getJSONObject("dtclsProductKHDData");
                                     String txtDiscount = object.getString("decDiscount");
                                     String txtPrice = object.getString("decPrice");
-                                    String txtBasePoint = object.getString("decBasePoint");
-                                    String txtDecBonus = object.getString("decBonus");
+                                    double txtBasePoint = object.getDouble("decBasePoint");
+                                    double txtDecBonus = object.getDouble("decBonus");
                                     String txtBrand = object.getString("txtBrand");
                                     String txtGroupProduct = object.getString("txtGroupProduct");
 
                                     String txtProductCode = object.getString("txtProductCode");
                                     String txtProductDesc = object.getString("txtProductDesc");
                                     String txtProductBarcode = object.getString("txtProductBarcode");
+                                    String txtKN = object.getString("txtKN");
+                                    String txtGroupKN = object.getString("txtGroupKN");
 //                                    String txtUOM = object.getString("txtUOM");
 //                                    int intCampagn = object.getInt("intCampaign");
                                     int intPaket = object.getInt("intPaket");
@@ -4408,6 +4706,8 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                                     txtGroupProductGlobal  = txtGroupProduct;
                                     txtDescriptionGlobal = txtProductDesc;
                                     txtBarcodeGlobal = txtProductBarcode;
+                                    txtKNGlobal = txtKN;
+                                    txtGroupKNGlobal = txtGroupKN;
 //                                    txtUOMGlobal = txtUOM ;
                                     intPaketGlobal = intPaket;
 //                                    decWeightGlobal = decWeight;
@@ -4416,10 +4716,11 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                                     }else{
                                         etDiscount.setText(txtDiscount);
                                     }
-
+                                    int intBasedPoin = (int) txtBasePoint;
+                                    int intBonusPoin = (int) txtDecBonus;
                                     etPrice.setText(txtPrice);
-                                    etBonusPoint.setText(txtDecBonus);
-                                    etBasedPoint.setText(txtBasePoint);
+                                    etBonusPoint.setText(String.valueOf(intBonusPoin));
+                                    etBasedPoint.setText(String.valueOf(intBasedPoin));
                                     JSONArray arrListOfPoint = jsn.getJSONObject(n).getJSONArray("ListOfPoint");
                                     for (int m = 0; m < arrListOfPoint.length(); m++) {
                                         JSONObject obj = arrListOfPoint.getJSONObject(n);
@@ -4457,7 +4758,7 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                                         }
                                     }*/
                                     for (VMItems item : contentLibs) {
-                                        if (item.getItemCode().equals(txtItemCode)) {
+                                        if (item.getItemCode().equals(txtItemCode) && item.getDesc().equals(txtItemDesc)) {
                                             etQtySearch.setText(String.valueOf(item.getQty()));
                                         }
                                     }

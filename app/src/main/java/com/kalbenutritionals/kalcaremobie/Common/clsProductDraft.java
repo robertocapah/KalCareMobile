@@ -21,6 +21,10 @@ public class clsProductDraft implements Serializable {
     @DatabaseField
     private String txtGroupItem;
     @DatabaseField
+    private String txtKN;
+    @DatabaseField
+    private String txtGroupKN;
+    @DatabaseField
     private String txtGroupProduct;
     @DatabaseField
     private String txtItemPacketId;
@@ -57,6 +61,22 @@ public class clsProductDraft implements Serializable {
 
     public String getTxtGroupProduct() {
         return txtGroupProduct;
+    }
+
+    public String getTxtKN() {
+        return txtKN;
+    }
+
+    public void setTxtKN(String txtKN) {
+        this.txtKN = txtKN;
+    }
+
+    public String getTxtGroupKN() {
+        return txtGroupKN;
+    }
+
+    public void setTxtGroupKN(String txtGroupKN) {
+        this.txtGroupKN = txtGroupKN;
     }
 
     public void setTxtGroupProduct(String txtGroupProduct) {

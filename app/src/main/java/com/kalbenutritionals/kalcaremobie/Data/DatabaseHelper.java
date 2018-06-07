@@ -31,7 +31,7 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
     // name of the database file for your application -- change to something appropriate for your app
     private static final String DATABASE_NAME = new clsHardCode().dbName;
     // any time you make changes to your database objects, you may have to increase the database version
-    private static final int DATABASE_VERSION = 1;
+    private static final int DATABASE_VERSION = 3;
 
     // the DAO object we use to access the SimpleData table
     protected Dao<mConfigData, Integer> mConfigDao;
@@ -88,15 +88,15 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
 //                dao.executeRaw("ALTER TABLE `clsUserLogin` ADD COLUMN txtRefreshToken TEXT;");
 //            }
             Log.i(DatabaseHelper.class.getName(), "onUpgrade");
-//            TableUtils.dropTable(connectionSource, mConfigData.class, true);
-//            TableUtils.dropTable(connectionSource, clsUserLogin.class, true);
-//            TableUtils.dropTable(connectionSource, mMenuData.class, true);
-//            TableUtils.dropTable(connectionSource, clsPhotoProfile.class, true);
-//            TableUtils.dropTable(connectionSource, mProduct.class, true);
-//            TableUtils.dropTable(connectionSource, tOrderHeader.class, true);
-//            TableUtils.dropTable(connectionSource, tOrderDetail.class, true);
+            TableUtils.dropTable(connectionSource, mConfigData.class, true);
+            TableUtils.dropTable(connectionSource, clsUserLogin.class, true);
+            TableUtils.dropTable(connectionSource, mMenuData.class, true);
+            TableUtils.dropTable(connectionSource, clsPhotoProfile.class, true);
+            TableUtils.dropTable(connectionSource, clsProductDraft.class, true);
+            TableUtils.dropTable(connectionSource, clsCustomerData.class, true);
+            TableUtils.dropTable(connectionSource, clsDraft.class, true);
 
-            //onCreate(database, connectionSource);
+            onCreate(database, connectionSource);
         } catch (SQLException e) {
             e.printStackTrace();
         }
