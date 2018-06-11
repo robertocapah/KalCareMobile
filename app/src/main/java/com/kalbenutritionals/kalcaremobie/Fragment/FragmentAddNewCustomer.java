@@ -5,6 +5,8 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.AppCompatButton;
 import android.text.Editable;
 import android.text.TextUtils;
@@ -35,6 +37,7 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -45,7 +48,7 @@ import butterknife.Unbinder;
  * Created by Robert on 25/05/2018.
  */
 
-public class FragmentAddNewCustomer extends Fragment {
+public class FragmentAddNewCustomer extends Fragment implements SwipeRefreshLayout.OnRefreshListener {
     Context context;
     clsUserLogin dataLogin = null;
     Unbinder unbinder;
@@ -93,6 +96,8 @@ public class FragmentAddNewCustomer extends Fragment {
     TextInputLayout textInputNamaKartu;
     @BindView(R.id.textInputAlamat)
     TextInputLayout textInputAlamat;
+    @BindView(R.id.swipe_container)
+    SwipeRefreshLayout swipeContainer;
 
     private HashMap<String, String> HMProvinceID = new HashMap<>();
     private HashMap<String, String> HMKabKotID = new HashMap<>();
@@ -125,6 +130,11 @@ public class FragmentAddNewCustomer extends Fragment {
         } catch (JSONException e) {
             e.printStackTrace();
         }
+        swipeContainer.setOnRefreshListener(this);
+        swipeContainer.setColorSchemeResources(R.color.colorPrimary,
+                android.R.color.holo_green_dark,
+                android.R.color.holo_orange_dark,
+                android.R.color.holo_blue_dark);
         String strLinkProvince = new clsHardCode().linkGetListPropinsi;
 //getDataProvinsi();
         final String mRequestBody = resJson.toString();
@@ -133,6 +143,7 @@ public class FragmentAddNewCustomer extends Fragment {
             public void onError(String response) {
                 ToastCustom.showToasty(context, response, 2);
                 btnSignup.setClickable(false);
+                btnSignup.setEnabled(false);
             }
 
             @Override
@@ -140,6 +151,9 @@ public class FragmentAddNewCustomer extends Fragment {
                 if (response != null) {
                     btnSignup.setClickable(true);
                     JSONObject jsonObject = null;
+                    if (swipeContainer.isRefreshing()){
+                        swipeContainer.setRefreshing(false);
+                    }
                     try {
                         jsonObject = new JSONObject(response);
                         int result = jsonObject.getInt("intResult");
@@ -400,7 +414,9 @@ public class FragmentAddNewCustomer extends Fragment {
             @Override
             public void afterTextChanged(Editable s) {
                 String nama = s.toString();
-                inputNamaKartu.setText(nama);
+                String lastName = inputLastName.getText().toString();
+
+                inputNamaKartu.setText(nama + " " + lastName);
             }
         });
         inputLastName.addTextChangedListener(new TextWatcher() {
@@ -418,7 +434,7 @@ public class FragmentAddNewCustomer extends Fragment {
             public void afterTextChanged(Editable s) {
                 String namaDepan = inputFirstname.getText().toString();
                 String namaBelakang = s.toString();
-                inputNamaKartu.setText(namaDepan+" "+namaBelakang);
+                inputNamaKartu.setText(namaDepan + " " + namaBelakang);
             }
         });
         inputFirstname.setOnFocusChangeListener(new View.OnFocusChangeListener() {
@@ -548,15 +564,15 @@ public class FragmentAddNewCustomer extends Fragment {
             setErrorMessage(context, textInputFirstName, inputFirstname, "Nama depan wajib di isi");
         } else {
             int digit = namaDepan.length();
-            if (digit<2){
+            if (digit < 2) {
                 setErrorMessage(context, textInputFirstName, inputFirstname, "Nama depan minimal 2 karakter");
                 validasiData = false;
-            }else if(namaDepan.contains("..")){
+            } else if (namaDepan.contains("..")) {
                 setErrorMessage(context, textInputFirstName, inputFirstname, "Nama depan tidak valid");
                 validasiData = false;
-            }else if(namaDepan.substring(0,1).equals(".")){
+            } else if (namaDepan.substring(0, 1).equals(".")) {
                 setErrorMessage(context, textInputFirstName, inputFirstname, "Nama depan tidak boleh diawali titik");
-            }else{
+            } else {
                 removeErrorMessage(textInputFirstName);
             }
         }
@@ -566,15 +582,15 @@ public class FragmentAddNewCustomer extends Fragment {
             setErrorMessage(context, textInputLastName, inputLastName, "Nama belakang wajib di isi");
         } else {
             int digit = namaBelakang.length();
-            if (digit<2){
+            if (digit < 2) {
                 setErrorMessage(context, textInputLastName, inputLastName, "Nama belakang minimal 2 karakter");
                 validasiData = false;
-            }else if(namaBelakang.contains("..")){
+            } else if (namaBelakang.contains("..")) {
                 setErrorMessage(context, textInputLastName, inputLastName, "Nama belakang tidak valid");
                 validasiData = false;
-            }else if(namaBelakang.substring(0,1).equals(".")){
+            } else if (namaBelakang.substring(0, 1).equals(".")) {
                 setErrorMessage(context, textInputLastName, inputLastName, "Nama belakang tidak boleh diawali titik");
-            }else{
+            } else {
 
                 removeErrorMessage(textInputLastName);
             }
@@ -586,16 +602,16 @@ public class FragmentAddNewCustomer extends Fragment {
             setErrorMessage(context, textInputEmail, inputEmail, "Email tidak valid");
         } else {
             boolean emailval = isValidEmail(email);
-            if (!emailval){
+            if (!emailval) {
                 setErrorMessage(context, textInputEmail, inputEmail, "Email tidak valid");
                 validasiData = false;
-            }else{
+            } else {
                 removeErrorMessage(textInputEmail);
             }
         }
-        if (kodeKabKot.equals("0")||kodePropinsi.equals("0")||kodeKec.equals("0")||kodeKelurahan.equals("0")||kodePos.equals("0")){
+        if (kodeKabKot.equals("0") || kodePropinsi.equals("0") || kodeKec.equals("0") || kodeKelurahan.equals("0") || kodePos.equals("0")) {
             validasiData = false;
-            ToastCustom.showToasty(context,"Isi detail Alamat",4);
+            ToastCustom.showToasty(context, "Isi detail Alamat", 4);
         }
 
         if (namaKartu.replace(" ", "").equals("")) {
@@ -607,43 +623,42 @@ public class FragmentAddNewCustomer extends Fragment {
 
         if (noHP.replace(" ", "").equals("")) {
             validasiData = false;
-            setErrorMessage(context, textInputNoHp, inputNoHp, "Format No HP salah");
+            setErrorMessage(context, textInputNoHp, inputNoHp, "No HP wajib di isi");
         } else {
             boolean vl = validCellPhone(noHP);
             if (!vl) {
                 setErrorMessage(context, textInputNoHp, inputNoHp, "Format No HP salah");
                 validasiData = false;
-            }else{
-                String nope = noHP.substring(0,3);
-                if(noHP.length()<10){
-                    setErrorMessage(context, textInputNoHp, inputNoHp, "No HP minimal 10 angka");
+            } else {
+                String nope = noHP.substring(0, 3);
+                if (noHP.length() < 8) {
+                    setErrorMessage(context, textInputNoHp, inputNoHp, "No HP minimal 8 angka");
                     validasiData = false;
-                }else if (nope.contains("00")){
+                } else if (nope.contains("00")) {
                     setErrorMessage(context, textInputNoHp, inputNoHp, "Format No HP salah");
                     validasiData = false;
-                }else if(!nope.substring(0,1).equals("0")){
+                } else if (!nope.substring(0, 1).equals("0")) {
                     setErrorMessage(context, textInputNoHp, inputNoHp, "No Hp harus diawali angka 0");
                     validasiData = false;
-                }else{
+                } else {
                     removeErrorMessage(textInputNoHp);
                 }
 
             }
 
         }
+        Pattern regex = Pattern.compile("[$&+,:;=\\\\?@#|/'<>.^*()%!-]");
         if (alamat.replace(" ", "").equals("")) {
             validasiData = false;
             setErrorMessage(context, textInputAlamat, inputAddress, "Alamat wajib di isi");
-        }else if(alamat.substring(0,9).contains("...")){
+        } else if (alamat.replace(" ", "").length() < 10) {
             validasiData = false;
-            setErrorMessage(context, textInputAlamat, inputAddress, "Alamat tidak valid");
-        }else {
-            if (alamat.length()<10){
-                validasiData = false;
-                setErrorMessage(context, textInputAlamat, inputAddress, "Alamat wajib minimal 10 karakter");
-            }else{
-                removeErrorMessage(textInputAlamat);
-            }
+            setErrorMessage(context, textInputAlamat, inputAddress, "Alamat wajib minimal 10 karakter non spasi");
+        } else if (regex.matcher(alamat.substring(0, 9).replace(" ", "")).find()) {
+            validasiData = false;
+            setErrorMessage(context, textInputAlamat, inputAddress, "Alamat tidak valid, check penggunaan spesial karakter");
+        } else {
+            removeErrorMessage(textInputAlamat);
         }
 
         if (validasiData) {
@@ -708,8 +723,8 @@ public class FragmentAddNewCustomer extends Fragment {
                     }
                 }
             });
-        }else{
-            ToastCustom.showToasty(context,"Data tidak valid, silahkan perbaiki",2);
+        } else {
+            ToastCustom.showToasty(context, "Data tidak valid, silahkan perbaiki", 2);
         }
 
     }
@@ -727,12 +742,24 @@ public class FragmentAddNewCustomer extends Fragment {
     }
 
     public void removeErrorMessage(TextInputLayout textInputLayout) {
-        if (textInputLayout!=null){
+        if (textInputLayout != null) {
             textInputLayout.setError(null);
             textInputLayout.setErrorEnabled(false);
         }
     }
+
     public static boolean isValidEmail(CharSequence target) {
         return (!TextUtils.isEmpty(target) && Patterns.EMAIL_ADDRESS.matcher(target).matches());
+    }
+
+    @Override
+    public void onRefresh() {
+        // Reload current fragment
+        Fragment frg = null;
+        frg = getFragmentManager().findFragmentByTag("FragmentAddNewCustomer");
+        final FragmentTransaction ft = getFragmentManager().beginTransaction();
+        ft.detach(frg);
+        ft.attach(frg);
+        ft.commit();
     }
 }

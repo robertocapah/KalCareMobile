@@ -241,13 +241,15 @@ public class VolleyUtils {
                     // HTTP Status Code: 401 Unauthorized
 //                    new clsActivity().showCustomToast(activity.getApplicationContext(), "401", false);
                     finalDialog1.dismiss();
-                    if (error.getMessage() != null) {
+//                    if (error.getMessage() != null) {
                         listener.onError(error.getMessage());
-                    }
+//                    }
+                    ToastCustom.showToasty(activity.getApplicationContext(),"Failed, Check your network",3);
                 } else {
 //                    popup();
                     ToastCustom.showToasty(activity.getApplicationContext(),"Failed, Check your network",3);
                     finalDialog.dismiss();
+                    listener.onError(error.getMessage());
 //                    activity.startActivity(new Intent(activity, LoginActivity.class));
                 }
             }
