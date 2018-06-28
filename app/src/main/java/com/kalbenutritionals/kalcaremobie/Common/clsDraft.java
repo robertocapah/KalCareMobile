@@ -36,9 +36,11 @@ public class clsDraft implements Serializable {
     @DatabaseField
     private String txtOrderLocation;
     @DatabaseField
-    private boolean boolWalkin;
+    private boolean boolPassBy;
     @DatabaseField
     private boolean boolAttachCustomer;
+    @DatabaseField
+    private boolean boolWalkinCustomer;
     @DatabaseField
     private String txtContactID;
     @DatabaseField
@@ -72,6 +74,14 @@ public class clsDraft implements Serializable {
 
     public String getTxtKontakID() {
         return txtKontakID;
+    }
+
+    public boolean isBoolWalkinCustomer() {
+        return boolWalkinCustomer;
+    }
+
+    public void setBoolWalkinCustomer(boolean boolWalkinCustomer) {
+        this.boolWalkinCustomer = boolWalkinCustomer;
     }
 
     public void setTxtKontakID(String txtKontakID) {
@@ -216,12 +226,12 @@ public class clsDraft implements Serializable {
         this.txtOrderLocation = txtOrderLocation;
     }
 
-    public boolean isBoolWalkin() {
-        return boolWalkin;
+    public boolean isBoolPassBy() {
+        return boolPassBy;
     }
 
-    public void setBoolWalkin(boolean boolWalkin) {
-        this.boolWalkin = boolWalkin;
+    public void setBoolPassBy(boolean boolPassBy) {
+        this.boolPassBy = boolPassBy;
     }
 
     public boolean isBoolAttachCustomer() {

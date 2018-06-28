@@ -76,7 +76,7 @@ public class VolleyUtils {
                     }*/
                 } else if (networkResponse != null && networkResponse.statusCode == HttpStatus.SC_BAD_REQUEST) {
                     try {
-                        body = new String(error.networkResponse.data,"UTF-8");
+                        body = new String(error.networkResponse.data, "UTF-8");
                         JSONObject jsonObject = new JSONObject(body);
                         message = jsonObject.getString("error_description");
                         Toast.makeText(activity.getApplicationContext(), "Error 400, " + message, Toast.LENGTH_SHORT).show();
@@ -86,7 +86,7 @@ public class VolleyUtils {
                         e.printStackTrace();
                     }
                     finalDialog1.dismiss();
-                } else if (networkResponse != null && networkResponse.statusCode == HttpStatus.SC_INTERNAL_SERVER_ERROR ){
+                } else if (networkResponse != null && networkResponse.statusCode == HttpStatus.SC_INTERNAL_SERVER_ERROR) {
                     Toast.makeText(activity.getApplicationContext(), "Error 500, Server Error", Toast.LENGTH_SHORT).show();
                     finalDialog1.dismiss();
                 } else {
@@ -94,6 +94,7 @@ public class VolleyUtils {
                     finalDialog1.dismiss();
                 }
             }
+
             public void popup() {
                 android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(activity);
 
@@ -135,7 +136,7 @@ public class VolleyUtils {
             }
         };
         req.setRetryPolicy(new
-                DefaultRetryPolicy(600000,0,
+                DefaultRetryPolicy(600000, 0,
 //                DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
                 DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
 
@@ -159,7 +160,7 @@ public class VolleyUtils {
                 if (networkResponse != null && networkResponse.statusCode == HttpStatus.SC_UNAUTHORIZED) {
                     // HTTP Status Code: 401 Unauthorized
                     try {
-                        body = new String(error.networkResponse.data,"UTF-8");
+                        body = new String(error.networkResponse.data, "UTF-8");
                         JSONObject jsonObject = new JSONObject(body);
                         message = jsonObject.getString("Message");
                         Toast.makeText(activity.getApplicationContext(), "Error 401, " + message, Toast.LENGTH_SHORT).show();
@@ -173,7 +174,7 @@ public class VolleyUtils {
                     }
                 } else if (networkResponse != null && networkResponse.statusCode == HttpStatus.SC_BAD_REQUEST) {
                     try {
-                        body = new String(error.networkResponse.data,"UTF-8");
+                        body = new String(error.networkResponse.data, "UTF-8");
                         JSONObject jsonObject = new JSONObject(body);
                         message = jsonObject.optString("error_description");
                         if (message.equals("")) {
@@ -185,7 +186,7 @@ public class VolleyUtils {
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
-                } else if (networkResponse != null && networkResponse.statusCode == HttpStatus.SC_INTERNAL_SERVER_ERROR ){
+                } else if (networkResponse != null && networkResponse.statusCode == HttpStatus.SC_INTERNAL_SERVER_ERROR) {
                     Toast.makeText(activity.getApplicationContext(), "Error 500, Server Error", Toast.LENGTH_SHORT).show();
                 } else {
                     Toast.makeText(activity.getApplicationContext(), "Something Error, please request again", Toast.LENGTH_SHORT).show();
@@ -242,12 +243,12 @@ public class VolleyUtils {
 //                    new clsActivity().showCustomToast(activity.getApplicationContext(), "401", false);
                     finalDialog1.dismiss();
 //                    if (error.getMessage() != null) {
-                        listener.onError(error.getMessage());
+                    listener.onError(error.getMessage());
 //                    }
-                    ToastCustom.showToasty(activity.getApplicationContext(),"Failed, Check your network",3);
+                    ToastCustom.showToasty(activity.getApplicationContext(), "Failed, Check your network", 3);
                 } else {
 //                    popup();
-                    ToastCustom.showToasty(activity.getApplicationContext(),"Failed, Check your network",3);
+                    ToastCustom.showToasty(activity.getApplicationContext(), "Failed, Check your network", 3);
                     finalDialog.dismiss();
                     listener.onError(error.getMessage());
 //                    activity.startActivity(new Intent(activity, LoginActivity.class));
@@ -318,6 +319,7 @@ public class VolleyUtils {
         RequestQueue queue = Volley.newRequestQueue(activity.getApplicationContext());
         queue.add(req);
     }
+
     public void makeJsonObjectRequestWithTokenWithoutProgressD(final Activity activity, String strLinkAPI, final String mRequestBody, final String tokenVolley, String progressBarType, final VolleyResponseListener listener) {
         /*ProgressDialog Dialog = new ProgressDialog(activity);
         Dialog = ProgressDialog.show(activity, "",
@@ -347,7 +349,7 @@ public class VolleyUtils {
                 } else {
 //                    popup();
 //                    finalDialog1.dismiss();
-                    ToastCustom.showToasty(activity.getApplicationContext(),"Error Connection",2);
+                    ToastCustom.showToasty(activity.getApplicationContext(), "Error Connection", 2);
                 }
             }
 
@@ -400,6 +402,51 @@ public class VolleyUtils {
 //                String auth = "Basic " + Base64.encodeToString(creds.getBytes(), Base64.DEFAULT);
 //                params.put("Authorization", auth);
 //                return params;
+                String credentials = "test" + ":" + "test";
+                String base64EncodedCredentials = Base64.encodeToString(credentials.getBytes(), Base64.NO_WRAP);
+                HashMap<String, String> headers = new HashMap<>();
+                headers.put("Authorization", "Bearer " + tokenVolley);
+                return headers;
+            }
+        };
+        req.setRetryPolicy(new
+                DefaultRetryPolicy(60000,
+                0,
+                DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+
+        RequestQueue queue = Volley.newRequestQueue(activity.getApplicationContext());
+        queue.add(req);
+    }
+
+    public void makeJsonObjectRequestWithTokenWithoutProgressDService(Activity activity,String strLinkAPI, final String mRequestBody, final String tokenVolley, String progressBarType, final VolleyResponseListener listener) {
+
+        StringRequest req = new StringRequest(Request.Method.POST, strLinkAPI, new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+                Boolean status = false;
+                String errorMessage = null;
+                listener.onResponse(response, status, errorMessage);
+//                finalDialog.dismiss();
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                NetworkResponse networkResponse = error.networkResponse;
+                if (networkResponse != null && networkResponse.statusCode == HttpStatus.SC_UNAUTHORIZED) {
+                    listener.onError(error.getMessage());
+                }
+            }
+        }) {
+            @Override
+            protected Map<String, String> getParams() throws AuthFailureError {
+                Map<String, String> params = new HashMap<>();
+                params.put("txtParam", mRequestBody);
+                return params;
+            }
+
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+
                 String credentials = "test" + ":" + "test";
                 String base64EncodedCredentials = Base64.encodeToString(credentials.getBytes(), Base64.NO_WRAP);
                 HashMap<String, String> headers = new HashMap<>();

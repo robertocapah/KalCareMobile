@@ -647,7 +647,7 @@ public class FragmentAddNewCustomer extends Fragment implements SwipeRefreshLayo
             }
 
         }
-        Pattern regex = Pattern.compile("[$&+,:;=\\\\?@#|/'<>.^*()%!-]");
+        Pattern regex = Pattern.compile("[$&+,:;=\\\\?@#|/'<>^*()%!-]");
         if (alamat.replace(" ", "").equals("")) {
             validasiData = false;
             setErrorMessage(context, textInputAlamat, inputAddress, "Alamat wajib di isi");

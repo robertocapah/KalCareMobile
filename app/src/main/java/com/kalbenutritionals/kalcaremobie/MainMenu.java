@@ -53,6 +53,7 @@ import com.google.android.gms.location.LocationSettingsResult;
 import com.google.android.gms.location.LocationSettingsStatusCodes;
 import com.kalbe.mobiledevknlibs.CopyDB.CopyDB;
 import com.kalbenutritionals.kalcaremobie.BL.clsActivity;
+import com.kalbenutritionals.kalcaremobie.BL.clsMainBL;
 import com.kalbenutritionals.kalcaremobie.Common.clsPhotoProfile;
 import com.kalbenutritionals.kalcaremobie.Common.clsUserLogin;
 import com.kalbenutritionals.kalcaremobie.Common.mMenuData;
@@ -67,6 +68,7 @@ import com.kalbenutritionals.kalcaremobie.Repo.clsPhotoProfilRepo;
 import com.kalbenutritionals.kalcaremobie.Repo.clsUserLoginRepo;
 import com.kalbenutritionals.kalcaremobie.Repo.mConfigRepo;
 import com.kalbenutritionals.kalcaremobie.Repo.mMenuRepo;
+import com.kalbenutritionals.kalcaremobie.services.MyNotification;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -115,6 +117,7 @@ public class MainMenu extends AppCompatActivity implements GoogleApiClient.Conne
     protected GoogleApiClient mGoogleApiClient;
     protected LocationRequest locationRequest;
     int REQUEST_CHECK_SETTINGS = 100;
+    public static MainMenu instance;
 
     @Override
     public void onBackPressed() {
@@ -125,13 +128,13 @@ public class MainMenu extends AppCompatActivity implements GoogleApiClient.Conne
         Fragment currentFragment = getSupportFragmentManager()
                 .findFragmentByTag("Fragment_AddOrder");
 
-        if (currentFragment != null){
+        if (currentFragment != null) {
             FragmentSalesOrder SOFragment = new FragmentSalesOrder();
             FragmentTransaction fragmentTransactionSO = getSupportFragmentManager().beginTransaction();
-            fragmentTransactionSO.replace(R.id.frame, SOFragment,"FragmentSalesOrder");
+            fragmentTransactionSO.replace(R.id.frame, SOFragment, "FragmentSalesOrder");
             fragmentTransactionSO.commit();
             selectedId = 99;
-        }else{
+        } else {
             builder.setTitle("Exit");
             builder.setMessage("Are you sure to exit?");
 
@@ -140,6 +143,12 @@ public class MainMenu extends AppCompatActivity implements GoogleApiClient.Conne
                 public void onClick(DialogInterface dialog, int which) {
                     System.exit(0);
                     finishAffinity();
+                    boolean service = new clsMainBL().isMyServiceRunning(MainMenu.this, MyNotification.class);
+                    if (service) {
+                        Intent i = new Intent(getApplicationContext(), MyNotification.class);
+                        i.putExtra("serviceName", "updateNotif");
+                        stopService(i);
+                    }
                 }
             });
 
@@ -161,6 +170,7 @@ public class MainMenu extends AppCompatActivity implements GoogleApiClient.Conne
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         selectedId = 0;
+        instance = this;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             getWindow().addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
             getWindow().setStatusBarColor(getResources().getColor(R.color.primary_color_theme));
@@ -169,6 +179,12 @@ public class MainMenu extends AppCompatActivity implements GoogleApiClient.Conne
             pInfo = getApplicationContext().getPackageManager().getPackageInfo(getApplicationContext().getPackageName(), 0);
         } catch (PackageManager.NameNotFoundException e) {
             e.printStackTrace();
+        }
+        boolean service = new clsMainBL().isMyServiceRunning(this, MyNotification.class);
+        if (!service) {
+            Intent i = new Intent(getApplicationContext(), MyNotification.class);
+            i.putExtra("serviceName", "updateNotif");
+            startService(i);
         }
         setContentView(R.layout.activity_home);
         toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -231,7 +247,7 @@ public class MainMenu extends AppCompatActivity implements GoogleApiClient.Conne
 
         try {
             loginRepo = new clsUserLoginRepo(getApplicationContext());
-            dataLogin =  loginRepo.getDataLogin(getApplicationContext());
+            dataLogin = loginRepo.getDataLogin(getApplicationContext());
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -335,15 +351,15 @@ public class MainMenu extends AppCompatActivity implements GoogleApiClient.Conne
 
                         FragmentInformation homeFragment = new FragmentInformation();
                         FragmentTransaction fragmentTransactionHome = getSupportFragmentManager().beginTransaction();
-                        fragmentTransactionHome.replace(R.id.frame, homeFragment,"FragmentInformation");
+                        fragmentTransactionHome.replace(R.id.frame, homeFragment, "FragmentInformation");
                         fragmentTransactionHome.commit();
                         selectedId = 99;
 
                         return true;
                     case R.id.copydb:
-                        String dbName =  new DatabaseHelper(getApplicationContext()).getDatabaseName().toString();
+                        String dbName = new DatabaseHelper(getApplicationContext()).getDatabaseName().toString();
 
-                            CopyDB.copyFile(getApplicationContext(),dbName);
+                        CopyDB.copyFile(getApplicationContext(), dbName);
 
 
                         return true;
@@ -356,7 +372,7 @@ public class MainMenu extends AppCompatActivity implements GoogleApiClient.Conne
 
                         FragmentProfile profileFragment = new FragmentProfile();
                         FragmentTransaction fragmentTransactionProfile = getSupportFragmentManager().beginTransaction();
-                        fragmentTransactionProfile.replace(R.id.frame, profileFragment,"FragmentProfile");
+                        fragmentTransactionProfile.replace(R.id.frame, profileFragment, "FragmentProfile");
                         fragmentTransactionProfile.commit();
                         selectedId = 99;
 
@@ -369,7 +385,7 @@ public class MainMenu extends AppCompatActivity implements GoogleApiClient.Conne
 
                         FragmentSalesOrder SOFragment = new FragmentSalesOrder();
                         FragmentTransaction fragmentTransactionSO = getSupportFragmentManager().beginTransaction();
-                        fragmentTransactionSO.replace(R.id.frame, SOFragment,"FragmentSalesOrder");
+                        fragmentTransactionSO.replace(R.id.frame, SOFragment, "FragmentSalesOrder");
                         fragmentTransactionSO.commit();
                         selectedId = 99;
 
@@ -382,7 +398,7 @@ public class MainMenu extends AppCompatActivity implements GoogleApiClient.Conne
 
                         FragmentAddNewCustomer fragmentAddNewCustomer = new FragmentAddNewCustomer();
                         FragmentTransaction fragmentTransactionAddNewCustomer = getSupportFragmentManager().beginTransaction();
-                        fragmentTransactionAddNewCustomer.replace(R.id.frame, fragmentAddNewCustomer,"FragmentAddNewCustomer");
+                        fragmentTransactionAddNewCustomer.replace(R.id.frame, fragmentAddNewCustomer, "FragmentAddNewCustomer");
                         fragmentTransactionAddNewCustomer.commit();
                         selectedId = 99;
 
@@ -453,10 +469,9 @@ public class MainMenu extends AppCompatActivity implements GoogleApiClient.Conne
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
-            }
-            else if (resultCode == 0) {
+            } else if (resultCode == 0) {
                 Toast.makeText(getApplicationContext(), "User cancel take image", Toast.LENGTH_SHORT).show();
-            }  else {
+            } else {
                 try {
                     photoProfile = MediaStore.Images.Media.getBitmap(this.getContentResolver(), data.getData());
                 } catch (FileNotFoundException e) {
@@ -465,8 +480,7 @@ public class MainMenu extends AppCompatActivity implements GoogleApiClient.Conne
                     e.printStackTrace();
                 }
             }
-        }
-        else if (requestCode == PIC_CROP_PROFILE) {
+        } else if (requestCode == PIC_CROP_PROFILE) {
             if (resultCode == -1) {
                 //get the returned data
                 Bundle extras = data.getExtras();
@@ -477,9 +491,8 @@ public class MainMenu extends AppCompatActivity implements GoogleApiClient.Conne
             } else if (resultCode == 0) {
                 Toast.makeText(getApplicationContext(), "User cancel take image", Toast.LENGTH_SHORT).show();
             }
-        }
-        else if (requestCode == SELECT_FILE_PROFILE) {
-            if(resultCode == RESULT_OK){
+        } else if (requestCode == SELECT_FILE_PROFILE) {
+            if (resultCode == RESULT_OK) {
                 try {
                     Bitmap bitmap;
                     BitmapFactory.Options bitmapOptions = new BitmapFactory.Options();
@@ -492,7 +505,7 @@ public class MainMenu extends AppCompatActivity implements GoogleApiClient.Conne
                     e.printStackTrace();
                 }
             }
-        }else {
+        } else {
             for (Fragment fragment : getSupportFragmentManager().getFragments()) {
                 try {
                     fragment.onActivityResult(requestCode, resultCode, data);
@@ -512,19 +525,19 @@ public class MainMenu extends AppCompatActivity implements GoogleApiClient.Conne
     }
 
     private void selectImageProfile() {
-        final CharSequence[] items = { "Ambil Foto", "Pilih dari Galeri",
-                "Batal" };
+        final CharSequence[] items = {"Ambil Foto", "Pilih dari Galeri",
+                "Batal"};
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Add Photo");
         builder.setItems(items, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int item) {
-                boolean result= Utility.checkPermission(getApplicationContext());
+                boolean result = Utility.checkPermission(getApplicationContext());
                 if (items[item].equals("Ambil Foto")) {
-                    if(result)
+                    if (result)
                         captureImageProfile();
                 } else if (items[item].equals("Pilih dari Galeri")) {
-                    if(result)
+                    if (result)
                         galleryIntentProfile();
                 } else if (items[item].equals("Batal")) {
                     dialog.dismiss();
@@ -544,7 +557,7 @@ public class MainMenu extends AppCompatActivity implements GoogleApiClient.Conne
         File folder = new File(Environment.getExternalStorageDirectory().toString() + "/data/data/KalbeCare/tempdata/Foto_Profil");
         folder.mkdir();
 
-        for (clsPhotoProfile imgDt : dataImageProfile){
+        for (clsPhotoProfile imgDt : dataImageProfile) {
             final byte[] imgFile = imgDt.getTxtImg();
             if (imgFile != null) {
                 mybitmapImageProfile = BitmapFactory.decodeByteArray(imgFile, 0, imgFile.length);
@@ -555,7 +568,7 @@ public class MainMenu extends AppCompatActivity implements GoogleApiClient.Conne
     }
 
     // preview image profile
-    private void previewCaptureImageProfile(Bitmap photo){
+    private void previewCaptureImageProfile(Bitmap photo) {
         try {
             Bitmap bitmap = new clsActivity().resizeImageForBlob(photo);
             ivProfile.setVisibility(View.VISIBLE);
@@ -567,7 +580,7 @@ public class MainMenu extends AppCompatActivity implements GoogleApiClient.Conne
                 e.printStackTrace();
             } finally {
                 try {
-                    if (output != null){
+                    if (output != null) {
                         output.close();
                     }
                 } catch (IOException e) {
@@ -613,10 +626,10 @@ public class MainMenu extends AppCompatActivity implements GoogleApiClient.Conne
     private void galleryIntentProfile() {
         Intent pickPhoto = new Intent(Intent.ACTION_PICK,
                 MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-        startActivityForResult(pickPhoto , SELECT_FILE_PROFILE);//one can be replaced with any action code
+        startActivityForResult(pickPhoto, SELECT_FILE_PROFILE);//one can be replaced with any action code
     }
 
-    private void performCropProfile(){
+    private void performCropProfile() {
         try {
             //call the standard crop action intent (the user device may not support it)
             Intent cropIntent = new Intent("com.android.camera.action.CROP");
@@ -634,8 +647,7 @@ public class MainMenu extends AppCompatActivity implements GoogleApiClient.Conne
             cropIntent.putExtra("return-data", true);
             //start the activity - we handle returning in onActivityResult
             startActivityForResult(cropIntent, PIC_CROP_PROFILE);
-        }
-        catch(ActivityNotFoundException anfe){
+        } catch (ActivityNotFoundException anfe) {
             //display an error message
             String errorMessage = "Whoops - your device doesn't support the crop action!";
             Toast toast = Toast.makeText(this, errorMessage, Toast.LENGTH_SHORT);
@@ -643,7 +655,7 @@ public class MainMenu extends AppCompatActivity implements GoogleApiClient.Conne
         }
     }
 
-    private void performCropGalleryProfile(){
+    private void performCropGalleryProfile() {
         try {
             //call the standard crop action intent (the user device may not support it)
             Intent cropIntent = new Intent("com.android.camera.action.CROP");
@@ -661,8 +673,7 @@ public class MainMenu extends AppCompatActivity implements GoogleApiClient.Conne
             cropIntent.putExtra("return-data", true);
             //start the activity - we handle returning in onActivityResult
             startActivityForResult(cropIntent, PIC_CROP_PROFILE);
-        }
-        catch(ActivityNotFoundException anfe){
+        } catch (ActivityNotFoundException anfe) {
             //display an error message
             String errorMessage = "Whoops - your device doesn't support the crop action!";
             Toast toast = Toast.makeText(this, errorMessage, Toast.LENGTH_SHORT);
@@ -688,7 +699,7 @@ public class MainMenu extends AppCompatActivity implements GoogleApiClient.Conne
         // Create a media file name
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(new Date());
         File mediaFile;
-        mediaFile = new File(mediaStorageDir.getPath() + File.separator + "tmp_act"  + ".png");
+        mediaFile = new File(mediaStorageDir.getPath() + File.separator + "tmp_act" + ".png");
         return mediaFile;
     }
 
@@ -749,12 +760,11 @@ public class MainMenu extends AppCompatActivity implements GoogleApiClient.Conne
 
     public static class Utility {
         public static final int MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE = 123;
+
         @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
-        public static boolean checkPermission(final Context context)
-        {
+        public static boolean checkPermission(final Context context) {
             int currentAPIVersion = Build.VERSION.SDK_INT;
-            if(currentAPIVersion>= Build.VERSION_CODES.M)
-            {
+            if (currentAPIVersion >= Build.VERSION_CODES.M) {
                 if (ContextCompat.checkSelfPermission(context, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
                     if (ActivityCompat.shouldShowRequestPermissionRationale((Activity) context, Manifest.permission.READ_EXTERNAL_STORAGE)) {
                         AlertDialog.Builder alertBuilder = new AlertDialog.Builder(context);

@@ -427,7 +427,7 @@ public class FragmentSalesOrder extends Fragment {
                                                                             String txtAgentName = objData.getString("txtAgentName");
                                                                             String txtPickUpLocation = objData.getString("txtPickUpLocation");
                                                                             String txtPickUpLocationName = objData.getString("txtPickUpLocationName");
-                                                                            String intWalkIn = objData.getString("intWalkIn");
+                                                                            String intPassBy = objData.getString("intPassBy");
                                                                             String intDeliveryBy = objData.getString("intDeliveryBy");
                                                                             String txtDeliveryBy = objData.getString("txtDeliveryByID");
                                                                             String txtDeliveryByName = objData.getString("txtDeliveryByName");
@@ -708,8 +708,10 @@ public class FragmentSalesOrder extends Fragment {
                                                                             String dtDelivery = objData.getString("dtDelivery");
                                                                             String txtAgentName = objData.getString("txtAgentName");
                                                                             String txtPickUpLocation = objData.getString("txtPickUpLocation");
-                                                                            String intWalkIn = objData.getString("intWalkIn");
+                                                                            String intPassBy = objData.getString("intPassBy");
                                                                             String intDeliveryBy = objData.getString("intDeliveryBy");
+                                                                            String intWalkIn = objData.getString("intWalkIn");
+
                                                                             String txtDeliveryBy = objData.getString("txtDeliveryByID");
                                                                             String txtCustomer = objData.getString("txtCustomer");
                                                                             String txtCustomerName = objData.getString("txtCustomerName");
@@ -765,17 +767,26 @@ public class FragmentSalesOrder extends Fragment {
                                                                                     e.printStackTrace();
                                                                                 }
                                                                             }
-                                                                            if (intWalkIn.equals("1")) {
-                                                                                draft.setBoolWalkin(true);
-
-                                                                            } else {
-                                                                                draft.setBoolWalkin(false);
+                                                                            if (intPassBy.equals("1")) {
+                                                                                draft.setBoolPassBy(true);
+                                                                                draft.setBoolWalkinCustomer(false);
+                                                                                draft.setBoolAttachCustomer(false);
+                                                                            } else if(intWalkIn.equals("1")){
+                                                                                draft.setBoolPassBy(false);
+                                                                                draft.setBoolAttachCustomer(false);
+                                                                                draft.setBoolWalkinCustomer(true);
+                                                                            }else if(intDeliveryBy.equals("1")){
+                                                                                draft.setBoolAttachCustomer(true);
+                                                                                draft.setBoolWalkinCustomer(false);
+                                                                                draft.setBoolPassBy(false);
+                                                                            }else{
+                                                                                draft.setBoolPassBy(false);
                                                                             }
-                                                                            if (intDeliveryBy.equals("1")) {
+                                                                            /*if (intDeliveryBy.equals("1")) {
                                                                                 draft.setBoolAttachCustomer(true);
                                                                             } else {
                                                                                 draft.setBoolAttachCustomer(false);
-                                                                            }
+                                                                            }*/
                                                                             draft.setTxtPostCode(txtKodePos);
                                                                             draft.setTxtAgentName(txtDeliveryBy);
                                                                             draft.setTxtRemarks(txtRemarks);
