@@ -70,12 +70,13 @@ public class CardAppAdapter extends BaseAdapter {
         NumberFormat formatRupiah = NumberFormat.getCurrencyInstance(localeID);
         formatRupiah.setMaximumFractionDigits(2);
         formatRupiah.setMinimumFractionDigits(2);
-
-        holder.tvitemPrice.setText(formatRupiah.format((double)item.getPrice()));
+        DecimalFormat twoDForm = new DecimalFormat("#");
+        Double a = Double.valueOf(twoDForm.format(item.getNetPrice()));
+        holder.tvitemPrice.setText(formatRupiah.format((double) item.getPrice()));
         holder.tvDiscount.setText(formatRupiah.format((double)item.getDiscount()));
         holder.tvTotalPrice.setText(formatRupiah.format((double)item.getTotalPrice()));
         holder.tvTaxAmount.setText(formatRupiah.format((double)item.getTaxAmount()));
-        holder.tvNetPrice.setText(formatRupiah.format((double)item.getNetPrice()));
+        holder.tvNetPrice.setText(formatRupiah.format(a));
 
         /*holder.tvitemPrice.setText(itemPrice);
         holder.tvDiscount.setText(itemDiscount);

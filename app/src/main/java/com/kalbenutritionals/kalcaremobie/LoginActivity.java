@@ -2,11 +2,13 @@ package com.kalbenutritionals.kalcaremobie;
 
 import android.Manifest;
 import android.app.Activity;
+import android.app.ActivityManager;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
@@ -65,6 +67,7 @@ import com.kalbenutritionals.kalcaremobie.Repo.clsTokenRepo;
 import com.kalbenutritionals.kalcaremobie.Repo.clsUserLoginRepo;
 import com.kalbenutritionals.kalcaremobie.Repo.mConfigRepo;
 import com.kalbenutritionals.kalcaremobie.Repo.mMenuRepo;
+import com.kalbenutritionals.kalcaremobie.services.MyNotification;
 
 import org.apache.http.HttpStatus;
 import org.json.JSONArray;
@@ -101,6 +104,7 @@ import cn.pedant.SweetAlert.SweetAlertDialog;
 public class LoginActivity extends Activity {
     private static final int REQUEST_READ_PHONE_STATE = 0;
     String txtUsername, txtPassword, imeiNumber, deviceName, access_token;
+    public static String Preference_Session = "Session";
     String clientId = "";
     @BindView(R.id.btnConnect)
     Button btnConnect;
@@ -166,13 +170,18 @@ public class LoginActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        if (isMyServiceRunning(MyNotification.class)) {
+            stopService(new Intent(LoginActivity.this, MyNotification.class));
+        }
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             getWindow().addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
             getWindow().setStatusBarColor(getResources().getColor(R.color.colorAccent));
         }
-        DatabaseHelper helper = DatabaseManager.getInstance().getHelper();
-        helper.clearDataAfterLogout();
+        if (DatabaseManager.getInstance()!=null){
+            DatabaseHelper helper = DatabaseManager.getInstance().getHelper();
+            helper.clearDataAfterLogout();
+        }
         setContentView(R.layout.activity_login);
 
         ButterKnife.bind(this);
@@ -339,7 +348,15 @@ public class LoginActivity extends Activity {
 
     }
 
-
+    private boolean isMyServiceRunning(Class<?> serviceClass) {
+        ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
+        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
+            if (serviceClass.getName().equals(service.service.getClassName())) {
+                return true;
+            }
+        }
+        return false;
+    }
     private void popupSubmit() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
 
@@ -378,11 +395,16 @@ public class LoginActivity extends Activity {
         String strLinkAPI = new clsHardCode().linkLogin;
         final JSONObject resJson = new JSONObject();
 
+        /*
+        * test encrypt*/
+        String encrypted = new Cryptography_Android().encryptAndEncode(txtPassword);
+
         try {
             tokenRepo = new clsTokenRepo(getApplicationContext());
             dataToken = (List<clsToken>) tokenRepo.findAll();
             resJson.put("txtUserName", txtUsername);
-            resJson.put("txtPass", txtPassword);
+//            resJson.put("txtPass", txtPassword);
+            resJson.put("txtPass", encrypted);
 //            resJson.put("txtRefreshToken", token);
         } catch (JSONException e) {
             e.printStackTrace();
@@ -425,8 +447,6 @@ public class LoginActivity extends Activity {
                             JSONObject jsonObject = new JSONObject(response);
                             int result = jsonObject.getInt("intResult");
                             String warn = jsonObject.getString("txtMessage");
-
-
                             if (result == 0) {
                                 ToastCustom.showToasty(getApplicationContext(), " Invalid Username or Password", 2);
                             } else {
@@ -532,6 +552,10 @@ public class LoginActivity extends Activity {
 
                                     String dtDate = jsnObject.getString("dtDate");
                                     int intScheduleDevilery = jsnObject.getInt("intScheduleDevilery");
+                                    String intSessionTime = jsnObject.getString("intSessionTime");
+                                    SharedPreferences.Editor editor = getSharedPreferences( Preference_Session, MODE_PRIVATE).edit();
+                                    editor.putString("time", intSessionTime);
+                                    editor.apply();
 
                                     String gui = new Helper().GenerateGuid();
                                     String id_user = dtInfo.getString("id_user");
@@ -1041,6 +1065,7 @@ public class LoginActivity extends Activity {
                 DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
 
         RequestQueue queue = Volley.newRequestQueue(activity.getApplicationContext());
+        req.setShouldCache(false);
         queue.add(req);
     }
 

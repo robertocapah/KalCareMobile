@@ -8,6 +8,7 @@ import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.IntentSender;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageInfo;
@@ -31,7 +32,6 @@ import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.MenuItem;
@@ -86,13 +86,15 @@ import de.hdodenhof.circleimageview.CircleImageView;
  * Created by Roberto on 11/22/2017.
  */
 
-public class MainMenu extends AppCompatActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, ResultCallback<LocationSettingsResult> {
+public class MainMenu extends BaseActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, ResultCallback<LocationSettingsResult> {
     private Toolbar toolbar;
+    boolean booltime = false;
     private NavigationView navigationView;
     private DrawerLayout drawerLayout;
     DatabaseHelper helper = DatabaseManager.getInstance().getHelper();
     clsUserLogin dataLogin = null;
     List<mMenuData> dataMenu = null;
+    AlertDialog dialog1;
     List<clsPhotoProfile> dataImageProfile = null;
     clsUserLoginRepo loginRepo;
     mMenuRepo menuRepo;
@@ -117,7 +119,9 @@ public class MainMenu extends AppCompatActivity implements GoogleApiClient.Conne
     protected GoogleApiClient mGoogleApiClient;
     protected LocationRequest locationRequest;
     int REQUEST_CHECK_SETTINGS = 100;
+//    private BroadcastReceiver mReceiver = null;
     public static MainMenu instance;
+//    public Timer timer;
 
     @Override
     public void onBackPressed() {
@@ -168,13 +172,20 @@ public class MainMenu extends AppCompatActivity implements GoogleApiClient.Conne
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
+
         selectedId = 0;
         instance = this;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             getWindow().addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
             getWindow().setStatusBarColor(getResources().getColor(R.color.primary_color_theme));
         }
+        // initialize receiver
+        final IntentFilter filter = new IntentFilter(Intent.ACTION_SCREEN_ON);
+        filter.addAction(Intent.ACTION_SCREEN_OFF);
+//        mReceiver = new ScreenReceiver();
+//        registerReceiver(mReceiver, filter);
         try {
             pInfo = getApplicationContext().getPackageManager().getPackageInfo(getApplicationContext().getPackageName(), 0);
         } catch (PackageManager.NameNotFoundException e) {
@@ -251,10 +262,13 @@ public class MainMenu extends AppCompatActivity implements GoogleApiClient.Conne
         } catch (Exception e) {
             e.printStackTrace();
         }
-        tvUsername.setText(new clsActivity().greetings() + dataLogin.getNmUser().toString());
+        tvUsername.setText(new clsActivity().greetings() + dataLogin.getTxtTeleName().toString());
         tvEmail.setText(dataLogin.getTxtNamaInstitusi());
         String txtDomain = new mConfigRepo(getApplicationContext()).strDomain;
         tvDomain.setText(txtDomain);
+        if (!boolTesting){
+            tvDomain.setVisibility(View.GONE);
+        }
 
         /*String linkAPI = new mConfigRepo(getApplicationContext()).API_menu;
         try {
@@ -295,6 +309,13 @@ public class MainMenu extends AppCompatActivity implements GoogleApiClient.Conne
             linkMenu[i] = dataMenu.get(i).getTxtLink();
             listMenu[i] = dataMenu.get(i).getTxtMenuName();
         }*/
+        int menit15 = 15 * 60 * 1000;
+        int menit1 = 60 * 1000;
+        int detik30 = 30 * 1000;
+        int detik10 = 10 * 1000;
+//        int intSession = 15 *60 * 1000;
+
+        startTimer();
 
         navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
             @Override
@@ -353,6 +374,8 @@ public class MainMenu extends AppCompatActivity implements GoogleApiClient.Conne
                         FragmentTransaction fragmentTransactionHome = getSupportFragmentManager().beginTransaction();
                         fragmentTransactionHome.replace(R.id.frame, homeFragment, "FragmentInformation");
                         fragmentTransactionHome.commit();
+//                        timer.start();
+                        startTimer();
                         selectedId = 99;
 
                         return true;
@@ -375,7 +398,6 @@ public class MainMenu extends AppCompatActivity implements GoogleApiClient.Conne
                         fragmentTransactionProfile.replace(R.id.frame, profileFragment, "FragmentProfile");
                         fragmentTransactionProfile.commit();
                         selectedId = 99;
-
                         return true;
 
                     case R.id.SO:
@@ -388,7 +410,6 @@ public class MainMenu extends AppCompatActivity implements GoogleApiClient.Conne
                         fragmentTransactionSO.replace(R.id.frame, SOFragment, "FragmentSalesOrder");
                         fragmentTransactionSO.commit();
                         selectedId = 99;
-
                         return true;
 
                     case R.id.addNew:
@@ -401,7 +422,6 @@ public class MainMenu extends AppCompatActivity implements GoogleApiClient.Conne
                         fragmentTransactionAddNewCustomer.replace(R.id.frame, fragmentAddNewCustomer, "FragmentAddNewCustomer");
                         fragmentTransactionAddNewCustomer.commit();
                         selectedId = 99;
-
                         return true;
 
                     default:
@@ -450,6 +470,70 @@ public class MainMenu extends AppCompatActivity implements GoogleApiClient.Conne
         drawerLayout.setDrawerListener(actionBarDrawerToggle);
         actionBarDrawerToggle.syncState();
     }
+
+    @Override
+    protected void onPause() {
+        // when the screen is about to turn off
+        /*startUserSession();
+        unregisterReceiver(mReceiver);
+        if (ScreenReceiver.wasScreenOn) {
+            // this is the case when onPause() is called by the system due to a screen state change
+            Log.e("MYAPP", "SCREEN TURNED OFF");
+            startTimer();
+        } else {
+            // this is when onPause() is called when the screen state has not changed
+        }*/
+        super.onPause();
+    }
+
+    /*@Override
+    public void onUserInteraction() {
+        startUserSession(getApplicationContext());
+        super.onUserInteraction();
+    }
+    void cancelTimer(){
+        if (timer != null){
+            timer.cancel();
+        }
+    }
+    public void startUserSession(Context context){
+        cancelTimer();
+        SharedPreferences prefs = context.getSharedPreferences(LoginActivity.Preference_Session, MODE_PRIVATE);
+        String restoredText = prefs.getString("time", "15");
+        if (restoredText != null) {
+            String txtTime = prefs.getString("time", "15");
+            if (!txtTime.equals("")){
+                int intTime = Integer.parseInt(txtTime);
+                intSession = intTime *60 * 1000;
+            }
+        }
+        timer = new Timer();
+        timer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                logout();
+            }
+        },intSession);
+    }
+
+    public void startTimer(){
+        *//*SharedPreferences prefs = getSharedPreferences(LoginActivity.Preference_Session, MODE_PRIVATE);
+        String restoredText = prefs.getString("time", "15");
+        if (restoredText != null) {
+            String txtTime = prefs.getString("time", "15");
+            if (!txtTime.equals("")){
+                int intTime = Integer.parseInt(txtTime);
+                intSession = intTime *60 * 1000;
+            }
+        }
+        timer = new Timer();
+        timer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+
+            }
+        },intSession);*//*
+    }*/
 
     // put image from camera
     @Override
@@ -515,14 +599,18 @@ public class MainMenu extends AppCompatActivity implements GoogleApiClient.Conne
             }
         }
     }
-
-    private void logout() {
-        Intent intent = new Intent(MainMenu.this, SplashActivity.class);
+    /*public void logout() {
+//        timer.cancel();
+        if (isMyServiceRunning(MyNotification.class)) {
+            stopService(new Intent(getApplicationContext(), MyNotification.class));
+        }
+        Intent intent = new Intent(getApplicationContext(), SplashActivity.class);
         DatabaseHelper helper = DatabaseManager.getInstance().getHelper();
         helper.clearDataAfterLogout();
-        finish();
         startActivity(intent);
-    }
+        finish();
+
+    }*/
 
     private void selectImageProfile() {
         final CharSequence[] items = {"Ambil Foto", "Pilih dari Galeri",
@@ -725,6 +813,36 @@ public class MainMenu extends AppCompatActivity implements GoogleApiClient.Conne
     @Override
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
 
+    }
+
+    @Override
+    protected void onResume() {
+        /*startUserSession();
+        if (!ScreenReceiver.wasScreenOn) {
+            // this is when onResume() is called due to a screen state change
+            Log.e("MYAPP", "SCREEN TURNED ON");
+//            MainMenu.timer.start();
+            startTimer();
+        } else {
+            // this is when onResume() is called when the screen state has not changed
+        }*/
+        super.onResume();
+
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        int a = 20;
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+//        cancelTimer();
+        if (isMyServiceRunning(MyNotification.class)) {
+            stopService(new Intent(getApplicationContext(), MyNotification.class));
+        }
     }
 
     @Override

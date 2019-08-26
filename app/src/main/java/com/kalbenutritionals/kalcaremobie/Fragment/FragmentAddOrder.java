@@ -3,6 +3,8 @@ package com.kalbenutritionals.kalcaremobie.Fragment;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.pm.ActivityInfo;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -34,6 +36,10 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.applandeo.materialcalendarview.CalendarView;
+import com.applandeo.materialcalendarview.DatePicker;
+import com.applandeo.materialcalendarview.builders.DatePickerBuilder;
+import com.applandeo.materialcalendarview.listeners.OnSelectDateListener;
 import com.kalbe.mobiledevknlibs.DeviceInformation.DeviceInformation;
 import com.kalbe.mobiledevknlibs.DeviceInformation.ModelDevice;
 import com.kalbe.mobiledevknlibs.Spinner.SpinnerCustom;
@@ -54,6 +60,7 @@ import com.kalbenutritionals.kalcaremobie.Data.Helper;
 import com.kalbenutritionals.kalcaremobie.Data.VolleyResponseListener;
 import com.kalbenutritionals.kalcaremobie.Data.VolleyUtils;
 import com.kalbenutritionals.kalcaremobie.Data.adapter.CardAdapterCustomerSearch;
+import com.kalbenutritionals.kalcaremobie.Data.adapter.CardAdapterNewRevisi;
 import com.kalbenutritionals.kalcaremobie.Data.adapter.CardAdapterOutet;
 import com.kalbenutritionals.kalcaremobie.Data.adapter.CardAdapterSearchResult;
 import com.kalbenutritionals.kalcaremobie.Data.adapter.CardAppAdapter;
@@ -64,6 +71,8 @@ import com.kalbenutritionals.kalcaremobie.Data.adapter.RVParentAdapter;
 import com.kalbenutritionals.kalcaremobie.Data.adapter.RVPreviewAdapter;
 import com.kalbenutritionals.kalcaremobie.Data.clsHardCode;
 import com.kalbenutritionals.kalcaremobie.DrawableClickListener;
+import com.kalbenutritionals.kalcaremobie.LoginActivity;
+import com.kalbenutritionals.kalcaremobie.MainMenu;
 import com.kalbenutritionals.kalcaremobie.R;
 import com.kalbenutritionals.kalcaremobie.Repo.clsCustomerDataRepo;
 import com.kalbenutritionals.kalcaremobie.Repo.clsDraftRepo;
@@ -94,9 +103,12 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -105,6 +117,9 @@ import butterknife.Unbinder;
 import jim.h.common.android.lib.zxing.config.ZXingLibConfig;
 import jim.h.common.android.lib.zxing.integrator.IntentIntegrator;
 import jim.h.common.android.lib.zxing.integrator.IntentResult;
+
+import static android.content.Context.MODE_PRIVATE;
+import static com.kalbenutritionals.kalcaremobie.Data.AlertDialog.clsDatePicker.formatSimpleDate;
 
 /**
  * Created by Robert on 19/02/2018.
@@ -258,8 +273,7 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
     double poinOtherGlobal = 0;
     int intPassBy = 1;
     int intWalkinCustomer = 0;
-
-
+    int intSession = 15;
     private HashMap<String, String> HMPaymentmethodList = new HashMap<String, String>();
     private HashMap<String, String> HMsourceMediaPaymentList = new HashMap<String, String>();
     private HashMap<String, String> HMpaymentMethodAndTipe = new HashMap<String, String>();
@@ -296,6 +310,7 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
     private HashMap<String, String> HMKecID = new HashMap<>();
     private HashMap<String, String> HMKel = new HashMap<>();
     private HashMap<String, String> HMKodePos = new HashMap<>();
+    private HashMap<String, String> HMGetKodePosFromKeluarahan = new HashMap<>();
     private HashMap<String, String> HMOutletCode = new HashMap<>();
     private HashMap<String, String> HMOrderLocationId = new HashMap<>();
 
@@ -337,6 +352,7 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
     String txtKodePosFinal = "";
     String txtDeliveryAddressFinal = "";
     String txtKontakIDFinal = "";
+    String txtCustomerPhoneNumberFinal = "";
 
     String txtNoSoFinal = "";
 
@@ -372,6 +388,10 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
     String sourceMediaPaymentId = "";
     String paymentId = "";
 
+    AlertDialog alertDSearchitem;
+    AlertDialog alertDProductSearch;
+    AlertDialog alertDPreview;
+
 
     String mRequestBodyCheckout = "";
     String strLinkAPICheckout = "";
@@ -382,6 +402,10 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
     EditText etPrice;
     EditText etBonusPoint;
     EditText etBasedPoint;
+    Timer timer;
+    boolean boolDraft = false;
+    private static int frm;
+    private static int year, month, day;
 
     List<VMItems> contentSearchResult = new ArrayList<VMItems>();
 
@@ -392,6 +416,7 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
         context = getActivity().getApplicationContext();
         unbinder = ButterKnife.bind(this, v);
         addDefaultSpinnerAlamat();
+
         try {
             List<clsToken> dataToken = new clsTokenRepo(context).findAll();
 
@@ -399,11 +424,20 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
         } catch (Exception e) {
             ToastCustom.showToasty(context, "Token Empty", 2);
         }
+        //pengganti session
+        Helper.textWatcher(etRemarks, getActivity());
+//        new Helper().textWatcher(etAgentName);
+//        new Helper().textWatcher(etBcaTraceNumber);
+//        new Helper().textWatcher(etCardNumber);
+//        new Helper().textWatcher(etSearchOnPopUp);
+//        new Helper().textWatcher(etQtySearch);
+
+
 //        lt = new LoadToast(context);
         deviceInfo = new ModelDevice();
         deviceInfo = DeviceInformation.getDeviceInformation();
         contentLibs = new ArrayList<VMItems>();
-        lvItemAdd.setAdapter(new CardAppAdapter(context, new ArrayList<VMItems>(), Color.WHITE));
+        lvItemAdd.setAdapter(new CardAdapterNewRevisi(context, new ArrayList<VMItems>(), Color.WHITE));
         rvParent.setAdapter(new RVParentAdapter(context, new ArrayList<VMItems>(), Color.WHITE));
         dataLogin = new clsUserLogin();
         dataLogin = new clsUserLoginRepo(context).getDataLogin(context);
@@ -428,6 +462,7 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
             e.printStackTrace();
         }
         if (draft != null) {
+            boolDraft = true;
             if (!draft.getTxtSOStatus().equals("")) {
                 etSoStatus.setText(draft.getTxtSOStatus());
             }
@@ -482,17 +517,17 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                 HMKel.put(txtKelurahanName, txtKelurahanID);
                 SpinnerCustom.setAdapterSpinner(spnKelurahanAddOrder, context, R.layout.custom_spinner, categoriesKelurahan);
                 SpinnerCustom.selectedItemByText(context, spnKelurahanAddOrder, categoriesKelurahan, txtKelurahanName);
-                if(draft.isBoolWalkinCustomer()){
+                if (draft.isBoolWalkinCustomer()) {
                     cbPassBy.setChecked(false);
                     cbAttach.setChecked(false);
                     cbAttach.setVisibility(View.VISIBLE);
                     cbWalkInCustomer.setChecked(true);
-                }else if(draft.isBoolPassBy()){
+                } else if (draft.isBoolPassBy()) {
                     cbPassBy.setChecked(true);
                     cbAttach.setChecked(false);
                     cbWalkInCustomer.setChecked(false);
                     cbAttach.setVisibility(View.VISIBLE);
-                }else{
+                } else {
                     cbPassBy.setChecked(false);
                     cbAttach.setChecked(true);
                     cbWalkInCustomer.setChecked(false);
@@ -832,6 +867,7 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
 
 
         draftData = new clsDraft();
+        Helper.textWatcher(etItemCode, getActivity());
 
         etItemName.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
@@ -848,7 +884,7 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
         });
         data = new clsUserLoginRepo(context).getDataLogin(context);
         if (data != null) {
-            etAgentName.setText(data.getNmUser());
+            etAgentName.setText(data.getTxtTeleName());
             etSOSource.setText(data.getTxtNamaInstitusi());
             etOrderLocation.setText(data.getTxtNamaInstitusi());
             HMOutletCode.put(data.getTxtNamaInstitusi(), data.getTxtSumberDataID());
@@ -859,6 +895,7 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
         etOrderLocation.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                //getActivity().onUserInteraction();
                 final String strLinkAPI = new clsHardCode().linkGetDataOutletKALCARE;
                 final JSONObject resJson = new JSONObject();
                 try {
@@ -939,6 +976,8 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                                         alertD.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
                                             @Override
                                             public void onClick(View v) {
+//                                                getActivity().onUserInteraction();
+                                                getActivity().onUserInteraction();
                                                 if (lvOutletOption.getCheckedItemPosition() > -1) {
                                                     int position = lvOutletOption.getCheckedItemPosition();
                                                     String txtOutlet = contentOutletsResult.get(position).getTxtNamaInstitusi();
@@ -977,8 +1016,25 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
 //                Debug.waitForDebugger();
-
+//                getActivity().onUserInteraction();
+                getActivity().onUserInteraction();
+                if (boolDraft) {
+//                    boolean boolDraftWalkin = draft.isBoolWalkinCustomer();
+                    boolean boolPassBy = draft.isBoolPassBy();
+//                    boolean boolDeliverySch = draft.isBoolAttachCustomer();
+                    if (boolPassBy) {
+                        new clsProductDraftRepo(context).clearAllData();
+                    }
+                }
                 if (isChecked) {
+                    SimpleDateFormat sdf = new SimpleDateFormat("dd MMM yyyy");
+                    String date = sdf.format(dtLoginData);
+                    etDeliverySchedule.setText(date);
+                    etDeliverySchedule.setClickable(false);
+                    etDeliverySchedule.setEnabled(false);
+//                    etDeliverySchedule.setTextColor(R.drawable.edittext_disabled_style);
+
+
                     cbWalkInCustomer.setChecked(false);
                     intPassBy = 1;
                     intWalkinCustomer = 0;
@@ -987,7 +1043,7 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                     cbAttach.setVisibility(View.VISIBLE);
                     lnCustomerDetail.setVisibility(View.GONE);
                 } else {
-                    if(!cbWalkInCustomer.isChecked()){
+                    if (!cbWalkInCustomer.isChecked()) {
                         cbAttach.setChecked(true);
                         cbAttach.setVisibility(View.VISIBLE);
                     }
@@ -1007,8 +1063,25 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
         cbWalkInCustomer.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+//                getActivity().onUserInteraction();
+                getActivity().onUserInteraction();
                 if (!boolRestore) {
                     if (isChecked) {
+                        if (boolDraft) {
+                            boolean boolDraftWalkin = draft.isBoolWalkinCustomer();
+//                            boolean boolPassBy = draft.isBoolPassBy();
+//                    boolean boolDeliverySch = draft.isBoolAttachCustomer();
+                            if (boolDraftWalkin) {
+                                new clsProductDraftRepo(context).clearAllData();
+                            }
+                        }
+                        SimpleDateFormat sdf = new SimpleDateFormat("dd MMM yyyy");
+                        String date = sdf.format(dtLoginData);
+                        etDeliverySchedule.setText(date);
+                        etDeliverySchedule.setClickable(false);
+                        etDeliverySchedule.setEnabled(false);
+//                        etDeliverySchedule.setTextColor(R.drawable.edittext_disabled_style);
+
                         intWalkinCustomer = 1;
                         cbAttach.setChecked(false);
                         cbPassBy.setChecked(false);
@@ -1026,17 +1099,37 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                         final EditText etMemberNo = (EditText) promptView.findViewById(R.id.etMemberNo);
                         final TextView tvMemberNo = (TextView) promptView.findViewById(R.id.tvMemberNo);
                         final EditText etCustomerName = (EditText) promptView.findViewById(R.id.etCustomerName);
+                        Helper.textWatcher(etCustomerName, getActivity());
+                        Helper.textWatcher(etMemberNo, getActivity());
+                        Helper.textWatcher(etPhoneNumb, getActivity());
+                        Helper.textWatcher(etSearchCustomer, getActivity());
 //                    final EditText spnPostCodeCustomer = (EditText) promptView.findViewById(R.id.etPostCodeCustomer);
                         final Spinner spnPostCodeCustomer = (Spinner) promptView.findViewById(R.id.spnPostCodeCustomer);
                         final Spinner spnProvinceCustomer = (Spinner) promptView.findViewById(R.id.spnProvinceCustomer);
                         final Spinner spnKabKotCustomer = (Spinner) promptView.findViewById(R.id.spnKabKotCustomer);
                         final Spinner spnKecamatanCustomer = (Spinner) promptView.findViewById(R.id.spnKecamatanCustomer);
                         final Spinner spnKelurahanCustomer = (Spinner) promptView.findViewById(R.id.spnKelurahanCustomer);
+
+                        alertDialogBuilderAttch.setView(promptView);
+//                    alertDialogBuilderAttch.setMessage("this is attachment of customer dialog");
+                        alertDialogBuilderAttch
+                                .setCancelable(false)
+                                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog, int id) {
+                                        dialog.cancel();
+                                        cbAttach.setChecked(false);
+                                        cbPassBy.setChecked(true);
+                                        cbWalkInCustomer.setEnabled(true);
+                                    }
+                                });
+                        final AlertDialog alertDHeader = alertDialogBuilderAttch.create();
+                        alertDHeader.show();
                         final String strLinkAPI = new clsHardCode().linkSearchCustomer;
                         final JSONObject resJson = new JSONObject();
                         btnSearchCustomer.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
+                                getActivity().onUserInteraction();
                                 final String keyword = etSearchCustomer.getText().toString();
                                 if (keyword.equals("")) {
                                     ToastCustom.showToasty(context, "Keyword Empty", 4);
@@ -1120,17 +1213,10 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                                                             lvCustomerSearch.setAdapter(new CardAdapterCustomerSearch(context, contentSearchResult, Color.WHITE));
                                                             final VMItems itemSelected = null;
                                                             lvCustomerSearch.setSelection(0);
-                                                            lvCustomerSearch.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                                                                @Override
-                                                                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                                                                    view.setSelected(true);
-
-                                                                }
-                                                            });
                                                             AlertDialog.Builder alertDialogBuilderAttch = new AlertDialog.Builder(getActivity());
                                                             alertDialogBuilderAttch.setView(promptView);
 //        alertDialogBuilderAttch.setMessage("this is attachment of customer dialog");
-                                                            alertDialogBuilderAttch
+                                                            /*alertDialogBuilderAttch
                                                                     .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                                                                         @Override
                                                                         public void onClick(DialogInterface dialog, int which) {
@@ -1142,94 +1228,191 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                                                                         public void onClick(DialogInterface dialog, int id) {
                                                                             dialog.cancel();
                                                                         }
-                                                                    });
-                                                            final AlertDialog alertD = alertDialogBuilderAttch.create();
-                                                            if (jsn.length() == 0) {
-                                                                ToastCustom.showToasty(context, "Customer Not Found", 3);
-                                                            } else {
-                                                                alertD.show();
-                                                                alertD.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
-                                                                    @Override
-                                                                    public void onClick(View v) {
-                                                                        String outlet = dataLogin.getTxtNamaInstitusi();
-                                                                        String contactID = "";
-                                                                        String province = STRKALCARE;
-                                                                        String kabkot = STRKALCARE;
-                                                                        String kecamatan = STRKALCARE;
-                                                                        String kelurahan = outlet;
-                                                                        String postCode = outlet;
-                                                                        String name = "";
-                                                                        String address = outlet;
-                                                                        String provinceID = "";
-                                                                        String kabKotID = "";
-                                                                        String kecID = "";
-                                                                        String kelID = "";
-                                                                        String phoneNumb = "";
+                                                                    });*/
+                                                            final AlertDialog alertDChild = alertDialogBuilderAttch.create();
+                                                            lvCustomerSearch.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                                                                @Override
+                                                                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                                                                    view.setSelected(true);
+                                                                    getActivity().onUserInteraction();
+                                                                    String outlet = dataLogin.getTxtNamaInstitusi();
+                                                                    String contactID = "";
+                                                                    String province = STRKALCARE;
+                                                                    String kabkot = STRKALCARE;
+                                                                    String kecamatan = STRKALCARE;
+                                                                    String kelurahan = outlet;
+                                                                    String postCode = outlet;
+                                                                    String name = "";
+                                                                    String address = outlet;
+                                                                    String provinceID = "";
+                                                                    String kabKotID = "";
+                                                                    String kecID = "";
+                                                                    String kelID = "";
+                                                                    String phoneNumb = "";
 
-                                                                        if (lvCustomerSearch.getCheckedItemPosition() < 0) {
-                                                                            ToastCustom.showToasty(context, "Pick customer first", 3);
-                                                                        } else {
-                                                                            int position = lvCustomerSearch.getCheckedItemPosition();
-                                                                            contactID = contentSearchResult.get(position).getTxtContactID();
+                                                                    if (lvCustomerSearch.getCheckedItemPosition() < 0) {
+                                                                        ToastCustom.showToasty(context, "Pick customer first", 3);
+                                                                    } else {
+//                                                                        int position = lvCustomerSearch.getCheckedItemPosition();
+                                                                        contactID = contentSearchResult.get(position).getTxtContactID();
 //                                                                            province = contentSearchResult.get(position).getTxtProv();
 //                                                                            kabkot = contentSearchResult.get(position).getTxtKabKot();
-                                                                            phoneNumb = contentSearchResult.get(position).getTxtListMed();
+                                                                        phoneNumb = contentSearchResult.get(position).getTxtListMed();
 //                                                                            kecamatan = contentSearchResult.get(position).getTxtKec();
 //                                                                            postCode = contentSearchResult.get(position).getTxtKodePos();
 //                                                                            address = contentSearchResult.get(position).getTxtAlamat();
-                                                                            name = contentSearchResult.get(position).getTxtNama();
-                                                                            provinceID = province;
-                                                                            kabKotID = kabkot;
-                                                                            kecID = kecamatan;
-                                                                            kelID = outlet;
-                                                                            kelurahan = outlet;
-                                                                            if (!spnOpsiSearchCustomer.getSelectedItem().toString().equals(SPNMEMBERID)) {
-                                                                                tvMemberNo.setText("Phone Number");
-                                                                            }
-                                                                            etMemberNo.setText(keyword);
-                                                                            etContactID.setText(contactID);
-                                                                            etPhoneNumb.setText(phoneNumb);
-//                                                                        spnPostCodeCustomer.setText(postCode);
-                                                                            etCustomerName.setText(name);
-                                                                            etAddress.setText(address);
-                                                                            List<String> categoriesPostCode = new ArrayList<String>();
-                                                                            String kodeposKelurahan = postCode + "-" + kelurahan;
-                                                                            categoriesPostCode.add(kodeposKelurahan);
-                                                                            HMKodePos.put(kodeposKelurahan, postCode);
-
-
-                                                                            SpinnerCustom.setAdapterSpinner(spnPostCodeCustomer, context, R.layout.custom_spinner, categoriesPostCode);
-                                                                            List<String> categoriesProv = new ArrayList<String>();
-                                                                            categoriesProv.add(province);
-                                                                            HMProvinceID.put(province, provinceID);
-                                                                            SpinnerCustom.setAdapterSpinner(spnProvinceCustomer, context, R.layout.custom_spinner, categoriesProv);
-
-                                                                            List<String> categoriesKabKot = new ArrayList<String>();
-                                                                            categoriesKabKot.add(kabkot);
-                                                                            HMKabKotID.put(kabkot, kabKotID);
-                                                                            SpinnerCustom.setAdapterSpinner(spnKabKotCustomer, context, R.layout.custom_spinner, categoriesKabKot);
-
-                                                                            List<String> categoriesKecamatan = new ArrayList<String>();
-                                                                            categoriesKecamatan.add(kecamatan);
-                                                                            HMKecID.put(kecamatan, kecID);
-                                                                            SpinnerCustom.setAdapterSpinner(spnKecamatanCustomer, context, R.layout.custom_spinner, categoriesKecamatan);
-
-                                                                            List<String> categoriesKelurahan = new ArrayList<String>();
-                                                                            categoriesKelurahan.add(kelurahan);
-                                                                            HMKel.put(kelurahan, kelurahan);
-                                                                            SpinnerCustom.setAdapterSpinner(spnKelurahanCustomer, context, R.layout.custom_spinner, categoriesKelurahan);
-
-                                                                            if (contactID.equals("") && province.equals("") && kabkot.equals("") && phoneNumb.equals("") && kecamatan.equals("") && kelurahan.equals("") && postCode.equals("")) {
-                                                                                ToastCustom.showToasty(context, "Data Invalid", 2);
-                                                                            } else {
-                                                                                alertD.dismiss();
-                                                                            }
-
-
+                                                                        name = contentSearchResult.get(position).getTxtNama();
+                                                                        provinceID = province;
+                                                                        kabKotID = kabkot;
+                                                                        kecID = kecamatan;
+                                                                        kelID = outlet;
+                                                                        kelurahan = outlet;
+                                                                        if (!spnOpsiSearchCustomer.getSelectedItem().toString().equals(SPNMEMBERID)) {
+                                                                            tvMemberNo.setText("Phone Number");
                                                                         }
+                                                                        etMemberNo.setText(keyword);
+                                                                        etContactID.setText(contactID);
+                                                                        etPhoneNumb.setText(phoneNumb);
+//                                                                        spnPostCodeCustomer.setText(postCode);
+                                                                        etCustomerName.setText(name);
+                                                                        etAddress.setText(address);
+                                                                        List<String> categoriesPostCode = new ArrayList<String>();
+                                                                        String kodeposKelurahan = postCode + "-" + kelurahan;
+                                                                        categoriesPostCode.add(kodeposKelurahan);
+                                                                        HMKodePos.put(kodeposKelurahan, postCode);
+
+
+                                                                        SpinnerCustom.setAdapterSpinner(spnPostCodeCustomer, context, R.layout.custom_spinner, categoriesPostCode);
+//                                                                            final List<String> categoriesProv = new ArrayList<String>();
+                                                                        categoriesProv.add(province);
+                                                                        HMProvinceID.put(province, provinceID);
+                                                                        SpinnerCustom.setAdapterSpinner(spnProvinceCustomer, context, R.layout.custom_spinner, categoriesProv);
+
+                                                                        List<String> categoriesKabKot = new ArrayList<String>();
+                                                                        categoriesKabKot.add(kabkot);
+                                                                        HMKabKotID.put(kabkot, kabKotID);
+                                                                        SpinnerCustom.setAdapterSpinner(spnKabKotCustomer, context, R.layout.custom_spinner, categoriesKabKot);
+
+                                                                        List<String> categoriesKecamatan = new ArrayList<String>();
+                                                                        categoriesKecamatan.add(kecamatan);
+                                                                        HMKecID.put(kecamatan, kecID);
+                                                                        SpinnerCustom.setAdapterSpinner(spnKecamatanCustomer, context, R.layout.custom_spinner, categoriesKecamatan);
+
+                                                                        List<String> categoriesKelurahan = new ArrayList<String>();
+                                                                        categoriesKelurahan.add(kelurahan);
+                                                                        HMKel.put(kelurahan, kelurahan);
+                                                                        SpinnerCustom.setAdapterSpinner(spnKelurahanCustomer, context, R.layout.custom_spinner, categoriesKelurahan);
+
+                                                                        if (contactID.equals("") && province.equals("") && kabkot.equals("") && phoneNumb.equals("") && kecamatan.equals("") && kelurahan.equals("") && postCode.equals("")) {
+                                                                            ToastCustom.showToasty(context, "Data Invalid", 2);
+                                                                        } else {
+                                                                            alertDChild.dismiss();
+                                                                        }
+                                                                        getActivity().onUserInteraction();
+                                                                        try {
+                                                                            resJson.put("txtPropinsiID", "");
+                                                                        } catch (JSONException e) {
+                                                                            e.printStackTrace();
+                                                                        }
+                                                                        String strLinkProvince = new clsHardCode().linkGetListPropinsi;
+//getDataProvinsi();
+                                                                        final String mRequestBody = resJson.toString();
+                                                                        new VolleyUtils().makeJsonObjectRequestWithToken(getActivity(), strLinkProvince, mRequestBody, access_token, "Please Wait...", new VolleyResponseListener() {
+                                                                            @Override
+                                                                            public void onError(String response) {
+                                                                                ToastCustom.showToasty(context, response, 2);
+                                                                            }
+
+                                                                            @Override
+                                                                            public void onResponse(String response, Boolean status, String strErrorMsg) {
+                                                                                if (response != null) {
+                                                                                    JSONObject jsonObject = null;
+                                                                                    try {
+                                                                                        jsonObject = new JSONObject(response);
+                                                                                        int result = jsonObject.getInt("intResult");
+                                                                                        String warn = jsonObject.getString("txtMessage");
+                                                                                        if (result == 1) {
+
+                                                                                            if (!jsonObject.getString("ListData").equals("null")) {
+                                                                                                JSONArray jsn = jsonObject.getJSONArray("ListData");
+
+                                                                                                for (int n = 0; n < jsn.length(); n++) {
+                                                                                                    JSONObject object = jsn.getJSONObject(n);
+                                                                                                    String ltxKeterangan = object.getString("ltxKeterangan");
+                                                                                                    String txtNamaPropinsi = object.getString("txtNamaPropinsi");
+                                                                                                    String txtPropinsiID = object.getString("txtPropinsiID");
+                                                                                                    String txtNegaraID = object.getString("txtNegaraID");
+                                                                                                    categoriesProv.add(txtNamaPropinsi);
+                                                                                                    HMProvinceID.put(txtNamaPropinsi, txtPropinsiID);
+                                                                                                }
+                                                                                            }
+                                                                                            if (etContactID.getText().toString().equals("")) {
+                                                                                                ToastCustom.showToasty(context, "Customer Empty", 3);
+                                                                                            } else {
+                                                                                                tvContactIDHeader.setText(etContactID.getText().toString());
+                                                                                                tvMemberNoHeader.setText(etMemberNo.getText().toString());
+                                                                                                tvCustomerNameHeader.setText(etCustomerName.getText().toString());
+                                                                                                tvPhoneNumb.setText(etPhoneNumb.getText().toString());
+                                                                                                String outlet = dataLogin.getTxtNamaInstitusi();
+
+                                                                                                provinceCustomer = STRKALCARE;
+                                                                                                kabKotCustomer = STRKALCARE;
+                                                                                                kecamatanCustomer = STRKALCARE;
+                                                                                                kelurahanCustomer = outlet;
+                                                                                                postCodeCustomer = outlet + "-" + outlet;
+                                                                                                int a = intWalkinCustomer;
+//                                                        if(intWalkinCustomer != 1)
+                                                                                                SpinnerCustom.setAdapterSpinner(spnProvinceAddOrder, context, R.layout.custom_spinner, categoriesProv);
+                                                                                                SpinnerCustom.selectedItemByText(context, spnProvinceAddOrder, categoriesProv, provinceCustomer);
+                                                                                                if (intWalkinCustomer == 1) {
+                                                                                                    spnProvinceAddOrder.setEnabled(false);
+                                                                                                    spnKabKotAddOrder.setEnabled(false);
+                                                                                                    spnKecamatanAddOrder.setEnabled(false);
+                                                                                                    spnKelurahanAddOrder.setEnabled(false);
+                                                                                                    spnPostCodeAddOrder.setEnabled(false);
+                                                                                                } else {
+                                                                                                    spnProvinceAddOrder.setEnabled(true);
+                                                                                                    spnKabKotAddOrder.setEnabled(true);
+                                                                                                    spnKecamatanAddOrder.setEnabled(true);
+                                                                                                    spnKelurahanAddOrder.setEnabled(true);
+                                                                                                    spnPostCodeAddOrder.setEnabled(true);
+                                                                                                }
+
+                                                                                                if (provinceCustomer.equals("") || kabKotCustomer.equals("") || kecamatanCustomer.equals("") || kelurahanCustomer.equals("") || postCodeCustomer.equals("")) {
+                                                                                                    ToastCustom.showToasty(context, "Invalid Data Customer", 3);
+                                                                                                } else {
+                                                                                                    alertDHeader.dismiss();
+                                                                                                    alertDChild.dismiss();
+                                                                                                    lnCustomerDetail.setVisibility(View.VISIBLE);
+                                                                                                    boolAttachCustomer = true;
+                                                                                                }
+                                                                                            }
+                                                                                        }
+                                                                                    } catch (JSONException e) {
+
+                                                                                    }
+
+                                                                                }
+                                                                            }
+                                                                        });
+
 
                                                                     }
-                                                                });
+
+                                                                }
+                                                            });
+
+                                                            if (jsn.length() == 0) {
+                                                                ToastCustom.showToasty(context, "Customer Not Found", 3);
+                                                            } else {
+                                                                alertDChild.show();
+                                                                /*alertDChild.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
+                                                                    @Override
+                                                                    public void onClick(View v) {
+
+
+                                                                    }
+                                                                });*/
                                                             }
 
                                                         }
@@ -1256,124 +1439,20 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                         categories.add(SPNPHONE);
                         SpinnerCustom.setAdapterSpinner(spnOpsiSearchCustomer, context, R.layout.custom_spinner, categories);
 
-                        alertDialogBuilderAttch.setView(promptView);
-//                    alertDialogBuilderAttch.setMessage("this is attachment of customer dialog");
-                        alertDialogBuilderAttch
-                                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialog, int which) {
 
-                                    }
-                                })
-                                .setCancelable(false)
-                                .setNegativeButton("No", new DialogInterface.OnClickListener() {
-                                    public void onClick(DialogInterface dialog, int id) {
-                                        dialog.cancel();
-                                        cbAttach.setChecked(false);
-                                        cbPassBy.setChecked(true);
-                                        cbWalkInCustomer.setEnabled(true);
-                                    }
-                                });
-                        final AlertDialog alertD = alertDialogBuilderAttch.create();
-                        alertD.show();
-                        alertD.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
+                        alertDHeader.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
 
 
-                                try {
-                                    resJson.put("txtPropinsiID", "");
-                                } catch (JSONException e) {
-                                    e.printStackTrace();
-                                }
-                                String strLinkProvince = new clsHardCode().linkGetListPropinsi;
-//getDataProvinsi();
-                                final String mRequestBody = resJson.toString();
-                                new VolleyUtils().makeJsonObjectRequestWithToken(getActivity(), strLinkProvince, mRequestBody, access_token, "Please Wait...", new VolleyResponseListener() {
-                                    @Override
-                                    public void onError(String response) {
-                                        ToastCustom.showToasty(context, response, 2);
-                                    }
-
-                                    @Override
-                                    public void onResponse(String response, Boolean status, String strErrorMsg) {
-                                        if (response != null) {
-                                            JSONObject jsonObject = null;
-                                            try {
-                                                jsonObject = new JSONObject(response);
-                                                int result = jsonObject.getInt("intResult");
-                                                String warn = jsonObject.getString("txtMessage");
-                                                if (result == 1) {
-
-                                                    if (!jsonObject.getString("ListData").equals("null")) {
-                                                        JSONArray jsn = jsonObject.getJSONArray("ListData");
-
-                                                        for (int n = 0; n < jsn.length(); n++) {
-                                                            JSONObject object = jsn.getJSONObject(n);
-                                                            String ltxKeterangan = object.getString("ltxKeterangan");
-                                                            String txtNamaPropinsi = object.getString("txtNamaPropinsi");
-                                                            String txtPropinsiID = object.getString("txtPropinsiID");
-                                                            String txtNegaraID = object.getString("txtNegaraID");
-                                                            categoriesProv.add(txtNamaPropinsi);
-                                                            HMProvinceID.put(txtNamaPropinsi, txtPropinsiID);
-                                                        }
-                                                    }
-                                                    if (etContactID.getText().toString().equals("")) {
-                                                        ToastCustom.showToasty(context, "Customer Empty", 3);
-                                                    } else {
-                                                        tvContactIDHeader.setText(etContactID.getText().toString());
-                                                        tvMemberNoHeader.setText(etMemberNo.getText().toString());
-                                                        tvCustomerNameHeader.setText(etCustomerName.getText().toString());
-                                                        tvPhoneNumb.setText(etPhoneNumb.getText().toString());
-                                                        String outlet = dataLogin.getTxtNamaInstitusi();
-
-                                                        provinceCustomer = STRKALCARE;
-                                                        kabKotCustomer = STRKALCARE;
-                                                        kecamatanCustomer = STRKALCARE;
-                                                        kelurahanCustomer = outlet;
-                                                        postCodeCustomer = outlet+"-"+outlet;
-                                                        int a = intWalkinCustomer;
-//                                                        if(intWalkinCustomer != 1)
-                                                        SpinnerCustom.setAdapterSpinner(spnProvinceAddOrder, context, R.layout.custom_spinner, categoriesProv);
-                                                        SpinnerCustom.selectedItemByText(context, spnProvinceAddOrder, categoriesProv, provinceCustomer);
-                                                        if(intWalkinCustomer == 1)
-                                                        {
-                                                            spnProvinceAddOrder.setEnabled(false);
-                                                            spnKabKotAddOrder.setEnabled(false);
-                                                            spnKecamatanAddOrder.setEnabled(false);
-                                                            spnKelurahanAddOrder.setEnabled(false);
-                                                            spnPostCodeAddOrder.setEnabled(false);
-                                                        }else{
-                                                            spnProvinceAddOrder.setEnabled(true);
-                                                            spnKabKotAddOrder.setEnabled(true);
-                                                            spnKecamatanAddOrder.setEnabled(true);
-                                                            spnKelurahanAddOrder.setEnabled(true);
-                                                            spnPostCodeAddOrder.setEnabled(true);
-                                                        }
-
-                                                        if (provinceCustomer.equals("") || kabKotCustomer.equals("") || kecamatanCustomer.equals("") || kelurahanCustomer.equals("") || postCodeCustomer.equals("")) {
-                                                            ToastCustom.showToasty(context, "Invalid Data Customer", 3);
-                                                        } else {
-                                                            alertD.dismiss();
-                                                            lnCustomerDetail.setVisibility(View.VISIBLE);
-                                                            boolAttachCustomer = true;
-                                                        }
-                                                    }
-                                                }
-                                            } catch (JSONException e) {
-
-                                            }
-
-                                        }
-                                    }
-                                });
-
-
                             }
                         });
-                    }else{
+                    } else {
                         intWalkinCustomer = 0;
-                        cbPassBy.setChecked(true);
+                        if (!cbAttach.isChecked()) {
+                            cbPassBy.setChecked(true);
+                        }
+
                     }
                 }
 
@@ -1382,35 +1461,70 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
         cbAttach.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                getActivity().onUserInteraction();
                 if (!boolRestore) {
                     if (isChecked) {
+                        if (boolDraft) {
+//                    boolean boolDraftWalkin = draft.isBoolWalkinCustomer();
+//                            boolean boolPassBy = draft.isBoolPassBy();
+                            boolean boolDeliverySch = draft.isBoolAttachCustomer();
+                            if (boolDeliverySch) {
+                                new clsProductDraftRepo(context).clearAllData();
+                            }
+                        }
+                        etDeliverySchedule.setClickable(true);
+                        etDeliverySchedule.setEnabled(true);
                         cbPassBy.setChecked(false);
                         cbWalkInCustomer.setChecked(false);
                         intPassBy = 0;
                         intWalkinCustomer = 0;
                         LayoutInflater layoutInflater = LayoutInflater.from(context);
                         AlertDialog.Builder alertDialogBuilderAttch = new AlertDialog.Builder(getActivity());
-                        final View promptView = layoutInflater.inflate(R.layout.popup_customer, null);
+                        final View promptViewCustSearchHeader = layoutInflater.inflate(R.layout.popup_customer, null);
+                        /*final AlertDialog alertDCustSearchHeader = alertDialogBuilderAttch.create();
+                        alertDCustSearchHeader.show();*/
 //                    unbinder = ButterKnife.bind(this, promptView);
-                        Button btnSearchCustomer = (Button) promptView.findViewById(R.id.btnSearchCustomer);
-                        final Spinner spnOpsiSearchCustomer = (Spinner) promptView.findViewById(R.id.spnJenisCustomer);
-                        final EditText etSearchCustomer = (EditText) promptView.findViewById(R.id.etSearchCustomer);
-                        final EditText etContactID = (EditText) promptView.findViewById(R.id.etContactID);
-                        final EditText etPhoneNumb = (EditText) promptView.findViewById(R.id.etPhoneNumb);
-                        final EditText etMemberNo = (EditText) promptView.findViewById(R.id.etMemberNo);
-                        final TextView tvMemberNo = (TextView) promptView.findViewById(R.id.tvMemberNo);
-                        final EditText etCustomerName = (EditText) promptView.findViewById(R.id.etCustomerName);
+                        Button btnSearchCustomer = (Button) promptViewCustSearchHeader.findViewById(R.id.btnSearchCustomer);
+                        final Spinner spnOpsiSearchCustomer = (Spinner) promptViewCustSearchHeader.findViewById(R.id.spnJenisCustomer);
+                        final EditText etSearchCustomer = (EditText) promptViewCustSearchHeader.findViewById(R.id.etSearchCustomer);
+                        Helper.textWatcher(etSearchCustomer, getActivity());
+                        final EditText etContactID = (EditText) promptViewCustSearchHeader.findViewById(R.id.etContactID);
+                        final EditText etPhoneNumb = (EditText) promptViewCustSearchHeader.findViewById(R.id.etPhoneNumb);
+                        final EditText etMemberNo = (EditText) promptViewCustSearchHeader.findViewById(R.id.etMemberNo);
+                        final TextView tvMemberNo = (TextView) promptViewCustSearchHeader.findViewById(R.id.tvMemberNo);
+                        final EditText etCustomerName = (EditText) promptViewCustSearchHeader.findViewById(R.id.etCustomerName);
 //                    final EditText spnPostCodeCustomer = (EditText) promptView.findViewById(R.id.etPostCodeCustomer);
-                        final Spinner spnPostCodeCustomer = (Spinner) promptView.findViewById(R.id.spnPostCodeCustomer);
-                        final Spinner spnProvinceCustomer = (Spinner) promptView.findViewById(R.id.spnProvinceCustomer);
-                        final Spinner spnKabKotCustomer = (Spinner) promptView.findViewById(R.id.spnKabKotCustomer);
-                        final Spinner spnKecamatanCustomer = (Spinner) promptView.findViewById(R.id.spnKecamatanCustomer);
-                        final Spinner spnKelurahanCustomer = (Spinner) promptView.findViewById(R.id.spnKelurahanCustomer);
+                        final Spinner spnPostCodeCustomer = (Spinner) promptViewCustSearchHeader.findViewById(R.id.spnPostCodeCustomer);
+                        final Spinner spnProvinceCustomer = (Spinner) promptViewCustSearchHeader.findViewById(R.id.spnProvinceCustomer);
+                        final Spinner spnKabKotCustomer = (Spinner) promptViewCustSearchHeader.findViewById(R.id.spnKabKotCustomer);
+                        final Spinner spnKecamatanCustomer = (Spinner) promptViewCustSearchHeader.findViewById(R.id.spnKecamatanCustomer);
+                        final Spinner spnKelurahanCustomer = (Spinner) promptViewCustSearchHeader.findViewById(R.id.spnKelurahanCustomer);
                         final String strLinkAPI = new clsHardCode().linkSearchCustomer;
                         final JSONObject resJson = new JSONObject();
+                        alertDialogBuilderAttch.setView(promptViewCustSearchHeader);
+//                    alertDialogBuilderAttch.setMessage("this is attachment of customer dialog");
+                        alertDialogBuilderAttch
+                                .setCancelable(false)
+                                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog, int id) {
+                                        dialog.cancel();
+                                        cbAttach.setChecked(false);
+                                        cbPassBy.setChecked(true);
+                                    }
+                                });
+                        final AlertDialog alertDCustSearchHeader = alertDialogBuilderAttch.create();
+
+                        alertDCustSearchHeader.show();
+                        /*alertDCustSearchHeader.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+
+                            }
+                        });*/
                         btnSearchCustomer.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
+                                getActivity().onUserInteraction();
                                 final String keyword = etSearchCustomer.getText().toString();
                                 if (keyword.equals("")) {
                                     ToastCustom.showToasty(context, "Keyword Empty", 4);
@@ -1449,9 +1563,9 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                                                     if (result == 1) {
                                                         if (!jsonObject.getString("ListData").equals("null")) {
                                                             LayoutInflater layoutInflater = LayoutInflater.from(context);
-                                                            final View promptView = layoutInflater.inflate(R.layout.popup_customer_search, null);
+                                                            final View promptViewCustSearchCh = layoutInflater.inflate(R.layout.popup_customer_search, null);
 
-                                                            final ListView lvCustomerSearch = (ListView) promptView.findViewById(R.id.lvCustSearchResult);
+                                                            final ListView lvCustomerSearch = (ListView) promptViewCustSearchCh.findViewById(R.id.lvCustSearchResult);
                                                             final List<VMCustomers> contentSearchResult = new ArrayList<VMCustomers>();
                                                             VMCustomers item = new VMCustomers();
 
@@ -1494,17 +1608,10 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                                                             lvCustomerSearch.setAdapter(new CardAdapterCustomerSearch(context, contentSearchResult, Color.WHITE));
                                                             final VMItems itemSelected = null;
                                                             lvCustomerSearch.setSelection(0);
-                                                            lvCustomerSearch.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                                                                @Override
-                                                                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                                                                    view.setSelected(true);
-
-                                                                }
-                                                            });
                                                             AlertDialog.Builder alertDialogBuilderAttch = new AlertDialog.Builder(getActivity());
-                                                            alertDialogBuilderAttch.setView(promptView);
+                                                            alertDialogBuilderAttch.setView(promptViewCustSearchCh);
 //        alertDialogBuilderAttch.setMessage("this is attachment of customer dialog");
-                                                            alertDialogBuilderAttch
+                                                           /* alertDialogBuilderAttch
                                                                     .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                                                                         @Override
                                                                         public void onClick(DialogInterface dialog, int which) {
@@ -1516,63 +1623,65 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                                                                         public void onClick(DialogInterface dialog, int id) {
                                                                             dialog.cancel();
                                                                         }
-                                                                    });
-                                                            final AlertDialog alertD = alertDialogBuilderAttch.create();
-                                                            if (jsn.length() == 0) {
-                                                                ToastCustom.showToasty(context, "Customer Not Found", 3);
-                                                            } else {
-                                                                alertD.show();
-                                                                alertD.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
-                                                                    @Override
-                                                                    public void onClick(View v) {
-                                                                        String contactID = "";
-                                                                        String province = "";
-                                                                        String kabkot = "";
-                                                                        String kecamatan = "";
-                                                                        String kelurahan = "";
-                                                                        String postCode = "";
-                                                                        String name = "";
-                                                                        String address = "";
-                                                                        String provinceID = "";
-                                                                        String kabKotID = "";
-                                                                        String kecID = "";
-                                                                        String kelID = "";
-                                                                        String phoneNumb = "";
+                                                                    });*/
+                                                            final AlertDialog alertDCustSearch = alertDialogBuilderAttch.create();
+                                                            lvCustomerSearch.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                                                                @Override
+                                                                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                                                                    view.setSelected(true);
+                                                                    getActivity().onUserInteraction();
+                                                                    String contactID = "";
+                                                                    String province = "";
+                                                                    String kabkot = "";
+                                                                    String kecamatan = "";
+                                                                    String kelurahan = "";
+                                                                    String postCode = "";
+                                                                    String name = "";
+                                                                    String address = "";
+                                                                    String provinceID = "";
+                                                                    String kabKotID = "";
+                                                                    String kecID = "";
+                                                                    String kelID = "";
+                                                                    String phoneNumb = "";
 
-                                                                        if (lvCustomerSearch.getCheckedItemPosition() < 0) {
-                                                                            ToastCustom.showToasty(context, "Pick customer first", 3);
-                                                                        } else {
-                                                                            int position = lvCustomerSearch.getCheckedItemPosition();
-                                                                            contactID = contentSearchResult.get(position).getTxtContactID();
-                                                                            province = contentSearchResult.get(position).getTxtProv();
-                                                                            kabkot = contentSearchResult.get(position).getTxtKabKot();
-                                                                            phoneNumb = contentSearchResult.get(position).getTxtListMed();
-                                                                            kecamatan = contentSearchResult.get(position).getTxtKec();
-                                                                            postCode = contentSearchResult.get(position).getTxtKodePos();
-                                                                            address = contentSearchResult.get(position).getTxtAlamat();
-                                                                            name = contentSearchResult.get(position).getTxtNama();
-                                                                            provinceID = contentSearchResult.get(position).getTxtProvID();
-                                                                            kabKotID = contentSearchResult.get(position).getTxtProvID();
-                                                                            kecID = contentSearchResult.get(position).getTxtKecID();
-                                                                            kelID = contentSearchResult.get(position).getTxtKel();
-                                                                            kelurahan = contentSearchResult.get(position).getTxtKel();
-                                                                            if (!spnOpsiSearchCustomer.getSelectedItem().toString().equals(SPNMEMBERID)) {
-                                                                                tvMemberNo.setText("Phone Number");
-                                                                            }
-                                                                            etMemberNo.setText(keyword);
-                                                                            etContactID.setText(contactID);
-                                                                            etPhoneNumb.setText(phoneNumb);
+                                                                    if (lvCustomerSearch.getCheckedItemPosition() < 0) {
+                                                                        ToastCustom.showToasty(context, "Pick customer first", 3);
+                                                                    } else {
+//                                                                        int position = lvCustomerSearch.getCheckedItemPosition();
+                                                                        contactID = contentSearchResult.get(position).getTxtContactID();
+                                                                        province = contentSearchResult.get(position).getTxtProv();
+                                                                        kabkot = contentSearchResult.get(position).getTxtKabKot();
+                                                                        phoneNumb = contentSearchResult.get(position).getTxtListMed();
+                                                                        kecamatan = contentSearchResult.get(position).getTxtKec();
+                                                                        postCode = contentSearchResult.get(position).getTxtKodePos();
+                                                                        address = contentSearchResult.get(position).getTxtAlamat();
+                                                                        name = contentSearchResult.get(position).getTxtNama();
+                                                                        provinceID = contentSearchResult.get(position).getTxtProvID();
+                                                                        kabKotID = contentSearchResult.get(position).getTxtProvID();
+                                                                        kecID = contentSearchResult.get(position).getTxtKecID();
+                                                                        kelID = contentSearchResult.get(position).getTxtKel();
+                                                                        kelurahan = contentSearchResult.get(position).getTxtKel();
+                                                                        if (!spnOpsiSearchCustomer.getSelectedItem().toString().equals(SPNMEMBERID)) {
+                                                                            tvMemberNo.setText("Phone Number");
+                                                                        }
+                                                                        etMemberNo.setText(keyword);
+                                                                        etContactID.setText(contactID);
+                                                                        etPhoneNumb.setText(phoneNumb);
 //                                                                        spnPostCodeCustomer.setText(postCode);
-                                                                            etCustomerName.setText(name);
-                                                                            etAddress.setText(address);
-                                                                            List<String> categoriesPostCode = new ArrayList<String>();
-                                                                            String kodeposKelurahan = postCode + "-" + kelurahan;
-                                                                            categoriesPostCode.add(kodeposKelurahan);
-                                                                            HMKodePos.put(kodeposKelurahan, postCode);
+                                                                        etCustomerName.setText(name);
+                                                                        etAddress.setText(address);
+                                                                        List<String> categoriesPostCode = new ArrayList<String>();
+                                                                        String kodeposKelurahan = postCode + "-" + kelurahan;
+                                                                        categoriesPostCode.add(kodeposKelurahan);
+                                                                        HMKodePos.put(kodeposKelurahan, postCode);
 
-
-                                                                            SpinnerCustom.setAdapterSpinner(spnPostCodeCustomer, context, R.layout.custom_spinner, categoriesPostCode);
-                                                                            List<String> categoriesProv = new ArrayList<String>();
+                                                                        provinceCustomer = province;
+                                                                        kabKotCustomer = kabkot;
+                                                                        kecamatanCustomer = kecamatan;
+                                                                        kelurahanCustomer = kelurahan;
+                                                                        postCodeCustomer = postCode;
+                                                                        SpinnerCustom.setAdapterSpinner(spnPostCodeCustomer, context, R.layout.custom_spinner, categoriesPostCode);
+                                                                            /*List<String> categoriesProv = new ArrayList<String>();
                                                                             categoriesProv.add(province);
                                                                             HMProvinceID.put(province, provinceID);
                                                                             SpinnerCustom.setAdapterSpinner(spnProvinceCustomer, context, R.layout.custom_spinner, categoriesProv);
@@ -1591,18 +1700,116 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                                                                             categoriesKelurahan.add(kelurahan);
                                                                             HMKel.put(kelurahan, kelurahan);
                                                                             SpinnerCustom.setAdapterSpinner(spnKelurahanCustomer, context, R.layout.custom_spinner, categoriesKelurahan);
-
-                                                                            if (contactID.equals("") && province.equals("") && kabkot.equals("") && phoneNumb.equals("") && kecamatan.equals("") && kelurahan.equals("") && postCode.equals("")) {
-                                                                                ToastCustom.showToasty(context, "Data Invalid", 2);
-                                                                            } else {
-                                                                                alertD.dismiss();
+*/
+                                                                        if (contactID.equals("") && province.equals("") && kabkot.equals("") && phoneNumb.equals("") && kecamatan.equals("") && kelurahan.equals("") && postCode.equals("")) {
+                                                                            ToastCustom.showToasty(context, "Data Invalid", 2);
+                                                                        } else {
+                                                                            alertDCustSearch.dismiss();
+                                                                            getActivity().onUserInteraction();
+                                                                            try {
+                                                                                resJson.put("txtPropinsiID", "");
+                                                                            } catch (JSONException e) {
+                                                                                e.printStackTrace();
                                                                             }
+                                                                            String strLinkProvince = new clsHardCode().linkGetListPropinsi;
+//getDataProvinsi();
+                                                                            final String mRequestBody = resJson.toString();
+                                                                            new VolleyUtils().makeJsonObjectRequestWithToken(getActivity(), strLinkProvince, mRequestBody, access_token, "Please Wait...", new VolleyResponseListener() {
+                                                                                @Override
+                                                                                public void onError(String response) {
+                                                                                    ToastCustom.showToasty(context, response, 2);
+                                                                                }
+
+                                                                                @Override
+                                                                                public void onResponse(String response, Boolean status, String strErrorMsg) {
+                                                                                    if (response != null) {
+                                                                                        JSONObject jsonObject = null;
+                                                                                        try {
+                                                                                            jsonObject = new JSONObject(response);
+                                                                                            int result = jsonObject.getInt("intResult");
+                                                                                            String warn = jsonObject.getString("txtMessage");
+                                                                                            if (result == 1) {
+
+                                                                                                if (!jsonObject.getString("ListData").equals("null")) {
+                                                                                                    JSONArray jsn = jsonObject.getJSONArray("ListData");
+
+                                                                                                    for (int n = 0; n < jsn.length(); n++) {
+                                                                                                        JSONObject object = jsn.getJSONObject(n);
+                                                                                                        String ltxKeterangan = object.getString("ltxKeterangan");
+                                                                                                        String txtNamaPropinsi = object.getString("txtNamaPropinsi");
+                                                                                                        String txtPropinsiID = object.getString("txtPropinsiID");
+                                                                                                        String txtNegaraID = object.getString("txtNegaraID");
+                                                                                                        categoriesProv.add(txtNamaPropinsi);
+                                                                                                        HMProvinceID.put(txtNamaPropinsi, txtPropinsiID);
+                                                                                                    }
+                                                                                                }
+                                                                                                if (etContactID.getText().toString().equals("")) {
+                                                                                                    ToastCustom.showToasty(context, "Customer Empty", 3);
+                                                                                                } else {
+                                                                                                    tvContactIDHeader.setText(etContactID.getText().toString());
+                                                                                                    tvMemberNoHeader.setText(etMemberNo.getText().toString());
+                                                                                                    tvCustomerNameHeader.setText(etCustomerName.getText().toString());
+                                                                                                    tvPhoneNumb.setText(etPhoneNumb.getText().toString());
+
+//                                                                                                        provinceCustomer = spnProvinceCustomer.getSelectedItem().toString();
+//                                                                                                        kabKotCustomer = spnKabKotCustomer.getSelectedItem().toString();
+//                                                                                                        kecamatanCustomer = spnKecamatanCustomer.getSelectedItem().toString();
+//                                                                                                        kelurahanCustomer = spnKelurahanCustomer.getSelectedItem().toString();
+//                                                                                                        postCodeCustomer = spnPostCodeCustomer.getSelectedItem().toString();
 
 
+                                                                                                    SpinnerCustom.setAdapterSpinner(spnProvinceAddOrder, context, R.layout.custom_spinner, categoriesProv);
+                                                                                                    SpinnerCustom.selectedItemByText(context, spnProvinceAddOrder, categoriesProv, provinceCustomer);
+                                                                                                    if (intWalkinCustomer == 1) {
+                                                                                                        spnProvinceAddOrder.setEnabled(false);
+                                                                                                        spnKabKotAddOrder.setEnabled(false);
+                                                                                                        spnKecamatanAddOrder.setEnabled(false);
+                                                                                                        spnKelurahanAddOrder.setEnabled(false);
+                                                                                                        spnPostCodeAddOrder.setEnabled(false);
+                                                                                                    } else {
+                                                                                                        spnProvinceAddOrder.setEnabled(true);
+                                                                                                        spnKabKotAddOrder.setEnabled(true);
+                                                                                                        spnKecamatanAddOrder.setEnabled(true);
+                                                                                                        spnKelurahanAddOrder.setEnabled(true);
+                                                                                                        spnPostCodeAddOrder.setEnabled(true);
+                                                                                                    }
+                                                                                                    if (provinceCustomer.equals("") || kabKotCustomer.equals("") || kecamatanCustomer.equals("") || kelurahanCustomer.equals("") || postCodeCustomer.equals("")) {
+                                                                                                        ToastCustom.showToasty(context, "Invalid Data Customer", 3);
+                                                                                                    } else {
+                                                                                                        alertDCustSearch.dismiss();
+                                                                                                        alertDCustSearchHeader.dismiss();
+                                                                                                        lnCustomerDetail.setVisibility(View.VISIBLE);
+                                                                                                        boolAttachCustomer = true;
+                                                                                                    }
+                                                                                                }
+                                                                                            }
+                                                                                        } catch (JSONException e) {
+
+                                                                                        }
+
+                                                                                    }
+                                                                                }
+                                                                            });
                                                                         }
 
+
                                                                     }
-                                                                });
+
+                                                                }
+                                                            });
+
+                                                            /*alertDCustSearch.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
+                                                                @Override
+                                                                public void onClick(View v) {
+
+
+                                                                }
+                                                            });*/
+                                                            if (jsn.length() == 0) {
+                                                                ToastCustom.showToasty(context, "Customer Not Found", 3);
+                                                            } else {
+                                                                alertDCustSearch.show();
+
                                                             }
 
                                                         }
@@ -1629,120 +1836,9 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                         categories.add(SPNPHONE);
                         SpinnerCustom.setAdapterSpinner(spnOpsiSearchCustomer, context, R.layout.custom_spinner, categories);
 
-                        alertDialogBuilderAttch.setView(promptView);
-//                    alertDialogBuilderAttch.setMessage("this is attachment of customer dialog");
-                        alertDialogBuilderAttch
-                                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialog, int which) {
 
-                                    }
-                                })
-                                .setCancelable(false)
-                                .setNegativeButton("No", new DialogInterface.OnClickListener() {
-                                    public void onClick(DialogInterface dialog, int id) {
-                                        dialog.cancel();
-                                        cbAttach.setChecked(false);
-                                        cbPassBy.setChecked(true);
-                                    }
-                                });
-                        final AlertDialog alertD = alertDialogBuilderAttch.create();
-                        alertD.show();
-                        alertD.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-
-
-                                try {
-                                    resJson.put("txtPropinsiID", "");
-                                } catch (JSONException e) {
-                                    e.printStackTrace();
-                                }
-                                String strLinkProvince = new clsHardCode().linkGetListPropinsi;
-//getDataProvinsi();
-                                final String mRequestBody = resJson.toString();
-                                new VolleyUtils().makeJsonObjectRequestWithToken(getActivity(), strLinkProvince, mRequestBody, access_token, "Please Wait...", new VolleyResponseListener() {
-                                    @Override
-                                    public void onError(String response) {
-                                        ToastCustom.showToasty(context, response, 2);
-                                    }
-
-                                    @Override
-                                    public void onResponse(String response, Boolean status, String strErrorMsg) {
-                                        if (response != null) {
-                                            JSONObject jsonObject = null;
-                                            try {
-                                                jsonObject = new JSONObject(response);
-                                                int result = jsonObject.getInt("intResult");
-                                                String warn = jsonObject.getString("txtMessage");
-                                                if (result == 1) {
-
-                                                    if (!jsonObject.getString("ListData").equals("null")) {
-                                                        JSONArray jsn = jsonObject.getJSONArray("ListData");
-
-                                                        for (int n = 0; n < jsn.length(); n++) {
-                                                            JSONObject object = jsn.getJSONObject(n);
-                                                            String ltxKeterangan = object.getString("ltxKeterangan");
-                                                            String txtNamaPropinsi = object.getString("txtNamaPropinsi");
-                                                            String txtPropinsiID = object.getString("txtPropinsiID");
-                                                            String txtNegaraID = object.getString("txtNegaraID");
-                                                            categoriesProv.add(txtNamaPropinsi);
-                                                            HMProvinceID.put(txtNamaPropinsi, txtPropinsiID);
-                                                        }
-                                                    }
-                                                    if (etContactID.getText().toString().equals("")) {
-                                                        ToastCustom.showToasty(context, "Customer Empty", 3);
-                                                    } else {
-                                                        tvContactIDHeader.setText(etContactID.getText().toString());
-                                                        tvMemberNoHeader.setText(etMemberNo.getText().toString());
-                                                        tvCustomerNameHeader.setText(etCustomerName.getText().toString());
-                                                        tvPhoneNumb.setText(etPhoneNumb.getText().toString());
-
-                                                        provinceCustomer = spnProvinceCustomer.getSelectedItem().toString();
-                                                        kabKotCustomer = spnKabKotCustomer.getSelectedItem().toString();
-                                                        kecamatanCustomer = spnKecamatanCustomer.getSelectedItem().toString();
-                                                        kelurahanCustomer = spnKelurahanCustomer.getSelectedItem().toString();
-                                                        postCodeCustomer = spnPostCodeCustomer.getSelectedItem().toString();
-
-
-                                                        SpinnerCustom.setAdapterSpinner(spnProvinceAddOrder, context, R.layout.custom_spinner, categoriesProv);
-                                                        SpinnerCustom.selectedItemByText(context, spnProvinceAddOrder, categoriesProv, provinceCustomer);
-                                                        if(intWalkinCustomer == 1)
-                                                        {
-                                                            spnProvinceAddOrder.setEnabled(false);
-                                                            spnKabKotAddOrder.setEnabled(false);
-                                                            spnKecamatanAddOrder.setEnabled(false);
-                                                            spnKelurahanAddOrder.setEnabled(false);
-                                                            spnPostCodeAddOrder.setEnabled(false);
-                                                        }else{
-                                                            spnProvinceAddOrder.setEnabled(true);
-                                                            spnKabKotAddOrder.setEnabled(true);
-                                                            spnKecamatanAddOrder.setEnabled(true);
-                                                            spnKelurahanAddOrder.setEnabled(true);
-                                                            spnPostCodeAddOrder.setEnabled(true);
-                                                        }
-                                                        if (provinceCustomer.equals("") || kabKotCustomer.equals("") || kecamatanCustomer.equals("") || kelurahanCustomer.equals("") || postCodeCustomer.equals("")) {
-                                                            ToastCustom.showToasty(context, "Invalid Data Customer", 3);
-                                                        } else {
-                                                            alertD.dismiss();
-                                                            lnCustomerDetail.setVisibility(View.VISIBLE);
-                                                            boolAttachCustomer = true;
-                                                        }
-                                                    }
-                                                }
-                                            } catch (JSONException e) {
-
-                                            }
-
-                                        }
-                                    }
-                                });
-
-
-                            }
-                        });
                     } else {
-                        if(intWalkinCustomer != 1){
+                        if (intWalkinCustomer != 1) {
                             intPassBy = 1;
                             lnCustomerDetail.setVisibility(View.GONE);
                             tvContactIDHeader.setText("");
@@ -1765,8 +1861,48 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
         if (cbPassBy.isChecked()) {
             cbAttach.setChecked(false);
             lnCustomerDetail.setVisibility(View.GONE);
+            SimpleDateFormat sdf = new SimpleDateFormat("dd MMM yyyy");
+            String date = sdf.format(dtLoginData);
+            etDeliverySchedule.setText(date);
+            etDeliverySchedule.setClickable(false);
+            etDeliverySchedule.setEnabled(false);
+//            etDeliverySchedule.setTextColor(R.drawable.edittext_disabled_style);
+        } else {
+            etDeliverySchedule.setClickable(true);
+            etDeliverySchedule.setEnabled(true);
         }
         return v;
+    }
+
+    private void cancelTimer() {
+        if (timer != null) {
+            timer.cancel();
+        }
+    }
+
+    private void startSessionPopUp() {
+        cancelTimer();
+        SharedPreferences prefs = context.getSharedPreferences(LoginActivity.Preference_Session, MODE_PRIVATE);
+        String restoredText = prefs.getString("time", "15");
+        if (restoredText != null) {
+            String txtTime = prefs.getString("time", "15");
+            if (!txtTime.equals("")) {
+                int intTime = Integer.parseInt(txtTime);
+                intSession = (intTime * 60 * 1000) - 20000;
+            }
+        }
+        timer = new Timer();
+        timer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                if (alertDProductSearch != null) {
+                    alertDProductSearch.dismiss();
+                }
+                if (alertDSearchitem != null) {
+                    alertDSearchitem.dismiss();
+                }
+            }
+        }, intSession);
     }
 
     private void getDataProvinsi() {
@@ -1854,6 +1990,7 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                     @Override
                     public void onResponse(String response, Boolean status, String strErrorMsg) {
                         if (response != null) {
+                            getActivity().onUserInteraction();
                             JSONObject jsonObject = null;
                             try {
                                 jsonObject = new JSONObject(response);
@@ -1873,6 +2010,7 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
 
                                         lvSearchResult = (ListView) promptView.findViewById(R.id.lvItemSearchResult);
                                         etQtySearch = (EditText) promptView.findViewById(R.id.etQty);
+                                        Helper.textWatcher(etQtySearch, getActivity());
 //                                        etSearchOnPopUp = (EditText) promptView.findViewById(R.id.etItemName);
                                         etDiscount = (EditText) promptView.findViewById(R.id.etDiscount);
                                         etPrice = (EditText) promptView.findViewById(R.id.etPrice);
@@ -1956,15 +2094,16 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
 //                                                        lvSearchResult.setSelected(false);
                                                     }
                                                 });
-                                        final AlertDialog alertD = alertDialogBuilderAttch.create();
+                                        final AlertDialog alertDPopUpSearchBarcode = alertDialogBuilderAttch.create();
                                         if (lvSearchResult.getCount() == 0) {
                                             ToastCustom.showToasty(context, "Barcode Item Not Found", 2);
                                         } else {
                                             getDetailItem(contentSearchResult, 0);
-                                            alertD.show();
-                                            alertD.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
+                                            alertDPopUpSearchBarcode.show();
+                                            alertDPopUpSearchBarcode.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
                                                 @Override
                                                 public void onClick(View v) {
+                                                    getActivity().onUserInteraction();
                                                     String stQtySearch = etQtySearch.getText().toString();
                                                     if (!stQtySearch.equals("") && Integer.parseInt(stQtySearch) < 1) {
                                                         ToastCustom.showToasty(context, "Invalid Qty", 2);
@@ -2126,7 +2265,7 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
 
                                                                                                 boolean booladded = addItem(item);
                                                                                                 if (booladded) {
-                                                                                                    alertD.dismiss();
+                                                                                                    alertDPopUpSearchBarcode.dismiss();
                                                                                                 } else {
                                                                                                     ToastCustom.showToasty(context, "error system", 2);
                                                                                                 }
@@ -2175,9 +2314,9 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                                                                 }
                                                                 boolean boolMatch = addItem(item);
                                                             }
-                                                            lvItemAdd.setAdapter(new CardAppAdapter(context, contentLibs, Color.WHITE));
+                                                            lvItemAdd.setAdapter(new CardAdapterNewRevisi(context, contentLibs, Color.WHITE));
 //                                                            alertDi.dismiss();
-                                                            alertD.dismiss();
+                                                            alertDPopUpSearchBarcode.dismiss();
                                                         }
 
                                                         /*} else {
@@ -2225,12 +2364,13 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
     @OnClick(R.id.btnNext)
     public void onBtnNextClicked() {
         getPeriodeActive();
-
+        getActivity().onUserInteraction();
     }
 
     @OnClick(R.id.imageScanner)
     public void onImageScannerClicked() {
         IntentIntegrator.initiateScan(getActivity(), zxingLibConfig);
+        getActivity().onUserInteraction();
     }
 
     @OnClick(R.id.btnSaveDraft)
@@ -2239,6 +2379,7 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
     }
 
     public void saveBtnSaved() {
+        getActivity().onUserInteraction();
         boolean saveDraftResult = false;
         try {
             final clsDraft draft = new clsDraftRepo(context).findByBitActive();
@@ -2272,7 +2413,7 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
 
 //                    resJson.put("txtAgentName", draft.getTxtAgentName());
 //                    resJson.put("txtPickUpLocationName", "");
-                    resJson.put("txtAgentName", draft.getTxtAgentName());
+                    resJson.put("txtAgentName", dataLogin.getNmUser());
                     resJson.put("txtSourceOrder", data.getTxtSumberDataID());
                     resJson.put("txtSourceOrderName", draft.getTxtSoSource());
 
@@ -2369,7 +2510,7 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                     @Override
                     public void onResponse(String response, Boolean status, String strErrorMsg) {
                         if (response != null) {
-
+                            getActivity().onUserInteraction();
                             JSONObject jsonObject = null;
                             try {
                                 jsonObject = new JSONObject(response);
@@ -2452,6 +2593,7 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                     @Override
                     public void onResponse(String response, Boolean status, String strErrorMsg) {
                         if (response != null) {
+                            getActivity().onUserInteraction();
                             JSONObject jsonObject = null;
                             try {
                                 jsonObject = new JSONObject(response);
@@ -2480,14 +2622,34 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                                             HMKel.put(txtNamaKelurahan, txtNamaKelurahan);
                                             categoriesPostCode.add(txtKodePosID + "-" + txtNamaKelurahan);
                                             HMKodePos.put(txtKodePosID + "-" + txtNamaKelurahan, txtKodePosID);
+                                            HMGetKodePosFromKeluarahan.put(txtNamaKelurahan, txtKodePosID + "-" + txtNamaKelurahan);
                                         }
                                         SpinnerCustom.setAdapterSpinner(spnKelurahanAddOrder, context, R.layout.custom_spinner, categoriesKelurahan);
                                         SpinnerCustom.setAdapterSpinner(spnPostCodeAddOrder, context, R.layout.custom_spinner, categoriesPostCode);
+                                        spnKelurahanAddOrder.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                                            @Override
+                                            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                                                String kelurahan = spnKelurahanAddOrder.getSelectedItem().toString();
+                                                if (HMGetKodePosFromKeluarahan != null) {
+                                                    if (HMGetKodePosFromKeluarahan.get(kelurahan) != null) {
+                                                        String kodepos = HMGetKodePosFromKeluarahan.get(kelurahan).toString();
+                                                        SpinnerCustom.selectedItemByText(context, spnPostCodeAddOrder, categoriesPostCode, kodepos);
+                                                        spnPostCodeAddOrder.setEnabled(false);
+                                                    }
+                                                }
 
+                                            }
+
+                                            @Override
+                                            public void onNothingSelected(AdapterView<?> parent) {
+
+                                            }
+                                        });
                                         if (!boolAttachCustomer) {
                                             if (draft != null) {
                                                 SpinnerCustom.selectedItemByText(context, spnKelurahanAddOrder, categoriesKelurahan, draft.getTxtKelurahan());
                                                 SpinnerCustom.selectedItemByText(context, spnPostCodeAddOrder, categoriesPostCode, draft.getTxtPostCode() + "-" + draft.getTxtKelurahan());
+                                                spnPostCodeAddOrder.setEnabled(false);
                                             } else {
                                                 SpinnerCustom.selectedItemByText(context, spnKelurahanAddOrder, categoriesKelurahan, STRSPINNEROPT);
                                                 SpinnerCustom.selectedItemByText(context, spnPostCodeAddOrder, categoriesPostCode, STRSPINNEROPT);
@@ -2495,6 +2657,7 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                                         } else {
                                             SpinnerCustom.selectedItemByText(context, spnKelurahanAddOrder, categoriesKelurahan, kelurahanCustomer);
                                             SpinnerCustom.selectedItemByText(context, spnPostCodeAddOrder, categoriesPostCode, postCodeCustomer);
+                                            spnPostCodeAddOrder.setEnabled(false);
                                             boolAttachCustomer = false;
                                         }
 
@@ -2529,12 +2692,14 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
 
     @OnClick(R.id.btnBack)
     public void onBtnBackClicked() {
+        getActivity().onUserInteraction();
         linearLayoutTop.setVisibility(View.VISIBLE);
         linearLayoutBottom.setVisibility(View.GONE);
     }
 
     @OnClick(R.id.btnPreview)
     public void onBtnPreviewClicked() {
+        getActivity().onUserInteraction();
         boolean valid = true;
         if (contentLibs.size() > 0) {
             valid = true;
@@ -2583,7 +2748,7 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                 }
                 resJson.put("dtKirim", dateSO);
 
-                if (draft.isBoolPassBy()) {
+                if (draft.isBoolPassBy() || draft.isBoolWalkinCustomer()) {
                     clsCustomerData dataDefault = new clsCustomerData();
                     try {
                         dataDefault = new clsCustomerDataRepo(context).findOne();
@@ -2605,21 +2770,7 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                     resJson.put("txtCustName", "");
                     resJson.put("txtCustPhone", "");
                     resJson.put("txtAlamatKirim", "");
-                    /*
-                    resJson.put("txtNamaPropinsi", dataDefault.getTxtNamaPropinsi());
-                    resJson.put("txtNamaKabKota", dataDefault.getTxtNamaKabKota());
-                    resJson.put("txtNamaKecamatan", dataDefault.getTxtKecamatan());
-                    resJson.put("txtNamaKelurahan", dataDefault.getTxtNamaKelurahan());
-                    resJson.put("txtRemarkSO", draft.getTxtRemarks());
-                    resJson.put("txtPropinsiID", dataDefault.getTxtPropinsiID());
-                    resJson.put("txtKabKotaID", dataDefault.getTxtKabKotaID());
-                    resJson.put("txtKecamatanID", dataDefault.getTxtKecamatan());
-                    resJson.put("txtKodePos", dataDefault.getTxtKodePos());
 
-                    resJson.put("txtKontakID", txtKontakID);
-                    resJson.put("txtCustName", dataDefault.getTxtNama());
-                    resJson.put("txtCustPhone", dataDefault.getTxtPhoneNumber());
-                    resJson.put("txtAlamatKirim", dataDefault.getTxtAlamat());*/
                 } else {
                     resJson.put("txtNamaPropinsi", draft.getTxtProvince());
                     resJson.put("txtNamaKabKota", draft.getTxtKabKot());
@@ -2659,8 +2810,9 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
             ToastCustom.showToasty(context, "List empty !", 4);
         }
     }
-
+    //save()
     public void saveDataPreview() {
+        getActivity().onUserInteraction();
         boolean saveDraftResult = false;
         try {
             final clsDraft draft = new clsDraftRepo(context).findByBitActive();
@@ -2688,26 +2840,21 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                     if (draft.isBoolAttachCustomer()) {
                         deliverBy = "1";
                         walkinCustomer = "0";
-                    } else if(draft.isBoolWalkinCustomer()){
+                    } else if (draft.isBoolWalkinCustomer()) {
                         deliverBy = "0";
                         walkinCustomer = "1";
-                    }else{
+                    } else {
                         deliverBy = "0";
                         walkinCustomer = "0";
                     }
                     if (draft.getDtDeliverySche() != null) {
                         txtDeliverSche = sdf.format(draft.getDtDeliverySche());
                     }
-                    resJsoni.put("txtAgentName", draft.getTxtAgentName());
                     resJsoni.put("txtPickUpLocationName", draft.getTxtOrderLocation());
                     resJsoni.put("txtPickUpLocation", HMOutletCode.get(draft.getTxtOrderLocation()));
-                    resJsoni.put("txtAgentName", draft.getTxtAgentName());
-
-//                            resJsoni.put("txtSourceOrder", draft.getTxtSoSource());
-
+                    resJsoni.put("txtAgentName", dataLogin.getNmUser());
                     resJsoni.put("txtSourceOrder", data.getTxtSumberDataID());
                     resJsoni.put("txtSourceOrderName", draft.getTxtSoSource());
-                    resJsoni.put("txtAgentName", draft.getTxtAgentName());
 
 
                     if (draft.isBoolPassBy()) {
@@ -2721,25 +2868,9 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                         resJsoni.put("dtDelivery", txtDeliverSche);
                         resJsoni.put("intPassBy", passBy);
                         resJsoni.put("intDeliveryBy", deliverBy);
-                        resJsoni.put("intWalkinCustomer", deliverBy);
+                        resJsoni.put("intWalkinCustomer", walkinCustomer);
 
                         resJsoni.put("txtDeliveryBy", dataLogin.getTxtNamaInstitusi());
-
-
-                        /*resJsoni.put("txtCustomer", dataDefault.getTxtKontakID());
-                        resJsoni.put("txtCustomerName", dataDefault.getTxtNama());
-
-                        resJsoni.put("txtKelurahanID", dataDefault.getTxtNamaKelurahan());
-                        resJsoni.put("txtKelurahanName", dataDefault.getTxtNamaKelurahan());
-
-                        resJsoni.put("txtPropinsiID", dataDefault.getTxtPropinsiID());
-                        resJsoni.put("txtPropinsiName", dataDefault.getTxtNamaPropinsi());
-                        resJsoni.put("txtKabKotaID", dataDefault.getTxtKabKotaID());
-                        resJsoni.put("txtKabupatenKotaName", dataDefault.getTxtNamaKabKota());
-                        resJsoni.put("txtKecamatanID", dataDefault.getTxtKecamatan());
-                        resJsoni.put("txtKecamatanName", dataDefault.getTxtKecamatan());
-                        resJsoni.put("txtKodePos", dataDefault.getTxtKodePos());
-                        resJsoni.put("txtDelivery", dataDefault.getTxtAlamat());*/
 
                         resJsoni.put("txtCustomer", "");
                         resJsoni.put("txtCustomerName", "");
@@ -2759,7 +2890,39 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
 
                         resJsoni.put("txtRemarks", draft.getTxtRemarks());
                         resJsoni.put("txtDeviceId", deviceInfo.getModel());
-                        resJsoni.put("txtUser", dataLogin.getNmUser());
+                        resJsoni.put("txtUser", dataLogin.getIdUser());
+                        resJsoni.put("txtAgentName", dataLogin.getNmUser());
+                        resJsoni.put("txtStatusDoc", "0");
+                        resJsoni.put("Detail", jsonProducti);
+                    } else if (draft.isBoolWalkinCustomer()) {
+                        passBy = "0";
+                        resJsoni.put("dtDelivery", txtDeliverSche);
+                        resJsoni.put("intPassBy", passBy);
+                        resJsoni.put("intDeliveryBy", deliverBy);
+                        resJsoni.put("intWalkinCustomer", walkinCustomer);
+
+                        resJsoni.put("txtDeliveryBy", dataLogin.getTxtNamaInstitusi());
+
+                        resJsoni.put("txtCustomer", draft.getTxtContactID());
+                        resJsoni.put("txtCustomerName", draft.getTxtCustomerName());
+
+                        resJsoni.put("txtKelurahanID", "");
+                        resJsoni.put("txtKelurahanName", "");
+
+                        resJsoni.put("txtPropinsiID", "");
+                        resJsoni.put("txtPropinsiName", "");
+                        resJsoni.put("txtKabKotaID", "");
+                        resJsoni.put("txtKabupatenKotaName", "");
+                        resJsoni.put("txtKecamatanID", "");
+                        resJsoni.put("txtKecamatanName", "");
+                        resJsoni.put("txtKodePos", "");
+                        resJsoni.put("txtDelivery", draft.getTxtAddress());
+
+
+                        resJsoni.put("txtRemarks", draft.getTxtRemarks());
+                        resJsoni.put("txtDeviceId", deviceInfo.getModel());
+                        resJsoni.put("txtUser", dataLogin.getIdUser());
+                        resJsoni.put("txtAgentName", dataLogin.getNmUser());
                         resJsoni.put("txtStatusDoc", "0");
                         resJsoni.put("Detail", jsonProducti);
                     } else {
@@ -2785,7 +2948,7 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                         resJsoni.put("txtDelivery", draft.getTxtAddress());
                         resJsoni.put("txtRemarks", draft.getTxtRemarks());
                         resJsoni.put("txtDeviceId", deviceInfo.getModel());
-                        resJsoni.put("txtUser", dataLogin.getNmUser());
+                        resJsoni.put("txtUser", dataLogin.getIdUser());
                         resJsoni.put("txtStatusDoc", "0");
                         resJsoni.put("Detail", jsonProducti);
                     }
@@ -2803,7 +2966,7 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                     @Override
                     public void onResponse(String response, Boolean status, String strErrorMsg) {
                         if (response != null) {
-
+                            getActivity().onUserInteraction();
                             JSONObject jsonObject = null;
                             try {
                                 jsonObject = new JSONObject(response);
@@ -2905,6 +3068,7 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                                         txtKontakIDFinal = txtCustomer;
 
 
+
                                         resJsoni.put("txtCustomer", txtCustomer);
                                         resJsoni.put("txtCustomerName", txtCustomerName);
 
@@ -2992,6 +3156,7 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
             @Override
             public void onResponse(String response, Boolean status, String strErrorMsg) {
                 if (response != null) {
+                    getActivity().onUserInteraction();
                     JSONObject jsonObject = null;
                     try {
                         jsonObject = new JSONObject(response);
@@ -3005,7 +3170,7 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                                     JSONObject object = jsn.getJSONObject(n);
                                     String txtQTY = object.getString("intQTY");
                                     String decAmount = object.getString("decAmount");
-                                    String bitAvailable = object.getString("bitAvailable");
+                                    boolean bitAvailable = object.getBoolean("bitAvailable");
                                     String intQtyAvailable = object.getString("intQtyAvailable");
                                     String txtPartnerAddress = object.getString("txtPartnerAddress");
                                     String txtPartnerID = object.getString("txtPartnerID");
@@ -3020,6 +3185,7 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                                     item.setPartnerName(txtPartnerName);
                                     item.setProductCode(txtProductCode);
                                     item.setProductName(txtProductDesc);
+                                    item.setBitAvailable(bitAvailable);
                                     item.setPartnerPhone(txtPartnerPhone);
                                     item.setQtyAvailable(intQtyAvailable);
                                     item.setQty(txtQTY);
@@ -3109,7 +3275,9 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                                 final LinearLayout linearLayoutPaymentDetail = (LinearLayout) promptView.findViewById(R.id.linearLayoutPaymentDetail);
                                 final EditText etSourceMediaPayment = (EditText) promptView.findViewById(R.id.etSourceMediaPayment);
                                 etCardNumber = (EditText) promptView.findViewById(R.id.etCardNumber);
+                                Helper.textWatcher(etCardNumber, getActivity());
                                 etBcaTraceNumber = (EditText) promptView.findViewById(R.id.etBcaTraceNumber);
+                                Helper.textWatcher(etBcaTraceNumber, getActivity());
                                 etPayment = (EditText) promptView.findViewById(R.id.etPayment);
 
                                 //pelem
@@ -3124,8 +3292,9 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                                 String deliverySche = etDeliverySchedule.getText().toString();
                                 String agentName = etAgentName.getText().toString();
                                 String orderLocation = etOrderLocation.getText().toString();
-                                boolean deliverByWalkIn = cbPassBy.isChecked();
+                                boolean deliveryPassBy = cbPassBy.isChecked();
                                 boolean attchCust = cbAttach.isChecked();
+                                boolean walkin = cbWalkInCustomer.isChecked();
                                 String remarks = etRemarks.getText().toString();
 
                                 tvSOSourcePrev.setText(soSource);
@@ -3137,6 +3306,7 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                                 btnSummarySO.setOnClickListener(new View.OnClickListener() {
                                     @Override
                                     public void onClick(View v) {
+                                        getActivity().onUserInteraction();
                                         LayoutInflater layoutInflater = LayoutInflater.from(context);
                                         View promptViewSummarySo = layoutInflater.inflate(R.layout.popup_summary_so, null);
                                         AlertDialog.Builder alertDialogBuilder2 = new AlertDialog.Builder(getActivity());
@@ -3156,6 +3326,7 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                                 tvPaymentMethod.setOnClickListener(new View.OnClickListener() {
                                     @Override
                                     public void onClick(View v) {
+                                        getActivity().onUserInteraction();
                                         LayoutInflater layoutInflater = LayoutInflater.from(context);
                                         View promptView = layoutInflater.inflate(R.layout.popup_payment_method, null);
                                         final RadioGroup rg = promptView.findViewById(R.id.radioGroup);
@@ -3227,6 +3398,7 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                                         spnPaymentMethod.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                                             @Override
                                             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                                                getActivity().onUserInteraction();
                                                 String txtPaymentMethod = paymentMethodList.get(position);
                                                 String idPaymentMethod = HMPaymentmethodList.get(txtPaymentMethod);
                                                 if (!boolPaymentFilled) {
@@ -3257,7 +3429,12 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                                                             if (boolPaymentFilled) {
                                                                 SpinnerCustom.selectedItemByText(context, spnPaymentMethodAndTipe, paymentMethodAndTipe, txtSourceMediaPayment1);
                                                             } else {
-                                                                SpinnerCustom.selectedItemByText(context, spnPaymentMethodAndTipe, paymentMethodAndTipe, SPNCHOOSEONE);
+                                                                if (idPaymentMethod.equals("000")) {
+                                                                    SpinnerCustom.selectedItemByText(context, spnPaymentMethodAndTipe, paymentMethodAndTipe, "Cash - Cash");
+                                                                } else {
+                                                                    SpinnerCustom.selectedItemByText(context, spnPaymentMethodAndTipe, paymentMethodAndTipe, SPNCHOOSEONE);
+                                                                }
+
                                                                 etBcaTraceNumber2.setText("");
                                                                 etCardNumber2.setText("");
                                                             }
@@ -3278,6 +3455,7 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                                         spnPaymentMethodAndTipe.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                                             @Override
                                             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                                                getActivity().onUserInteraction();
                                                 String txtPaymentMethodAndTipe = paymentMethodAndTipe.get(position);
                                                 String idTxtSourceMedia = HMpaymentMethodAndTipe.get(txtPaymentMethodAndTipe);
                                                 if (!boolPaymentFilled) {
@@ -3333,6 +3511,9 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                                                             if (boolPaymentFilled) {
                                                                 SpinnerCustom.selectedItemByText(context, spnSourceMediaPaymentList, sourceMediaPaymentList, txtPayment1);
                                                             }
+                                                            if (idTxtSourceMedia.equals("000")) {
+                                                                SpinnerCustom.selectedItemByText(context, spnSourceMediaPaymentList, sourceMediaPaymentList, "Cash");
+                                                            }
                                                         }
                                                     }
                                                 } else {
@@ -3385,6 +3566,7 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                                         alertD.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
                                             @Override
                                             public void onClick(View v) {
+                                                getActivity().onUserInteraction();
                                                 String paymentMethod = spnPaymentMethod.getSelectedItem().toString();
                                                 String idPaymentMethod = HMPaymentmethodList.get(paymentMethod);
                                                 String payment = "";
@@ -3483,10 +3665,12 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                                     }
                                 });
 
-                                if (deliverByWalkIn) {
+                                if (walkin) {
                                     tvDeliveryByPrev.setText("Walk-In");
-                                } else {
+                                } else if (attchCust) {
                                     tvDeliveryByPrev.setText("Delivery Order");
+                                } else {
+                                    tvDeliveryByPrev.setText("Pass By");
                                 }
 
                                 tvRemarksPreview.setText(remarks);
@@ -3505,6 +3689,7 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                                     tvCustomerPrev.setOnClickListener(new View.OnClickListener() {
                                         @Override
                                         public void onClick(View v) {
+                                            getActivity().onUserInteraction();
                                             if (lnAttacedCust.getVisibility() == View.VISIBLE) {
                                                 lnAttacedCust.setVisibility(View.GONE);
                                                 tvCustomerPrev.setText("Show Contact Detail");
@@ -3526,6 +3711,7 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                                     tvHideCustPrev.setOnClickListener(new View.OnClickListener() {
                                         @Override
                                         public void onClick(View v) {
+                                            getActivity().onUserInteraction();
                                             lnAttacedCust.setVisibility(View.GONE);
                                         }
                                     });
@@ -3544,6 +3730,7 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                                     tvCustomerPrev.setOnClickListener(new View.OnClickListener() {
                                         @Override
                                         public void onClick(View v) {
+                                            getActivity().onUserInteraction();
                                             if (lnAttacedCust.getVisibility() == View.VISIBLE) {
                                                 lnAttacedCust.setVisibility(View.GONE);
                                                 tvCustomerPrev.setText("Show Contact Detail");
@@ -3565,6 +3752,7 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                                     tvHideCustPrev.setOnClickListener(new View.OnClickListener() {
                                         @Override
                                         public void onClick(View v) {
+                                            getActivity().onUserInteraction();
                                             lnAttacedCust.setVisibility(View.GONE);
                                         }
                                     });
@@ -3579,8 +3767,8 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                                 RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(context);
                                 rvPreview.setLayoutManager(mLayoutManager);
                                 rvPreview.setItemAnimator(new DefaultItemAnimator());
-                                mAdapterItemPreview = new RVPreviewAdapter(context, contentLibsPreviewItem, Color.WHITE);
-                                rvPreview.setAdapter(mAdapterItemPreview);
+//                                mAdapterItemPreview = new RVPreviewAdapter(context, contentLibsPreviewItem, Color.WHITE);
+//                                rvPreview.setAdapter(mAdapterItemPreview);
 //                                setListViewHeightBasedOnItems(lvPreview);
                                 AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
                                 alertDialogBuilder.setView(promptView);
@@ -3607,11 +3795,12 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
 
                                     }
                                 });
-                                final AlertDialog alertD = alertDialogBuilder.create();
-                                alertD.show();
-                                alertD.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
+                                alertDPreview = alertDialogBuilder.create();
+                                alertDPreview.show();
+                                alertDPreview.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
                                     @Override
                                     public void onClick(View v) {
+                                        getActivity().onUserInteraction();
                                         final String strLinkAPIFinalCheckout = new clsHardCode().linkCheckoutSalesOrder;
                                         final JSONObject resJsonFinalCheckout = new JSONObject();
                                         boolean boolSaved = true;
@@ -3661,18 +3850,7 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                                             resJsonFinalCheckout.put("txtmediajasapayment", txtmediajasapaymentFinal);
                                             resJsonFinalCheckout.put("decTotalBonusPoin", dbldecTotalBonusPoin);
                                             resJsonFinalCheckout.put("decTotalPoin", dbldecTotalPoin);
-
-                                            /*resJsonFinalCheckout.put("intNilaiPembulatan", 0);
-                                            resJsonFinalCheckout.put("txtPaymentMethodID", "");
-                                            resJsonFinalCheckout.put("txtMediaJasaID", "");
-                                            resJsonFinalCheckout.put("txtMediaJasaPaymentID", "");
-                                            resJsonFinalCheckout.put("txtCardNumber", "");
-                                            resJsonFinalCheckout.put("txtBCATraceNo", "");*/
-
-
                                             resJsonFinalCheckout.put("txtSourceOrder", data.getTxtSumberDataID());
-//                                                    resJson.put("txtSourceOrder", data.getTxtSumberDataID());
-//                                                    resJson.put("txtSourceOrderName", draft.getTxtSoSource());
 
                                             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
                                             String currentDateandTime = sdf.format(new Date());
@@ -3682,13 +3860,25 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                                                 txtDeliverSche = sdf.format(draft.getDtDeliverySche());
                                             }
                                             resJsonFinalCheckout.put("dtDelivery", txtDeliverSche);
-                                            resJsonFinalCheckout.put("txtAgentName", draft.getTxtAgentName());
+                                            String target="\\";
+                                            String replacement="\\\\";
+                                            String txtIdUser = dataLogin.getIdUser();
+                                            String txtReplaced = txtIdUser.replace(target,replacement);
+                                            String[] txtGetName = txtReplaced.split("\\\\");
+                                            int intLength = txtGetName.length;
+                                            String agentName = txtGetName[intLength-1];
+                                            resJsonFinalCheckout.put("txtAgentName", agentName);
 
                                             String walkin = "";
-                                            if (draft.isBoolPassBy()) {
+                                            if (draft.isBoolPassBy() || draft.isBoolWalkinCustomer()) {
                                                 walkin = "1";
-                                                resJsonFinalCheckout.put("txtAlamatKirim", txtKelurahanNameFinal);
-                                                resJsonFinalCheckout.put("txtCustPhone", dataLogin.getTxtPhoneNo());
+                                                resJsonFinalCheckout.put("txtAlamatKirim", txtDeliveryAddressFinal);
+//                                                resJsonFinalCheckout.put("txtCustPhone", dataLogin.getTxtPhoneNo());
+                                                if(draft.getTxtPhoneNumber()!=null){
+                                                    resJsonFinalCheckout.put("txtCustPhone", draft.getTxtPhoneNumber());
+                                                }else{
+                                                    resJsonFinalCheckout.put("txtCustPhone", dataLogin.getTxtPhoneNo());
+                                                }
                                                 resJsonFinalCheckout.put("txtCustName", txtCustomerNameFinal);
                                                 resJsonFinalCheckout.put("txtKontakID", txtCustomerFinal);
                                                 resJsonFinalCheckout.put("txtPickUpLocation", dataLogin.getTxtNamaInstitusi());
@@ -3774,6 +3964,7 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                                                 @Override
                                                 public void onResponse(String response, Boolean status, String strErrorMsg) {
                                                     if (response != null) {
+                                                        getActivity().onUserInteraction();
                                                         JSONObject jsonObject = null;
                                                         try {
                                                             jsonObject = new JSONObject(response);
@@ -3786,7 +3977,7 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
 
                                                                     }
                                                                 }
-                                                                alertD.dismiss();
+                                                                alertDPreview.dismiss();
                                                                 new clsProductDraftRepo(context).clearAllData();
                                                                 new clsDraftRepo(context).clearAllData();
                                                                 ToastCustom.showToasty(context, "Checkout Completed", 1);
@@ -3816,7 +4007,8 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                                 btnCancelPrev.setOnClickListener(new View.OnClickListener() {
                                     @Override
                                     public void onClick(View v) {
-                                        alertD.dismiss();
+                                        alertDPreview.dismiss();
+                                        getActivity().onUserInteraction();
                                     }
                                 });
                                         /*btnCheckoutPrev.setOnClickListener(new View.OnClickListener() {
@@ -3871,6 +4063,7 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
     }
 
     public boolean addItem(VMItems item) {
+        getActivity().onUserInteraction();
         String itemCode = etItemCode.getText().toString();
         final String itemName = etItemName.getText().toString();
         boolean valid = true;
@@ -3900,7 +4093,7 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
             } else {
                 ToastCustom.showToasty(context, "Item on list updated", 3);
             }
-            lvItemAdd.setAdapter(new CardAppAdapter(context, contentLibs, Color.WHITE));
+            lvItemAdd.setAdapter(new CardAdapterNewRevisi(context, contentLibs, Color.WHITE));
             RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(context);
             rvParent.setLayoutManager(mLayoutManager);
 
@@ -3920,6 +4113,9 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                     final String itemDesc = contentLibs.get(position).getDesc();
                     final Double itemPrice = contentLibs.get(position).getPrice();
                     final Double itemDiscount = contentLibs.get(position).getDiscount();
+                    final Double itemNetPrice = contentLibs.get(position).getNetPrice();
+                    final Double itemTotalPrice = contentLibs.get(position).getTotalPrice();
+                    final Double itemTax = contentLibs.get(position).getTaxAmount();
                     final String itemBasedPoint = contentLibs.get(position).getBasePoint();
                     final String itemBonusPoint = contentLibs.get(position).getBonusPoint();
                     final int intQty = contentLibs.get(position).getQty();
@@ -3934,30 +4130,83 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             contentLibs.remove(position);
-                            lvItemAdd.setAdapter(new CardAppAdapter(context, contentLibs, Color.WHITE));
+                            lvItemAdd.setAdapter(new CardAdapterNewRevisi(context, contentLibs, Color.WHITE));
 //                            rvParent.setAdapter(new RVParentAdapter(context, contentLibs, Color.WHITE));
                         }
                     })
-                            .setCancelable(false)
+                            .setCancelable(true)
                             .setNegativeButton("Edit", new DialogInterface.OnClickListener() {
                                 public void onClick(DialogInterface dialog, int id) {
                                     dialog.cancel();
                                 }
-                            }).setNeutralButton("Cancel", new DialogInterface.OnClickListener() {
+                            }).setNeutralButton("View Details", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
 
                         }
                     });
-                    final AlertDialog alertD = alertDialogBuilder.create();
-                    alertD.show();
-                    alertD.getButton(DialogInterface.BUTTON_NEGATIVE).setOnClickListener(new View.OnClickListener() {
+                    alertDProductSearch = alertDialogBuilder.create();
+                    alertDProductSearch.show();
+                    startSessionPopUp();
+                    alertDProductSearch.getButton(DialogInterface.BUTTON_NEUTRAL).setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
+                            getActivity().onUserInteraction();
                             LayoutInflater layoutInflater = LayoutInflater.from(context);
-                            final View promptView = layoutInflater.inflate(R.layout.popup_product_search, null);
+                            ListView lvItemDetail;
+                            final View promptViewDetail = layoutInflater.inflate(R.layout.popup_detail_item, null);
+                            lvItemDetail = promptViewDetail.findViewById(R.id.lvItemAddDetail);
+                            AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
+                            alertDialogBuilder.setView(promptViewDetail);
+                            VMItems item = new VMItems(promptViewDetail);
+                            item.setItemName(itemBrand);
+                            item.setGuiid(new Helper().GenerateGuid());
+//                                    item.setPrice(80000);
+                            item.setItemGroup(itemGroup);
+                            item.setBarcode(itemBarcode);
+                            item.setItemCode(itemDesc);
+                            item.setDesc(itemDesc);
+                            item.setItemBrand(itemBrand);
+                            item.setBasePoint(itemBasedPoint);
+                            item.setBonusPoint(itemBonusPoint);
+                            item.setQty(intQty);
+                            item.setPrice(itemPrice);
+                            item.setTxtItemPacketID(itemDesc);
+                            item.setNetPrice(itemNetPrice);
+                            item.setDiscount(itemDiscount);
+                            item.setTotalPrice(itemTotalPrice);
+                            item.setTaxAmount(itemTax);
+
+                            List<VMItems> itemDetail = new ArrayList<>();
+                            itemDetail.add(item);
+                            lvItemDetail.setAdapter(new CardAppAdapter(context, itemDetail, Color.WHITE));
+                            alertDialogBuilder
+                                    .setCancelable(true)
+                                    .setPositiveButton("Oke", new DialogInterface.OnClickListener() {
+                                        public void onClick(DialogInterface dialog, int id) {
+                                            alertDProductSearch.dismiss();
+                                        }
+                                    });
+                            alertDialogBuilder.setOnCancelListener(new DialogInterface.OnCancelListener() {
+                                @Override
+                                public void onCancel(DialogInterface dialog) {
+                                    alertDProductSearch.dismiss();
+                                }
+                            });
+                            final AlertDialog alertDi = alertDialogBuilder.create();
+                            alertDi.show();
+                        }
+                    });
+                    alertDProductSearch.getButton(DialogInterface.BUTTON_NEGATIVE).setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            cancelTimer();
+                            getActivity().onUserInteraction();
+                            LayoutInflater layoutInflater = LayoutInflater.from(context);
+                            final View promptView = layoutInflater.inflate(R.layout.popup_product_edit, null);
                             lvSearchResult = (ListView) promptView.findViewById(R.id.lvItemSearchResult);
                             etQtySearch = (EditText) promptView.findViewById(R.id.etQty);
+                            Helper.textWatcher(etQtySearch, getActivity());
                             etSearchOnPopUp = (EditText) promptView.findViewById(R.id.etItemName);
                             etDiscount = (EditText) promptView.findViewById(R.id.etDiscount);
                             etPrice = (EditText) promptView.findViewById(R.id.etPrice);
@@ -4021,12 +4270,18 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                                 }
                             });
 
-
-                            etDiscount.setText(String.valueOf(itemDiscount));
+                            double dblDisc = itemDiscount;
+                            int intDisc = (int) dblDisc;
+                            etDiscount.setText(String.valueOf(intDisc));
+                            double dblPrice = itemPrice;
+                            int intPrice = (int) dblPrice;
                             etPrice.setText(String.valueOf(itemPrice));
-
-                            etBasedPoint.setText(itemBasedPoint);
-                            etBonusPoint.setText(itemBonusPoint);
+                            double dblBp = Double.parseDouble(itemBasedPoint);
+                            int intBp = (int) dblBp;
+                            etBasedPoint.setText(String.valueOf(intBp));
+                            double dblBonP = Double.parseDouble(itemBonusPoint);
+                            int intBonP = (int) dblBonP;
+                            etBonusPoint.setText(String.valueOf(intBonP));
 
                             AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
                             alertDialogBuilder.setView(promptView);
@@ -4046,29 +4301,28 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                             alertDi.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
                                 @Override
                                 public void onClick(View v) {
-
+                                    getActivity().onUserInteraction();
                                     String stQtySearch = etQtySearch.getText().toString();
                                     if (!stQtySearch.equals("") && Integer.parseInt(stQtySearch) < 1) {
                                         ToastCustom.showToasty(context, "Invalid Qty", 2);
                                     } else {
-                                        if (lvSearchResult.getCheckedItemPosition() > -1) {
+                                        if (1 > -1) {
                                             if (etQtySearch.getText().toString().equals("")) {
                                                 ToastCustom.showToasty(context, "Quantity Empty", 3);
                                                 etQtySearch.setBackgroundResource(R.drawable.bg_edtext_error_border);
                                             } else {
 
-                                                Object checkedItem = lvSearchResult.getAdapter().getItem(lvSearchResult.getCheckedItemPosition());
+//                                                int positionResult = lvSearchResult.getCheckedItemPosition();
+                                                int positionResult = 0;
+                                                Object checkedItem = lvSearchResult.getAdapter().getItem(positionResult);
                                                 VMItems itemResult = new VMItems(promptView);
-                                                int positionResult = lvSearchResult.getCheckedItemPosition();
                                                 String itemNameAdd = contentSearchResult.get(positionResult).getItemName();
                                                 String itemCodeAdd = contentSearchResult.get(positionResult).getItemCode();
                                                 String itemBrand = contentSearchResult.get(positionResult).getItemBrand();
                                                 double itemTax = decTaxGlobal;
                                                 int intCampagn = intCampagnGlobal;
                                                 int intbitPaket = contentSearchResult.get(positionResult).getIntPaket();
-                                                ;
                                                 int intBitCampaignPaket = contentSearchResult.get(positionResult).getIntCampagn();
-                                                ;
                                                 String txtPrice = etPrice.getText().toString();
                                                 double itemPriceSearch = 0;
                                                 if (!txtPrice.equals("0")) {
@@ -4091,7 +4345,8 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                                                 Double itemNetPrice = itemTotalPrice + itemTaxAmount;
 
                                                 String itemBasePoint1 = etBasedPoint.getText().toString();
-                                                int intItemBasePoint = Integer.parseInt(itemBasePoint1);
+                                                double dblBasepoint = Double.parseDouble(itemBasePoint1);
+                                                int intItemBasePoint = (int)dblBasepoint;
                                                 String itemBonusPoint1 = etBonusPoint.getText().toString();
                                                 double intBonusPoint = Double.parseDouble(itemBonusPoint1);
 
@@ -4129,6 +4384,7 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                                                         @Override
                                                         public void onResponse(String response, Boolean status, String strErrorMsg) {
                                                             if (response != null) {
+                                                                getActivity().onUserInteraction();
                                                                 JSONObject jsonObject = null;
                                                                 try {
                                                                     jsonObject = new JSONObject(response);
@@ -4202,7 +4458,7 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
 
                                                                                     boolean booladded = addItem(item);
                                                                                     if (booladded) {
-                                                                                        alertD.dismiss();
+                                                                                        alertDProductSearch.dismiss();
                                                                                     } else {
                                                                                         ToastCustom.showToasty(context, "error system", 2);
                                                                                     }
@@ -4245,9 +4501,9 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                                                     }
                                                     boolean boolMatch = addItem(item);
                                                 }
-                                                lvItemAdd.setAdapter(new CardAppAdapter(context, contentLibs, Color.WHITE));
+                                                lvItemAdd.setAdapter(new CardAdapterNewRevisi(context, contentLibs, Color.WHITE));
                                                 alertDi.dismiss();
-                                                alertD.dismiss();
+                                                alertDProductSearch.dismiss();
                                             }
 
                                         } else {
@@ -4260,9 +4516,11 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                             });
                         }
                     });
-                    alertD.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
+                    alertDProductSearch.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
+                            cancelTimer();
+                            getActivity().onUserInteraction();
                             AlertDialog.Builder alertDialogBuilderDelete = new AlertDialog.Builder(getActivity());
                             alertDialogBuilderDelete.setMessage("Delete item " + itemBrand + "-" + itemDesc + " from list?");
                             alertDialogBuilderDelete
@@ -4283,7 +4541,7 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                             alertDelete.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
                                 @Override
                                 public void onClick(View v) {
-
+                                    getActivity().onUserInteraction();
                                     int intPaket = contentLibs.get(position).getIntPaket();
                                     if (intPaket == 1) {
                                         String packetID = contentLibs.get(position).getTxtItemPacketID();
@@ -4299,9 +4557,9 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                                     } else {
                                         contentLibs.remove(position);
                                     }
-                                    lvItemAdd.setAdapter(new CardAppAdapter(context, contentLibs, Color.WHITE));
+                                    lvItemAdd.setAdapter(new CardAdapterNewRevisi(context, contentLibs, Color.WHITE));
                                     alertDelete.dismiss();
-                                    alertD.dismiss();
+                                    alertDProductSearch.dismiss();
                                     /*contentLibs.remove(position);
                                     lvItemAdd.setAdapter(new CardAppAdapter(context, contentLibs, Color.WHITE));
                                     alertDelete.dismiss();
@@ -4332,7 +4590,7 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
 
     @OnClick(R.id.btnSearchItem)
     public void onbtnSearchClicked() {
-
+        getActivity().onUserInteraction();
         String itemName = etItemName.getText().toString();
         String itemCode = etItemCode.getText().toString();
         if (!itemName.equals("")) {
@@ -4375,6 +4633,7 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                                 lvSearchResult = (ListView) promptView.findViewById(R.id.lvItemSearchResult);
                                 etQtySearch = (EditText) promptView.findViewById(R.id.etQty);
                                 etSearchOnPopUp = (EditText) promptView.findViewById(R.id.etItemName);
+                                Helper.textWatcher(etSearchOnPopUp, getActivity());
                                 etDiscount = (EditText) promptView.findViewById(R.id.etDiscount);
                                 etPrice = (EditText) promptView.findViewById(R.id.etPrice);
                                 etBonusPoint = (EditText) promptView.findViewById(R.id.etBonusPoint);
@@ -4383,6 +4642,7 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                                 etSearchOnPopUp.setOnTouchListener(new DrawableClickListener.RightDrawableClickListener(etSearchOnPopUp) {
                                     @Override
                                     public boolean onDrawableClick() {
+                                        getActivity().onUserInteraction();
 //                                        ToastCustom.showToasty(context,"Toast bro",1);
                                         refreshListItemSearch(promptView);
                                         return false;
@@ -4422,6 +4682,7 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                                     contentSearchResult.add(item);
 
                                 }
+                                getActivity().onUserInteraction();
 
                                 lvSearchResult.setAdapter(new CardAdapterSearchResult(context, contentSearchResult, Color.WHITE));
 
@@ -4432,7 +4693,8 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                                         getDetailItem(contentSearchResult, position);
                                     }
                                 });
-                                AlertDialog.Builder alertDialogBuilderAttch = new AlertDialog.Builder(getActivity());
+                                MainMenu objMain = (MainMenu) getActivity();
+                                AlertDialog.Builder alertDialogBuilderAttch = new AlertDialog.Builder(objMain);
                                 alertDialogBuilderAttch.setView(promptView);
 //        alertDialogBuilderAttch.setMessage("this is attachment of customer dialog");
                                 alertDialogBuilderAttch
@@ -4450,14 +4712,17 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
 //                                                lvSearchResult.setSelected(false);
                                             }
                                         });
-                                final AlertDialog alertD = alertDialogBuilderAttch.create();
+                                alertDSearchitem = alertDialogBuilderAttch.create();
                                 if (jsn.length() == 0) {
-                                    ToastCustom.showToasty(context, "Search Not Found", 3);
+                                    ToastCustom.showToasty(context, "Item Not Found", 3);
                                 } else {
-                                    alertD.show();
-                                    alertD.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
+                                    alertDSearchitem.show();
+                                    startSessionPopUp();
+                                    alertDSearchitem.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
                                         @Override
                                         public void onClick(View v) {
+                                            cancelTimer();
+                                            getActivity().onUserInteraction();
                                             String stQtySearch = etQtySearch.getText().toString();
                                             String itemBasePoint = etBasedPoint.getText().toString();
                                             String itemBonusPoint = etBonusPoint.getText().toString();
@@ -4499,10 +4764,10 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
 
                                                         Double itemTaxAmount = itemTotalPrice * 0.1;
                                                         Double b = itemTotalPrice + itemTaxAmount;
-                                                        ;
+                                                        //a nya buat pembulatan
                                                         DecimalFormat twoDForm = new DecimalFormat("#");
                                                         Double a = Double.valueOf(twoDForm.format(b));
-                                                        Double itemNetPrice = a;
+                                                        Double itemNetPrice = b;
                                                         String itemBasePoint1 = etBasedPoint.getText().toString();
                                                         double intItemBasePoint = Double.parseDouble(itemBasePoint1);
                                                         double intTotalItemBasePoint = intItemBasePoint * itemQty;
@@ -4615,7 +4880,7 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
 
                                                                                             boolean booladded = addItem(item);
                                                                                             if (booladded) {
-                                                                                                alertD.dismiss();
+                                                                                                alertDSearchitem.dismiss();
                                                                                             } else {
                                                                                                 ToastCustom.showToasty(context, "error system", 2);
                                                                                             }
@@ -4660,7 +4925,7 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
 
                                                             boolean booladded = addItem(item);
                                                             if (booladded) {
-                                                                alertD.dismiss();
+                                                                alertDSearchitem.dismiss();
                                                             } else {
                                                                 ToastCustom.showToasty(context, "error system", 2);
                                                             }
@@ -4686,6 +4951,31 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
             }
         });
 
+    }
+
+    @Override
+    public void onResume() {
+        getActivity().onUserInteraction();
+        getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+        super.onResume();
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        if (alertDSearchitem != null) {
+            alertDSearchitem.dismiss();
+        }
+//        getActivity().onUserInteraction();
+
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        if (alertDSearchitem != null) {
+            alertDSearchitem.dismiss();
+        }
     }
 
     private String getPeriodeActive() {
@@ -4718,7 +5008,7 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                                 cal2.setTime(dtLogin);
                                 boolean valid = cal1.get(Calendar.YEAR) == cal2.get(Calendar.YEAR) && cal1.get(Calendar.MONTH) == cal2.get(Calendar.MONTH);
                                 //testing
-//                                valid = true;
+                                valid = true;
                                 if (valid) {
                                     getNext();
                                 } else {
@@ -4746,11 +5036,12 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
     }
 
     private void getNext() {
+        getActivity().onUserInteraction();
         boolean boolValidNext = true;
         if (etDeliverySchedule.getText().toString().equals("")) {
             ToastCustom.showToasty(context, "Please set delivery schedule", 3);
         } else {
-            lvItemAdd.setAdapter(new CardAppAdapter(context, new ArrayList<VMItems>(), Color.WHITE));
+            lvItemAdd.setAdapter(new CardAdapterNewRevisi(context, new ArrayList<VMItems>(), Color.WHITE));
             rvParent.setAdapter(new RVParentAdapter(context, new ArrayList<VMItems>(), Color.WHITE));
             String noSO = etNoSo.getText().toString();
             String soStatus = etSoStatus.getText().toString();
@@ -4765,10 +5056,30 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
             boolean walkinCustomer = cbWalkInCustomer.isChecked();
             String remarks = etRemarks.getText().toString();
             String guiid = new Helper().GenerateGuid();
-
+            boolean draftDelivery = false;
+            boolean boolDraftNull = true;
             try {
-                clsDraft draft = new clsDraftRepo(context).findByBitActive();
+                draft = new clsDraftRepo(context).findByBitActive();
                 if (draft != null) {
+                    boolDraftNull = false;
+                    boolean boolDraftWalkin = draft.isBoolWalkinCustomer();
+                    boolean boolPassBy = draft.isBoolPassBy();
+                    boolean boolDeliverySch = draft.isBoolAttachCustomer();
+
+
+                    if (boolDraftWalkin) {
+                        if (boolDraftWalkin == walkinCustomer) {
+                            draftDelivery = true;
+                        }
+                    } else if (boolPassBy) {
+                        if (boolPassBy == deliverByPass) {
+                            draftDelivery = true;
+                        }
+                    } else if (boolDeliverySch) {
+                        if (boolDeliverySch == attchCust) {
+                            draftDelivery = true;
+                        }
+                    }
                     draft.setBoolAttachCustomer(attchCust);
                     draft.setTxtNoSO(noSO);
                     draft.setIntStatus(0);
@@ -4837,7 +5148,7 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                             boolValidNext = false;
                             ToastCustom.showToasty(context, "Invalid Customer Address", 3);
                         }
-                    } else if(!deliverByPass && !attchCust && walkinCustomer){
+                    } else if (!deliverByPass && !attchCust && walkinCustomer) {
                         String contactId = tvContactIDHeader.getText().toString();
                         String memberNo = tvMemberNoHeader.getText().toString();
                         String customername = tvCustomerNameHeader.getText().toString();
@@ -4876,7 +5187,7 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                             boolValidNext = false;
                             ToastCustom.showToasty(context, "Invalid Customer Address", 3);
                         }
-                    }else{
+                    } else {
                         draft.setTxtContactID("");
                         draft.setTxtMemberID("");
                         draft.setTxtCustomerName("");
@@ -4961,7 +5272,7 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                         draft.setTxtAddress(address);
                         draft.setTxtPhoneNumber(phoneNumber);
                         draft.setIntStatus(0);
-                    }else if( walkinCustomer){
+                    } else if (walkinCustomer) {
                         String contactId = tvContactIDHeader.getText().toString();
                         String memberNo = tvMemberNoHeader.getText().toString();
                         String customername = tvCustomerNameHeader.getText().toString();
@@ -5002,7 +5313,7 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                     new clsDraftRepo(context).clearAllData();
                     new clsDraftRepo(context).createOrUpdate(draft);
                 }
-            } catch (SQLException e) {
+            } catch (Exception e) {
                 e.printStackTrace();
             }
             draftData = new clsDraft();
@@ -5013,46 +5324,67 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
                 linearLayoutBottom.setVisibility(View.VISIBLE);
             }
             try {
-                List<clsProductDraft> itemsDraft = new clsProductDraftRepo(context).findAll();
-                boolean addedSucces = false;
-                contentLibs = new ArrayList<VMItems>();
-                for (clsProductDraft productDraft : itemsDraft) {
-                    VMItems item = new VMItems(getView());
-                    item.setItemName(productDraft.getTxtItemName());
-                    item.setItemBrand(productDraft.getTxtItemBrand());
-                    item.setItemCode(productDraft.getTxtItemCode());
-                    item.setProductCategory(productDraft.getTxtProductCategory());
-                    item.setGuiid(productDraft.getTxtProductDraftGUI());
-                    item.setPrice(productDraft.getDblPrice());
-                    item.setBasePoint(productDraft.getTxtBasedPoint());
-                    item.setQty(productDraft.getIntQty());
-                    item.setDiscount(productDraft.getDblItemDiscount());
-                    item.setTotalPrice(productDraft.getDblTotalPrice());
-                    item.setTaxAmount(productDraft.getDblItemTax());
-                    item.setNetPrice(productDraft.getDblNetPrice());
-                    item.setBonusPoint(productDraft.getTxtBonusPoint());
-                    item.setTxtGroupProduct(productDraft.getTxtGroupProduct());
-                    item.setItemGroup(productDraft.getTxtGroupItem());
-                    item.setBarcode(productDraft.getTxtItemBarcode());
-                    item.setIntCampagn(productDraft.getIntCampagn());
-                    item.setTxtItemPacketID(productDraft.getTxtItemPacketId());
-                    item.setIntItemId(productDraft.getIntItemId());
-                    item.setIntPaket(productDraft.getIntBitPaket());
-                    if (productDraft.getIntBitPaket() == 1) {
-                        item.setDesc(productDraft.getTxtItemPacketId());
+                if (draft != null) {
+                    List<clsProductDraft> itemsDraft = new clsProductDraftRepo(context).findAll();
+                    boolean addedSucces = false;
+                    if (draftDelivery) {
+                        contentLibs = new ArrayList<VMItems>();
+                        for (clsProductDraft productDraft : itemsDraft) {
+                            VMItems item = new VMItems(getView());
+                            item.setItemName(productDraft.getTxtItemName());
+                            item.setItemBrand(productDraft.getTxtItemBrand());
+                            item.setItemCode(productDraft.getTxtItemCode());
+                            item.setProductCategory(productDraft.getTxtProductCategory());
+                            item.setGuiid(productDraft.getTxtProductDraftGUI());
+                            item.setPrice(productDraft.getDblPrice());
+                            item.setBasePoint(productDraft.getTxtBasedPoint());
+                            item.setQty(productDraft.getIntQty());
+                            item.setDiscount(productDraft.getDblItemDiscount());
+                            item.setTotalPrice(productDraft.getDblTotalPrice());
+                            item.setTaxAmount(productDraft.getDblItemTax());
+                            item.setNetPrice(productDraft.getDblNetPrice());
+                            item.setBonusPoint(productDraft.getTxtBonusPoint());
+                            item.setTxtGroupProduct(productDraft.getTxtGroupProduct());
+                            item.setItemGroup(productDraft.getTxtGroupItem());
+                            item.setBarcode(productDraft.getTxtItemBarcode());
+                            item.setIntCampagn(productDraft.getIntCampagn());
+                            item.setTxtItemPacketID(productDraft.getTxtItemPacketId());
+                            item.setIntItemId(productDraft.getIntItemId());
+                            item.setIntPaket(productDraft.getIntBitPaket());
+                            if (productDraft.getIntBitPaket() == 1) {
+                                item.setDesc(productDraft.getTxtItemPacketId());
+                            } else {
+                                item.setDesc(productDraft.getTxtItemName());
+                            }
+                            item.setDectax(decTaxGlobal);
+                            item.setTxtKN(productDraft.getTxtKN());
+                            item.setTxtGroupKN(productDraft.getTxtGroupKN());
+                            boolean booladded = addItem(item);
+                            addedSucces = booladded;
+                        }
+
+
                     } else {
-                        item.setDesc(productDraft.getTxtItemName());
+                        if (!boolDraftNull) {
+                            ToastCustom.showToasty(context, "Delivery by has changed, the product list has been deleted", 3);
+                            new clsProductDraftRepo(context).clearAllData();
+                            draft.setBoolWalkinCustomer(walkinCustomer);
+                            draft.setBoolPassBy(deliverByPass);
+                            draft.setBoolAttachCustomer(attchCust);
+                            new clsDraftRepo(context).clearAllData();
+                            new clsDraftRepo(context).createOrUpdate(draft);
+                            contentLibs = new ArrayList<VMItems>();
+                        }
+
                     }
-                    item.setDectax(decTaxGlobal);
-                    item.setTxtKN(productDraft.getTxtKN());
-                    item.setTxtGroupKN(productDraft.getTxtGroupKN());
-                    boolean booladded = addItem(item);
-                    addedSucces = booladded;
+                    if (addedSucces) {
+                        ToastCustom.showToasty(context, "Draft items restored", 3);
+                    } else {
+
+                    }
+
                 }
 
-                if (addedSucces) {
-                    ToastCustom.showToasty(context, "Draft items restored", 3);
-                }
             } catch (SQLException e) {
                 e.printStackTrace();
             }
@@ -5065,6 +5397,7 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
         String txtGroupUser = dataLogin.getGrpUser();
         final String txtItemCode = itemSelected.getItemCode();
         final String txtItemDesc = itemSelected.getDesc();
+        final String txtItemGroup = itemSelected.getItemGroup();
         int Qty = itemSelected.getQty();
         String intQty = String.valueOf(Qty);
         String txtKontakID = "";
@@ -5086,6 +5419,7 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
         try {
             resJson.put("txtGroupUser", txtGroupUser);
             resJson.put("txtItemCode", txtItemCode);
+            resJson.put("txtItemGroup", txtItemGroup);
             resJson.put("intQty", intQty);
             resJson.put("txtKontakID", txtKontakID);
             resJson.put("txtNoLangganan", txtNoLangganan);
@@ -5107,6 +5441,7 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
             public void onResponse(String response, Boolean status, String strErrorMsg) {
                 JSONObject jsonObjectPrice = null;
                 if (response != null) {
+                    getActivity().onUserInteraction();
                     try {
                         jsonObjectPrice = new JSONObject(response);
                         int result = jsonObjectPrice.getInt("intResult");
@@ -5236,6 +5571,7 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
     }
 
     private void refreshListItemSearch(final View promptView) {
+        getActivity().onUserInteraction();
         String strLinkAPISearchOnPopUp = new clsHardCode().linkSearch;
         String keywordOnPopUpSearch = etSearchOnPopUp.getText().toString();
         final JSONObject resJson = new JSONObject();
@@ -5257,6 +5593,7 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
             @Override
             public void onResponse(String response, Boolean status, String strErrorMsg) {
                 if (response != null) {
+                    getActivity().onUserInteraction();
                     JSONObject jsonObject = null;
                     try {
                         jsonObject = new JSONObject(response);
@@ -5334,24 +5671,161 @@ public class FragmentAddOrder extends Fragment implements IXListViewListener, RV
 
     @OnClick(R.id.etDeliverySchedule)
     public void onDeliveryScheduleClicked() {
-        Calendar c = Calendar.getInstance();
-        final Bundle args = new Bundle();
-        args.putInt(CustomDatePicker.YEAR, c.get(Calendar.YEAR));
-        args.putInt(CustomDatePicker.MONTH, 0);
-        args.putInt(CustomDatePicker.DAY_OF_MONTH, 1);
+        final String strLinkAPI = new clsHardCode().linkgetNationalHoliday;
+        final JSONObject resJson = new JSONObject();
+        try {
+            resJson.put("year", "");
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        final String mRequestBody = resJson.toString();
+        new VolleyUtils().makeJsonObjectRequestWithToken(getActivity(), strLinkAPI, mRequestBody, access_token, "Please Wait...", new VolleyResponseListener() {
+            @Override
+            public void onError(String response) {
+                ToastCustom.showToasty(context, response, 2);
+            }
 
-        int max = data.getIntSchedel();
-        c.add(Calendar.DATE, 0);
-        args.putLong(CustomDatePicker.DATE_MIN, c.getTimeInMillis());
+            @Override
+            public void onResponse(String response, Boolean status, String strErrorMsg) {
+                if (response != null) {
+                    getActivity().onUserInteraction();
+                    JSONObject jsonObject = null;
+                    try {
+                        jsonObject = new JSONObject(response);
+                        int result = jsonObject.getInt("intResult");
+                        String warn = jsonObject.getString("txtMessage");
+                        if (result == 1) {
+                            if (!jsonObject.getString("ListData").equals("null")) {
+                                JSONArray jsn = jsonObject.getJSONArray("ListData");
+                                List<Calendar> datesCalendar = new ArrayList<>();
+                                for (int n = 0; n < jsn.length(); n++) {
+                                    JSONObject object = jsn.getJSONObject(n);
+                                    String txtDay = object.getString("txtDay");
+                                    String dateString = "03/26/2012 11:49:00 AM";
+                                    SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy hh:mm:ss aa");
+                                    Date convertedDate = new Date();
+                                    try {
+                                        convertedDate = dateFormat.parse(txtDay);
+                                        Calendar cal = new GregorianCalendar();
+                                        cal.setTime(convertedDate);
+                                        datesCalendar.add(cal);
+                                    } catch (ParseException e) {
+                                        // TODO Auto-generated catch block
+                                        e.printStackTrace();
+                                    }
+                                }
+
+
+                                Calendar c = Calendar.getInstance();
+                                final Bundle args = new Bundle();
+                                args.putInt(CustomDatePicker.YEAR, c.get(Calendar.YEAR));
+                                args.putInt(CustomDatePicker.MONTH, 0);
+                                args.putInt(CustomDatePicker.DAY_OF_MONTH, 1);
+
+                                int max = data.getIntSchedel();
+
+                                c.add(Calendar.DATE, 0);
+                                args.putLong(CustomDatePicker.DATE_MIN, c.getTimeInMillis());
 //                args.putLong(CustomDatePicker.DATE_MAX, System.currentTimeMillis() - 24 * 60 * 60 * 1000);
-        //4 di bawah bisa di ganti dengan max schedule dari api
-        c.add(Calendar.DATE, max);
-        args.putLong(CustomDatePicker.DATE_MAX, c.getTimeInMillis());
+                                //4 di bawah bisa di ganti dengan max schedule dari api
+                                c.add(Calendar.DATE, max);
+                                args.putLong(CustomDatePicker.DATE_MAX, c.getTimeInMillis());
+                                OnSelectDateListener ondate = new OnSelectDateListener() {
+                                    @Override
+                                    public void onSelect(List<Calendar> calendar) {
+//            int a = 10;
+                                        Calendar calSelected = calendar.get(0);
+                                        year = calSelected.get(Calendar.YEAR);
+                                        month = calSelected.get(Calendar.MONTH);
+                                        day = calSelected.get(Calendar.DATE);
+                                        displayDate(etDeliverySchedule, clsDatePicker.format.standard1);
+                                        etDeliverySchedule.setEnabled(true);
+                                    }
 
-        //set hint for date
+                                };
+
+                                //set hint for date
 //        CustomDatePicker.showHint(etDeliverySchedule, args, CustomDatePicker.format.standard0);
-        clsDatePicker.showDatePicker(getActivity(), context, etDeliverySchedule, "Delivery Schedule", args, clsDatePicker.format.standard1, android.R.style.Theme_Holo_Light_Dialog);
+//        clsDatePicker.showDatePicker(getActivity(), context, etDeliverySchedule, "Delivery Schedule", args, clsDatePicker.format.standard1, android.R.style.Theme_Holo_Light_Dialog);
+                                List<Calendar> dts = getSundaySaturday();
+                                dts.addAll(datesCalendar);
+                                DatePickerBuilder oneDayBuilder = new DatePickerBuilder(getActivity(), ondate)
+                                        .pickerType(CalendarView.ONE_DAY_PICKER)
+                                        .date(Calendar.getInstance())
+                                        .headerColor(R.color.colorPrimaryDark)
+                                        .headerLabelColor(R.color.currentMonthDayColor)
+                                        .selectionColor(R.color.daysLabelColor)
+//                .todayLabelColor(R.color.colorAccent)
+                                        .dialogButtonsColor(android.R.color.holo_green_dark)
+//                .disabledDaysLabelsColor(android.R.color.holo_red_light)
+                                        .disabledDays(dts)
+                                        .disabledDaysLabelsColor(android.R.color.holo_red_light);
+//                .previousButtonSrc(R.drawable.ic_chevron_left_black_24dp)
+//                .forwardButtonSrc(R.drawable.ic_chevron_right_black_24dp)
+
+
+                                Calendar a = Calendar.getInstance();
+                                Calendar b = Calendar.getInstance();
+//                                a.add(Calendar.DATE,-1);
+                                b.add(Calendar.DATE, max);
+                                int intJumlahHoliday = new Helper().getDatesHolidayBetweenUsingJava7(a, b, datesCalendar);
+                                b = Calendar.getInstance();
+                                b.add(Calendar.DATE, max + intJumlahHoliday - 1);
+                                a = Calendar.getInstance();
+                                a.add(Calendar.DATE, -1);
+                                oneDayBuilder.minimumDate(a);
+                                oneDayBuilder.maximumDate(b);
+                                String DATE_MAX = "date_max";
+                                String DATE_MIN = "date_min";
+                                long maxi = args.getLong(DATE_MAX);
+                                long mini = args.getLong(DATE_MIN);
+                                DatePicker oneDayPicker = oneDayBuilder.build();
+                                oneDayPicker.show();
+                            }
+                        } else {
+                            ToastCustom.showToasty(context, warn, 2);
+
+                        }
+                    } catch (JSONException ex) {
+                        String x = ex.getMessage();
+                    }
+                }
+            }
+        });
+
+
 //        CustomDatePicker.showDatePicker(getActivity(), context, etDeliverySchedule, "Delivery Schedule", CustomDatePicker.format.standard0, args);
+    }
+
+    public List<Calendar> getSundaySaturday() {
+        Calendar calendar = Calendar.getInstance();
+        // Note that month is 0-based in calendar, bizarrely.
+        calendar.set(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), 1);
+        int daysInMonth = calendar.getActualMaximum(Calendar.DAY_OF_MONTH);
+
+        List<Calendar> cs = new ArrayList<>();
+
+        for (int day = 1; day <= daysInMonth; day++) {
+            calendar = Calendar.getInstance();
+//            calendar.set(2018, 6, day);
+            calendar.set(Calendar.getInstance().get(Calendar.YEAR), Calendar.getInstance().get(Calendar.MONTH), day);
+            int dayOfWeek = calendar.get(Calendar.DAY_OF_WEEK);
+            //menghilangkan hari sabtu
+            if (dayOfWeek == Calendar.SUNDAY) {
+                cs.add(calendar);
+                Date a = calendar.getTime();
+                String b = formatSimpleDate(a, 2);
+                Log.d("Day", b);
+                // Or do whatever you need to with the result.
+            }
+        }
+        return cs;
+    }
+
+    private static void displayDate(EditText editText, int format) {
+        GregorianCalendar c = new GregorianCalendar(year, month, day);
+        String date = formatSimpleDate(c.getTime(), format);
+        editText.setText(date);
     }
 
     @OnClick(R.id.etOrderLocation)

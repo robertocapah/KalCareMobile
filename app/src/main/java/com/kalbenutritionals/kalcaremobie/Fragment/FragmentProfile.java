@@ -3,6 +3,7 @@ package com.kalbenutritionals.kalcaremobie.Fragment;
 import android.Manifest;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.graphics.Bitmap;
@@ -13,7 +14,7 @@ import android.os.Environment;
 import android.os.StrictMode;
 import android.provider.MediaStore;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentTransaction;
+import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,6 +26,7 @@ import com.kalbenutritionals.kalcaremobie.BL.clsActivity;
 import com.kalbenutritionals.kalcaremobie.Common.clsPhotoProfile;
 import com.kalbenutritionals.kalcaremobie.Common.clsUserLogin;
 import com.kalbenutritionals.kalcaremobie.Data.Helper;
+import com.kalbenutritionals.kalcaremobie.Data.clsHardCode;
 import com.kalbenutritionals.kalcaremobie.MainMenu;
 import com.kalbenutritionals.kalcaremobie.R;
 import com.kalbenutritionals.kalcaremobie.Repo.clsPhotoProfilRepo;
@@ -36,11 +38,13 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.sql.SQLException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import butterknife.OnClick;
 import butterknife.Unbinder;
 import de.hdodenhof.circleimageview.CircleImageView;
 import gun0912.tedbottompicker.TedBottomPicker;
@@ -61,8 +65,6 @@ public class FragmentProfile extends Fragment {
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
     View v;
-    @BindView(R.id.profile_image)
-    CircleImageView profileImage;
     @BindView(R.id.tvUsername)
     TextView tvUsername;
     @BindView(R.id.tvUserId)
@@ -76,20 +78,23 @@ public class FragmentProfile extends Fragment {
     @BindView(R.id.tvTeleName)
     TextView tvTeleName;
     private static byte[] phtProfile;
+    @BindView(R.id.profile_image_profile)
+    CircleImageView profileImageProfile;
     private Uri uriImage, selectedImage;
     clsPhotoProfilRepo repoUserImageProfile;
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
-    final int SELECT_FILE_PROFILE = 6;
+    final int SELECT_FILE_PROFILE = 60;
     final int PIC_CROP_PROFILE = 50;
     clsUserLogin dataLogin;
     private static ByteArrayOutputStream output = new ByteArrayOutputStream();
     private OnFragmentInteractionListener mListener;
     Context context;
-    private static final int CAMERA_REQUEST_PROFILE = 120;
+    private static final int CAMERA_REQUEST_PROFILE = 140;
     List<clsPhotoProfile> dataImageProfile = null;
     private static Bitmap photoProfile, mybitmapImageProfile;
+
     public FragmentProfile() {
         // Required empty public constructor
     }
@@ -132,7 +137,7 @@ public class FragmentProfile extends Fragment {
         context = getActivity().getApplicationContext();
         getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         dataLogin = new clsUserLoginRepo(context).getDataLogin(context);
-        String name = dataLogin.getNmUser();
+        String name = dataLogin.getTxtTeleName();
         String idUser = dataLogin.getIdUser();
         String grp = dataLogin.getGrpUser();
         String outlet = dataLogin.getTxtNamaInstitusi();
@@ -145,9 +150,15 @@ public class FragmentProfile extends Fragment {
         tvSumberID.setText(sumberDataId);
         tvTeleName.setText(teleName);
         phtProfile = null;
-
+        profileImageProfile.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                selectImageProfile();
+                //tedChooserPicture();
+            }
+        });
         if (photoProfile != null) {
-            profileImage.setImageBitmap(photoProfile);
+            profileImageProfile.setImageBitmap(photoProfile);
             photoProfile.compress(Bitmap.CompressFormat.PNG, 100, output);
             phtProfile = output.toByteArray();
         }
@@ -163,6 +174,7 @@ public class FragmentProfile extends Fragment {
         }
         return v;
     }
+
     protected void viewImageProfile() {
         try {
             repoUserImageProfile = new clsPhotoProfilRepo(context);
@@ -173,14 +185,25 @@ public class FragmentProfile extends Fragment {
         File folder = new File(Environment.getExternalStorageDirectory().toString() + "/data/data/KalbeCare/tempdata/Foto_Profil");
         folder.mkdir();
 
-        for (clsPhotoProfile imgDt : dataImageProfile){
+        for (clsPhotoProfile imgDt : dataImageProfile) {
             final byte[] imgFile = imgDt.getTxtImg();
             if (imgFile != null) {
                 mybitmapImageProfile = BitmapFactory.decodeByteArray(imgFile, 0, imgFile.length);
                 Bitmap bitmap = Bitmap.createScaledBitmap(mybitmapImageProfile, 150, 150, true);
-                profileImage.setImageBitmap(bitmap);
+                profileImageProfile.setImageBitmap(bitmap);
             }
         }
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        getActivity().onUserInteraction();
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
     }
 
     @Override
@@ -245,7 +268,7 @@ public class FragmentProfile extends Fragment {
                     selectedImage = data.getData();
                     String uri = selectedImage.getPath().toString();
                     bitmap = BitmapFactory.decodeFile(uri, bitmapOptions);
-
+//                    performCropProfile();
                     performCropGalleryProfile();
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -275,31 +298,7 @@ public class FragmentProfile extends Fragment {
             }
         }
     }
-    private void performCropGalleryProfile() {
-        try {
-            //call the standard crop action intent (the user device may not support it)
-            Intent cropIntent = new Intent("com.android.camera.action.CROP");
-            //indicate image type and Uri
-            cropIntent.setDataAndType(selectedImage, "image/*");
-            //set crop properties
-            cropIntent.putExtra("crop", "true");
-            //indicate aspect of desired crop
-            cropIntent.putExtra("aspectX", 1);
-            cropIntent.putExtra("aspectY", 1);
-            //indicate output X and Y
-            cropIntent.putExtra("outputX", 256);
-            cropIntent.putExtra("outputY", 256);
-            //retrieve data on return
-            cropIntent.putExtra("return-data", true);
-            //start the activity - we handle returning in onActivityResult
-            startActivityForResult(cropIntent, PIC_CROP_PROFILE);
-        } catch (ActivityNotFoundException anfe) {
-            //display an error message
-            String errorMessage = "Whoops - your device doesn't support the crop action!";
-            Toast toast = Toast.makeText(getActivity(), errorMessage, Toast.LENGTH_SHORT);
-            toast.show();
-        }
-    }
+
     private Bitmap decodeUriAsBitmap(Uri uri) {
         Bitmap bitmap = null;
         try {
@@ -310,10 +309,11 @@ public class FragmentProfile extends Fragment {
         }
         return bitmap;
     }
+
     private void previewCaptureImageProfile(Bitmap photo) {
         try {
             Bitmap bitmap = new clsActivity().resizeImageForBlob(photo);
-            profileImage.setVisibility(View.VISIBLE);
+            profileImageProfile.setVisibility(View.VISIBLE);
             output = null;
             try {
                 output = new ByteArrayOutputStream();
@@ -331,13 +331,14 @@ public class FragmentProfile extends Fragment {
             }
             Bitmap photo_view = Bitmap.createScaledBitmap(bitmap, 150, 150, true);
             phtProfile = output.toByteArray();
-            profileImage.setImageBitmap(photo_view);
+            profileImageProfile.setImageBitmap(photo_view);
 
             saveImageProfile();
         } catch (NullPointerException e) {
             e.printStackTrace();
         }
     }
+
     protected void saveImageProfile() {
         try {
             clsPhotoProfilRepo repo = new clsPhotoProfilRepo(context);
@@ -352,12 +353,18 @@ public class FragmentProfile extends Fragment {
 
         new clsPhotoProfilRepo(context).createOrUpdate(data);
         int i = new clsPhotoProfilRepo(getActivity().getApplicationContext()).createOrUpdate(data);
-        getActivity().finish();
-        startActivity(new Intent(getActivity(), MainMenu.class));
+        Bitmap bitmap = BitmapFactory.decodeByteArray(phtProfile, 0, phtProfile.length);
+        CircleImageView ivMainMenu = getActivity().findViewById(R.id.profile_image);
+        profileImageProfile.setImageBitmap(bitmap);
+        ivMainMenu.setImageBitmap(bitmap);
+//        getActivity().finish();
+//        Intent intentToMe = new Intent(getActivity(), MainMenu.class);
+//        startActivity();
         Toast.makeText(getActivity().getApplicationContext(), "Image Profile Saved", Toast.LENGTH_SHORT).show();
-        FragmentTransaction ft = getFragmentManager().beginTransaction();
-        ft.detach(this).attach(this).commit();
+//        FragmentTransaction ft = getFragmentManager().beginTransaction();
+//        ft.detach(this).attach(this).commit();
     }
+
     protected void tedChooserPicture() {
         TedBottomPicker tedBottomPicker = new TedBottomPicker.Builder(getActivity())
                 .setOnImageSelectedListener(new TedBottomPicker.OnImageSelectedListener() {
@@ -378,6 +385,91 @@ public class FragmentProfile extends Fragment {
                 .create();
 
         tedBottomPicker.show(getActivity().getSupportFragmentManager());
+    }
+
+    private void selectImageProfile() {
+        final CharSequence[] items = {"Ambil Foto", "Pilih dari Galeri",
+                "Batal"};
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        builder.setTitle("Add Photo");
+        builder.setItems(items, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int item) {
+                boolean result = MainMenu.Utility.checkPermission(context);
+                if (items[item].equals("Ambil Foto")) {
+                    if (result)
+                        captureImageProfile();
+                } else if (items[item].equals("Pilih dari Galeri")) {
+                    if (result)
+                        galleryIntentProfile();
+                } else if (items[item].equals("Batal")) {
+                    dialog.dismiss();
+                }
+            }
+        });
+        builder.show();
+    }
+
+    protected void captureImageProfile() {
+        uriImage = getOutputMediaFileUri();
+        StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
+        StrictMode.setVmPolicy(builder.build());
+        Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, uriImage);
+        getActivity().startActivityForResult(cameraIntent, CAMERA_REQUEST_PROFILE);
+    }
+
+    private void galleryIntentProfile() {
+        Intent pickPhoto = new Intent(Intent.ACTION_PICK,
+                MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+        getActivity().startActivityForResult(pickPhoto, SELECT_FILE_PROFILE);//one can be replaced with any action code
+    }
+
+    private Uri getOutputMediaFileUri() {
+        return Uri.fromFile(getOutputMediaFile());
+    }
+
+    private File getOutputMediaFile() {
+        // External sdcard location
+
+        File mediaStorageDir = new File(new clsHardCode().txtFolderData + File.separator);
+        // Create the storage directory if it does not exist
+        if (!mediaStorageDir.exists()) {
+            if (!mediaStorageDir.mkdirs()) {
+//                Log.d(IMAGE_DIRECTORY_NAME, "Failed create " + IMAGE_DIRECTORY_NAME + " directory");
+                return null;
+            }
+        }
+        // Create a media file name
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(new Date());
+        File mediaFile;
+        mediaFile = new File(mediaStorageDir.getPath() + File.separator + "tmp_act" + ".png");
+        return mediaFile;
+    }
+    private void performCropGalleryProfile() {
+        try {
+            //call the standard crop action intent (the user device may not support it)
+            Intent cropIntent = new Intent("com.android.camera.action.CROP");
+            //indicate image type and Uri
+            cropIntent.setDataAndType(selectedImage, "image/*");
+            //set crop properties
+            cropIntent.putExtra("crop", "true");
+            //indicate aspect of desired crop
+            cropIntent.putExtra("aspectX", 1);
+            cropIntent.putExtra("aspectY", 1);
+            //indicate output X and Y
+            cropIntent.putExtra("outputX", 256);
+            cropIntent.putExtra("outputY", 256);
+            //retrieve data on return
+            cropIntent.putExtra("return-data", true);
+            //start the activity - we handle returning in onActivityResult
+            getActivity().startActivityForResult(cropIntent, PIC_CROP_PROFILE);
+        } catch (ActivityNotFoundException anfe) {
+            //display an error message
+            String errorMessage = "Whoops - your device doesn't support the crop action!";
+            Toast toast = Toast.makeText(getActivity(), errorMessage, Toast.LENGTH_SHORT);
+            toast.show();
+        }
     }
     private void performCropProfile() {
         try {
@@ -405,7 +497,7 @@ public class FragmentProfile extends Fragment {
         } catch (ActivityNotFoundException anfe) {
             //display an error message
             String errorMessage = "Whoops - your device doesn't support the crop action!";
-            ToastCustom.showToasty(context,errorMessage,2);
+            ToastCustom.showToasty(context, errorMessage, 2);
         }
     }
 
@@ -422,10 +514,10 @@ public class FragmentProfile extends Fragment {
         unbinder.unbind();
     }
 
-    @OnClick(R.id.profile_image)
+    /*@OnClick(R.id.profile_image)
     public void onViewClicked() {
         tedChooserPicture();
-    }
+    }*/
 
 
     /**

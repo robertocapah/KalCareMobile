@@ -12,8 +12,17 @@ public class VMItemsPreview {
     String status;
     String partnerName;
     String partnerAddress;
+    boolean bitAvailable;
     String partnerPhone;
     String txtIntFlag;
+
+    public boolean isBitAvailable() {
+        return bitAvailable;
+    }
+
+    public void setBitAvailable(boolean bitAvailable) {
+        this.bitAvailable = bitAvailable;
+    }
 
     public String getTxtIntFlag() {
         return txtIntFlag;

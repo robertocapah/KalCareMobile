@@ -2,6 +2,7 @@ package com.kalbenutritionals.kalcaremobie.Data.adapter;
 
 import android.content.Context;
 import android.graphics.Color;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.CardView;
 import android.view.View;
 import android.view.ViewGroup;
@@ -52,15 +53,40 @@ public class CardAppAdapterPreview extends BaseAdapter {
         }
         VMItemsPreview item = getItem(position);
         CardAppAdapterPreview.ViewHolder holder = (CardAppAdapterPreview.ViewHolder) convertView.getTag();
-        holder.tvintQTY.setText(item.getQty());
+
+        double dblQty = Double.parseDouble(item.getQty());
+        int intQty = (int) dblQty;
+        holder.tvintQTY.setText(String.valueOf(intQty));
         holder.tvtxtProductCode.setText(item.getProductCode());
         holder.tvtxtProductDesc.setText(item.getProductName());
+
+
         if (item.getTxtIntFlag().equals("0")){
-            holder.tvStatus.setText("Not available");
             holder.cardView.setCardBackgroundColor(color);
         }else{
-            holder.tvStatus.setText("Available");
             holder.cardView.setCardBackgroundColor(Color.GREEN);
+        }
+        if (!item.isBitAvailable()){
+            holder.tvStatus.setText("Not available");
+            holder.tvStatus.setTextColor(ContextCompat.getColor(context,R.color.red));
+            holder.tvtxtProductDesc.setTextColor(ContextCompat.getColor(context,R.color.red));
+            holder.tvtxtProductCode.setTextColor(ContextCompat.getColor(context,R.color.red));
+            holder.tvintQTY.setTextColor(ContextCompat.getColor(context,R.color.red));
+            holder.tvintQtyAvailable.setTextColor(ContextCompat.getColor(context,R.color.red));
+            holder.tvtxtPartnerName.setTextColor(ContextCompat.getColor(context,R.color.red));
+            holder.tvtxtPartnerAddress.setTextColor(ContextCompat.getColor(context,R.color.red));
+            holder.tvtxtPartnerPhone.setTextColor(ContextCompat.getColor(context,R.color.red));
+            holder.tv1.setTextColor(ContextCompat.getColor(context,R.color.red));
+            holder.tv2.setTextColor(ContextCompat.getColor(context,R.color.red));
+            holder.tv3.setTextColor(ContextCompat.getColor(context,R.color.red));
+            holder.tv4.setTextColor(ContextCompat.getColor(context,R.color.red));
+            holder.tv5.setTextColor(ContextCompat.getColor(context,R.color.red));
+            holder.tv6.setTextColor(ContextCompat.getColor(context,R.color.red));
+            holder.tv7.setTextColor(ContextCompat.getColor(context,R.color.red));
+            holder.tv8.setTextColor(ContextCompat.getColor(context,R.color.red));
+//            holder.cardView.setCardBackgroundColor(Color.RED);
+        }else{
+            holder.tvStatus.setText("Available");
         }
 
         holder.tvintQtyAvailable.setText(String.valueOf(item.getQtyAvailable()));
@@ -74,8 +100,17 @@ public class CardAppAdapterPreview extends BaseAdapter {
     class ViewHolder {
         TextView tvintQTY,tvtxtProductCode, tvdecAmount, tvStatus, tvintQtyAvailable, tvtxtPartnerAddress, tvtxtPartnerID, tvtxtPartnerName, tvtxtPartnerPhone, tvtxtProductDesc, tvintPriority;
         CardView cardView;
+        TextView tv1,tv2,tv3,tv4,tv5,tv6,tv7,tv8;
         ImageView iv_icon;
         public ViewHolder(View view) {
+            tv1 = (TextView) view.findViewById(R.id.tv1);
+            tv2 = (TextView) view.findViewById(R.id.tv2);
+            tv3 = (TextView) view.findViewById(R.id.tv3);
+            tv4 = (TextView) view.findViewById(R.id.tv4);
+            tv5 = (TextView) view.findViewById(R.id.tv5);
+            tv6 = (TextView) view.findViewById(R.id.tv6);
+            tv7 = (TextView) view.findViewById(R.id.tv7);
+            tv8 = (TextView) view.findViewById(R.id.tv8);
             tvintQTY = (TextView) view.findViewById(R.id.tvQty);
             tvtxtProductCode = (TextView) view.findViewById(R.id.tvItemCode);
             tvtxtProductDesc = (TextView) view.findViewById(R.id.tvItemName);

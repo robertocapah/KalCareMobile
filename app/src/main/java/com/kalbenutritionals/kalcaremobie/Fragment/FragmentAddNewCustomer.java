@@ -9,6 +9,7 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.AppCompatButton;
 import android.text.Editable;
+import android.text.InputFilter;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.Patterns;
@@ -98,14 +99,16 @@ public class FragmentAddNewCustomer extends Fragment implements SwipeRefreshLayo
     TextInputLayout textInputAlamat;
     @BindView(R.id.swipe_container)
     SwipeRefreshLayout swipeContainer;
+    int lengthChar;
 
     private HashMap<String, String> HMProvinceID = new HashMap<>();
     private HashMap<String, String> HMKabKotID = new HashMap<>();
     private HashMap<String, String> HMKecID = new HashMap<>();
     private HashMap<String, String> HMKel = new HashMap<>();
     private HashMap<String, String> HMKodePos = new HashMap<>();
+    private HashMap<String, String> HMPosPerKel = new HashMap<>();
     String access_token;
-
+    String txtChar = "20";
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -130,6 +133,7 @@ public class FragmentAddNewCustomer extends Fragment implements SwipeRefreshLayo
         } catch (JSONException e) {
             e.printStackTrace();
         }
+        getConfiguration();
         swipeContainer.setOnRefreshListener(this);
         swipeContainer.setColorSchemeResources(R.color.colorPrimary,
                 android.R.color.holo_green_dark,
@@ -330,7 +334,7 @@ public class FragmentAddNewCustomer extends Fragment implements SwipeRefreshLayo
                     if (!kecID.equals("0")) {
                         final JSONObject resJson = new JSONObject();
                         try {
-                            resJson.put("txtKecamatanID", KecName);
+                            resJson.put("txtKecamatanID", kecID);
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
@@ -365,6 +369,8 @@ public class FragmentAddNewCustomer extends Fragment implements SwipeRefreshLayo
                                                     HMKel.put(txtNamaKelurahan, txtNamaKelurahan);
                                                     categoriesPostCode.add(txtKodePosID + "-" + txtNamaKelurahan);
                                                     HMKodePos.put(txtKodePosID + "-" + txtNamaKelurahan, txtKodePosID);
+                                                    HMPosPerKel.put(txtNamaKelurahan,txtKodePosID + "-" + txtNamaKelurahan);
+
                                                 }
                                                 SpinnerCustom.setAdapterSpinner(spnKeLurahanNew, context, R.layout.custom_spinner, categoriesKelurahan);
                                                 SpinnerCustom.setAdapterSpinner(spnKodePosNew, context, R.layout.custom_spinner, categoriesPostCode);
@@ -394,12 +400,28 @@ public class FragmentAddNewCustomer extends Fragment implements SwipeRefreshLayo
 
             }
         });
+        spnKeLurahanNew.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                String kelName = categoriesKelurahan.get(position).toString();
+                String kelID = HMKel.get(kelName);
+                String pos = HMPosPerKel.get(kelName);
+                SpinnerCustom.selectedItemByText(context, spnKodePosNew, categoriesPostCode, pos);
+                spnKodePosNew.setEnabled(false);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
         inputFirstname.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 removeErrorMessage(textInputFirstName);
             }
         });
+
         inputFirstname.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -413,10 +435,17 @@ public class FragmentAddNewCustomer extends Fragment implements SwipeRefreshLayo
 
             @Override
             public void afterTextChanged(Editable s) {
+                lengthChar = Integer.parseInt(txtChar);
                 String nama = s.toString();
                 String lastName = inputLastName.getText().toString();
+                if (nama.length()>lengthChar){
+                    inputNamaKartu.setText("");
+                    setErrorMessage(context,textInputNamaKartu,inputNamaKartu,"nama tidak boleh lebih dari "+lengthChar+" karakter");
+                }else{
+                    inputNamaKartu.setText(nama + " " + lastName);
+                    removeErrorMessage(textInputNamaKartu);
+                }
 
-                inputNamaKartu.setText(nama + " " + lastName);
             }
         });
         inputLastName.addTextChangedListener(new TextWatcher() {
@@ -432,9 +461,36 @@ public class FragmentAddNewCustomer extends Fragment implements SwipeRefreshLayo
 
             @Override
             public void afterTextChanged(Editable s) {
+                lengthChar = Integer.parseInt(txtChar);
                 String namaDepan = inputFirstname.getText().toString();
                 String namaBelakang = s.toString();
-                inputNamaKartu.setText(namaDepan + " " + namaBelakang);
+                if (namaDepan.length()<lengthChar){
+                    if (namaDepan.length()+namaBelakang.length()<=lengthChar){
+                        inputNamaKartu.setText(namaDepan + " " + namaBelakang);
+                    }
+                }
+            }
+        });
+        inputNamaKartu.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                lengthChar = Integer.parseInt(txtChar);
+                String namaKartu = s.toString();
+                if (namaKartu.length()>lengthChar){
+                    setErrorMessage(context,textInputNamaKartu,inputNamaKartu,"Nama kartu tidak boleh lebih dari "+lengthChar+" karakter");
+                }else{
+                    removeErrorMessage(textInputNamaKartu);
+                }
             }
         });
         inputFirstname.setOnFocusChangeListener(new View.OnFocusChangeListener() {
@@ -512,10 +568,77 @@ public class FragmentAddNewCustomer extends Fragment implements SwipeRefreshLayo
         return view;
     }
 
+    private String getConfiguration(){
+
+        JSONObject resJson = new JSONObject();
+        try {
+            resJson.put("congfig", "");
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        swipeContainer.setOnRefreshListener(this);
+        swipeContainer.setColorSchemeResources(R.color.colorPrimary,
+                android.R.color.holo_green_dark,
+                android.R.color.holo_orange_dark,
+                android.R.color.holo_blue_dark);
+        String strLinkGetConfig = new clsHardCode().linkGetConfig;
+//getDataProvinsi();
+        final String mRequestBody = resJson.toString();
+        new VolleyUtils().makeJsonObjectRequestWithToken(getActivity(), strLinkGetConfig, mRequestBody, access_token, "Please Wait...", new VolleyResponseListener() {
+            @Override
+            public void onError(String response) {
+                ToastCustom.showToasty(context, response, 2);
+                btnSignup.setClickable(false);
+                btnSignup.setEnabled(false);
+            }
+
+            @Override
+            public void onResponse(String response, Boolean status, String strErrorMsg) {
+                if (response != null) {
+                    btnSignup.setClickable(true);
+                    JSONObject jsonObject = null;
+                    if (swipeContainer.isRefreshing()){
+                        swipeContainer.setRefreshing(false);
+                    }
+                    try {
+                        jsonObject = new JSONObject(response);
+                        int result = jsonObject.getInt("intResult");
+                        String warn = jsonObject.getString("txtMessage");
+                        if (result == 1) {
+
+                            if (!jsonObject.getString("ListData").equals("null")) {
+                                JSONArray jsn = jsonObject.getJSONArray("ListData");
+                                if (jsn.length()>0){
+                                    JSONObject obj = jsn.getJSONObject(0);
+                                    txtChar = obj.getString("txtConfigValue");
+                                    lengthChar = Integer.parseInt(txtChar);
+                                    InputFilter[] fArray = new InputFilter[1];
+                                    fArray[0] = new InputFilter.LengthFilter(lengthChar+1);
+                                    inputNamaKartu.setFilters(fArray);
+                                }
+                            }
+
+                        }
+                    } catch (JSONException e) {
+
+                    }
+
+                }
+            }
+        });
+        return "";
+    }
+
     @Override
     public void onDestroyView() {
         super.onDestroyView();
         unbinder.unbind();
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        getActivity().onUserInteraction();
     }
 
     private void addDefaultSpinnerAlamat() {
@@ -620,7 +743,11 @@ public class FragmentAddNewCustomer extends Fragment implements SwipeRefreshLayo
         } else {
             removeErrorMessage(textInputNamaKartu);
         }
-
+        lengthChar = Integer.parseInt(txtChar);
+        if(namaKartu.length()>lengthChar){
+            validasiData = false;
+            setErrorMessage(context, textInputNamaKartu, inputNamaKartu, "Nama kartu tidak boleh lebih dari "+lengthChar+" karakter");
+        }
         if (noHP.replace(" ", "").equals("")) {
             validasiData = false;
             setErrorMessage(context, textInputNoHp, inputNoHp, "No HP wajib di isi");
@@ -647,7 +774,7 @@ public class FragmentAddNewCustomer extends Fragment implements SwipeRefreshLayo
             }
 
         }
-        Pattern regex = Pattern.compile("[$&+,:;=\\\\?@#|/'<>^*()%!-]");
+        Pattern regex = Pattern.compile("[$&+:;=\\\\?@#|/'<>^*()%!-]");
         if (alamat.replace(" ", "").equals("")) {
             validasiData = false;
             setErrorMessage(context, textInputAlamat, inputAddress, "Alamat wajib di isi");
@@ -657,7 +784,13 @@ public class FragmentAddNewCustomer extends Fragment implements SwipeRefreshLayo
         } else if (regex.matcher(alamat.substring(0, 9).replace(" ", "")).find()) {
             validasiData = false;
             setErrorMessage(context, textInputAlamat, inputAddress, "Alamat tidak valid, check penggunaan spesial karakter");
-        } else {
+        } else if (alamat.contains(",,")){
+            validasiData = false;
+            setErrorMessage(context, textInputAlamat, inputAddress, "Alamat tidak valid, check penggunaan spesial karakter (koma)");
+        }else if (alamat.contains("..")){
+            validasiData = false;
+            setErrorMessage(context, textInputAlamat, inputAddress, "Alamat tidak valid, check penggunaan spesial karakter (titik)");
+        }else {
             removeErrorMessage(textInputAlamat);
         }
 

@@ -1,8 +1,12 @@
 package com.kalbenutritionals.kalcaremobie.Data;
 
+import android.app.Activity;
 import android.content.Context;
 import android.graphics.Color;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.Gravity;
+import android.widget.EditText;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
@@ -20,7 +24,9 @@ import java.text.NumberFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
@@ -134,7 +140,7 @@ public class Helper {
             try {
                 jsnItem.put("decQty",qty);
                 jsnItem.put("ProductCode",item.getItemCode());
-                jsnItem.put("decPrice",decPrice);
+                jsnItem.put("decPrice",String.valueOf(decPrice));
                 jsnItem.put("decBasePoint",decBasePoint);
                 jsnItem.put("intTotBonusPoin",intTotalBonus);
                 jsnItem.put("decDiscount",decDiscount);
@@ -169,6 +175,65 @@ public class Helper {
         }
         return items;
     }
+    public List<Date> getDatesBetweenUsingJava7(Date startDate, Date endDate) {
+        List<Date> datesInRange = new ArrayList<>();
+        Calendar calendar = new GregorianCalendar();
+        calendar.setTime(startDate);
+
+        Calendar endCalendar = new GregorianCalendar();
+        endCalendar.setTime(endDate);
+
+        while (calendar.before(endCalendar)) {
+            Date result = calendar.getTime();
+            datesInRange.add(result);
+            calendar.add(Calendar.DATE, 1);
+        }
+        return datesInRange;
+    }
+    public int getDatesHolidayBetweenUsingJava7(Calendar calendar, Calendar endCalendar, List<Calendar> dateHoliday) {
+//        List<Date> datesInRange = new ArrayList<>();
+//        Calendar calendar = new GregorianCalendar();
+//        calendar.setTime(startDate);
+        calendar.add(Calendar.DATE,1);
+//        Calendar endCalendar = new GregorianCalendar();
+//        endCalendar.setTime(endDate);
+        int a = 0;
+        List<Date> dateResult = new ArrayList<>();
+//        endCalendar.add(Calendar.DATE, 1);
+        while (calendar.before(endCalendar)) {
+            Date result = calendar.getTime();
+//            datesInRange.add(result);
+            boolean weekend  = false;
+            int dayOfWeek = calendar.get(Calendar.DAY_OF_WEEK);
+            if (dayOfWeek == Calendar.SUNDAY || dayOfWeek == Calendar.SATURDAY) {
+//                calendar.add(Calendar.DATE, 1);
+                a++;
+                endCalendar.add(Calendar.DATE, 1);
+                weekend = true;
+            }
+            for (Calendar cal : dateHoliday){
+                Calendar cal2 = new GregorianCalendar();
+                cal2.setTime(result);
+                if (isSameDay(cal,cal2) && !weekend){
+//                    calendar.add();
+                    a++;
+                    endCalendar.add(Calendar.DATE, 1);
+                }
+            }
+            calendar.add(Calendar.DATE, 1);
+        }
+
+
+        return a;
+    }
+    public static boolean isSameDay(Calendar cal1, Calendar cal2) {
+        if (cal1 == null || cal2 == null) {
+            throw new IllegalArgumentException("The dates must not be null");
+        }
+        return (cal1.get(Calendar.ERA) == cal2.get(Calendar.ERA) &&
+                cal1.get(Calendar.YEAR) == cal2.get(Calendar.YEAR) &&
+                cal1.get(Calendar.DAY_OF_YEAR) == cal2.get(Calendar.DAY_OF_YEAR));
+    }
     public String formatRupiah(double number){
         String money = "";
         Locale localeID = new Locale("in", "ID");
@@ -177,6 +242,24 @@ public class Helper {
         formatRupiah.setMinimumFractionDigits(2);
         money = formatRupiah.format((double)number);
         return money;
+    }
+    public static void textWatcher(EditText et, final Activity activity){
+        et.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                activity.onUserInteraction();
+            }
+        });
     }
     public JSONArray writeJSONSaveDataFinal(Context context, clsDraft draft, List<VMItems> contentLibs){
         boolean saveDraftResult = false;

@@ -3,7 +3,6 @@ package com.kalbenutritionals.kalcaremobie.Data;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.util.Base64;
 import android.widget.Toast;
 
@@ -17,7 +16,6 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.kalbe.mobiledevknlibs.Toast.ToastCustom;
-import com.kalbenutritionals.kalcaremobie.LoginActivity;
 
 import org.apache.http.HttpStatus;
 import org.json.JSONException;
@@ -254,41 +252,6 @@ public class VolleyUtils {
 //                    activity.startActivity(new Intent(activity, LoginActivity.class));
                 }
             }
-
-            public void popup() {
-                final SweetAlertDialog dialog = new SweetAlertDialog(activity, SweetAlertDialog.WARNING_TYPE);
-                dialog.setTitleText("Oops...");
-                dialog.setContentText("Mohon check kembali koneksi internet anda");
-                dialog.setCancelable(false);
-                dialog.setConfirmClickListener(new SweetAlertDialog.OnSweetClickListener() {
-                    @Override
-                    public void onClick(SweetAlertDialog sweetAlertDialog) {
-//                        activity.startActivity(new Intent(WifiManager.ACTION_PICK_WIFI_NETWORK)); // turn on internet with wifi
-//                        activity.startActivity(new Intent(Settings.ACTION_DATA_ROAMING_SETTINGS)); // turn on internet with mobile data
-                        dialog.dismiss();
-                        sweetAlertDialog.dismiss();
-
-                        final SweetAlertDialog pDialog = new SweetAlertDialog(activity, SweetAlertDialog.NORMAL_TYPE);
-                        pDialog.setTitleText("Refresh Data ?");
-                        pDialog.setContentText("");
-                        pDialog.setConfirmText("Refresh");
-                        pDialog.setCancelable(false);
-                        pDialog.setConfirmClickListener(new SweetAlertDialog.OnSweetClickListener() {
-                            @Override
-                            public void onClick(SweetAlertDialog sweetAlertDialog) {
-                                activity.startActivity(new Intent(activity, LoginActivity.class));
-                            }
-                        });
-                        pDialog.show();
-                    }
-                });
-                dialog.show();
-            }
-//            @Override
-//            public void onErrorResponse(VolleyError error) {
-//                finalDialog1.dismiss();
-//                listener.onError(error.getMessage());
-//            }
         }) {
             @Override
             protected Map<String, String> getParams() throws AuthFailureError {
@@ -315,7 +278,7 @@ public class VolleyUtils {
                 DefaultRetryPolicy(60000,
                 0,
                 DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
-
+        req.setShouldCache(false);
         RequestQueue queue = Volley.newRequestQueue(activity.getApplicationContext());
         queue.add(req);
     }
@@ -415,6 +378,7 @@ public class VolleyUtils {
                 DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
 
         RequestQueue queue = Volley.newRequestQueue(activity.getApplicationContext());
+        req.setShouldCache(false);
         queue.add(req);
     }
 
@@ -460,6 +424,7 @@ public class VolleyUtils {
                 DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
 
         RequestQueue queue = Volley.newRequestQueue(activity.getApplicationContext());
+        req.setShouldCache(false);
         queue.add(req);
     }
 }

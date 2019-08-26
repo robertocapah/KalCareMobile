@@ -8,10 +8,16 @@ import android.os.Bundle;
 import android.widget.DatePicker;
 import android.widget.EditText;
 
+import com.applandeo.materialcalendarview.CalendarView;
+import com.applandeo.materialcalendarview.builders.DatePickerBuilder;
+import com.applandeo.materialcalendarview.listeners.OnSelectDateListener;
+import com.kalbenutritionals.kalcaremobie.R;
+
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.List;
 
 /**
  * Created by Robert on 05/01/2018.
@@ -46,12 +52,7 @@ public class clsDatePicker {
             month = bundle.getInt(MONTH);
             day = bundle.getInt(DAY_OF_MONTH);
         }
-//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-//            //tambah style baru
-//            dialog = new DatePickerDialog(context, styles, myDateListener, year, month, day);
-//        } else {
-//            dialog = new DatePickerDialog(context, myDateListener, year, month, day);
-//        }
+
         dialog = new DatePickerDialog(activity, styles, myDateListener, year, month, day);
         long max = bundle.getLong(DATE_MAX);
         long min = bundle.getLong(DATE_MIN);
@@ -65,6 +66,42 @@ public class clsDatePicker {
         dialog.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
         dialog.show();
     }
+    public static void showDatePickerCustom(Activity activity, final Context context, EditText editText, String title, Bundle bundle, int format, int styles, Calendar c) {
+        frm = format;
+        dateView = editText;
+        if (editText.getText().toString().equals("")) {
+            year = bundle.getInt(YEAR);
+            month = bundle.getInt(MONTH);
+            day = bundle.getInt(DAY_OF_MONTH);
+        }
+
+        DatePickerBuilder oneDayBuilder = new DatePickerBuilder(activity.getApplicationContext(), ondate)
+                .pickerType(CalendarView.ONE_DAY_PICKER)
+                .date(Calendar.getInstance())
+                .headerColor(R.color.colorPrimaryDark)
+                .headerLabelColor(R.color.currentMonthDayColor)
+                .selectionColor(R.color.daysLabelColor)
+                .todayLabelColor(R.color.colorAccent)
+                .dialogButtonsColor(android.R.color.holo_green_dark)
+                .disabledDaysLabelsColor(android.R.color.holo_purple);
+//                .previousButtonSrc(R.drawable.ic_chevron_left_black_24dp)
+//                .forwardButtonSrc(R.drawable.ic_chevron_right_black_24dp)
+
+//                .disabledDays(getDisabledDays());
+        String DATE_MAX = "date_max";
+        String DATE_MIN = "date_min";
+
+        oneDayBuilder.minimumDate(Calendar.getInstance());
+        oneDayBuilder.maximumDate(c);
+        com.applandeo.materialcalendarview.DatePicker oneDayPicker = oneDayBuilder.build();
+        oneDayPicker.show();
+    }
+    private static OnSelectDateListener ondate = new OnSelectDateListener() {
+        @Override
+        public void onSelect(List<Calendar> calendar) {
+
+        }
+    };
 
     private static DatePickerDialog.OnDateSetListener myDateListener = new
             DatePickerDialog.OnDateSetListener() {

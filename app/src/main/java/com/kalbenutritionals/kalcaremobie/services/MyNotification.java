@@ -13,6 +13,7 @@ import android.graphics.BitmapFactory;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.kalbe.mobiledevknlibs.Toast.ToastCustom;
 import com.kalbenutritionals.kalcaremobie.Common.clsToken;
@@ -48,7 +49,9 @@ public class MyNotification extends Service {
     String classNameF = null;
     Context context;
     private static long UPDATE_INTERVAL_TESTING = 30000;  //default
-    String access_token;
+    String access_token = "";
+    MainMenu mainMenuActivity = MainMenu.instance;
+    clsTokenRepo tokenRepo;
     public MyNotification() {
 
     }
@@ -93,7 +96,11 @@ public class MyNotification extends Service {
         context = getApplicationContext();
         try {
             List<clsToken> dataToken = new clsTokenRepo(context).findAll();
-            access_token = dataToken.get(0).txtUserToken.toString();
+            if (dataToken!=null || dataToken.size()<1){
+                access_token = dataToken.get(0).txtUserToken.toString();
+            }else {
+                requestToken();
+            }
         } catch (Exception e) {
             ToastCustom.showToasty(context, "Token Empty", 2);
         }
@@ -105,11 +112,61 @@ public class MyNotification extends Service {
         context = getApplicationContext();
         try {
             List<clsToken> dataToken = new clsTokenRepo(context).findAll();
-            access_token = dataToken.get(0).txtUserToken.toString();
+            if (dataToken!=null || dataToken.size()<1){
+                access_token = dataToken.get(0).txtUserToken.toString();
+            }else {
+                requestToken();
+            }
         } catch (Exception e) {
             ToastCustom.showToasty(context, "Token Empty", 2);
         }
         return super.onStartCommand(intent, flags, startId);
+    }
+    private void requestToken() {
+        String username = "";
+        String strLinkAPI = new clsHardCode().linkToken;
+        String clientIdh = "";
+        mConfigRepo configRepo = new mConfigRepo(getApplicationContext());
+        try {
+            mConfigData configDataClient = (mConfigData) configRepo.findById(4);
+            mConfigData configDataUser = (mConfigData) configRepo.findById(5);
+            username = configDataUser.getTxtDefaultValue().toString();
+            clientIdh = configDataClient.getTxtDefaultValue().toString();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        new VolleyUtils().makeJsonObjectRequestToken(mainMenuActivity, strLinkAPI, username, "", clientIdh, "Requesting Token, Please Wait", new VolleyResponseListener() {
+            @Override
+            public void onError(String message) {
+                Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onResponse(String response, Boolean status, String strErrorMsg) {
+                if (response != null) {
+                    try {
+                        String accessToken = "";
+                        String refreshToken = "";
+                        JSONObject jsonObject = new JSONObject(response);
+                        accessToken = jsonObject.getString("access_token");
+                        refreshToken = jsonObject.getString("refresh_token");
+                        String dtIssued = jsonObject.getString(".issued");
+
+                        clsToken data = new clsToken();
+                        data.setIntId("1");
+                        data.setDtIssuedToken(dtIssued);
+                        data.setTxtUserToken(accessToken);
+                        data.setTxtRefreshToken(refreshToken);
+                        access_token = accessToken;
+                        tokenRepo.createOrUpdate(data);
+                        Log.d("Data info", "get access_token & refresh_token, Success");
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        });
     }
 
     public boolean getVersionUpdate(){
@@ -132,96 +189,111 @@ public class MyNotification extends Service {
             e.printStackTrace();
         }
         final String mRequestBody = resJson.toString();
-        final MainMenu mainMenuActivity = MainMenu.instance;
-        new VolleyUtils().makeJsonObjectRequestWithTokenWithoutProgressDService(mainMenuActivity, strLinkAPI, mRequestBody, access_token, "Please Wait...", new VolleyResponseListener() {
-            @Override
-            public void onError(String response) {
-                ToastCustom.showToasty(context, response, 2);
-            }
+        mainMenuActivity = MainMenu.instance;
+        if (access_token != null || access_token.equals("")){
+            new VolleyUtils().makeJsonObjectRequestWithTokenWithoutProgressDService(mainMenuActivity, strLinkAPI, mRequestBody, access_token, "Please Wait...", new VolleyResponseListener() {
+                @Override
+                public void onError(String response) {
+                    ToastCustom.showToasty(context, response, 2);
+                }
 
-            @Override
-            public void onResponse(String response, Boolean status, String strErrorMsg) {
-                try {
-                    JSONObject jsonObject = new JSONObject(response);
-                    int result = jsonObject.getInt("intResult");
-                    String warn = jsonObject.getString("txtMessage");
+                @Override
+                public void onResponse(String response, Boolean status, String strErrorMsg) {
+                    try {
+                        JSONObject jsonObject = new JSONObject(response);
+                        int result = jsonObject.getInt("intResult");
+                        String warn = jsonObject.getString("txtMessage");
 
 
-                    if (result == 0) {
-                        ToastCustom.showToasty(getApplicationContext(), " Invalid Username or Password", 2);
-                    } else {
-                        if (!jsonObject.getString("ListData").equals("null")) {
-                            JSONArray jsn = jsonObject.getJSONArray("ListData");
+                        if (result == 0) {
+                            ToastCustom.showToasty(getApplicationContext(), " Invalid Username or Password", 2);
+                        } else {
+                            if (!jsonObject.getString("ListData").equals("null")) {
+                                JSONArray jsn = jsonObject.getJSONArray("ListData");
 
-                            JSONObject jsnObject = jsn.getJSONObject(0);
-                            String txtDataId = jsnObject.getString("txtDataId");
-                            String txtAppName = jsnObject.getString("txtAppName");
-                            String txtAppSecret = jsnObject.getString("txtAppSecret");
-                            String txtVersion = jsnObject.getString("txtVersion");
-                            String txtFileName = jsnObject.getString("txtFileName");
-                            String txtDomain = jsnObject.getString("txtDomain");
-                            if (pInfo.versionName.equals(txtVersion) == false) {
-                                Intent i = new Intent(getApplicationContext(), MainMenu.class);
-                                i.putExtra("key_view", "Notification");
+                                JSONObject jsnObject = jsn.getJSONObject(0);
+                                String txtDataId = jsnObject.getString("txtDataId");
+                                String txtAppName = jsnObject.getString("txtAppName");
+                                String txtAppSecret = jsnObject.getString("txtAppSecret");
+                                String txtVersion = jsnObject.getString("txtVersion");
+                                String txtFileName = jsnObject.getString("txtFileName");
+                                String txtDomain = jsnObject.getString("txtDomain");
+                                if (pInfo.versionName.equals(txtVersion) == false) {
+                                    Intent i = new Intent(getApplicationContext(), MainMenu.class);
+                                    i.putExtra("key_view", "Notification");
 //                                i.putExtra(TAG_UUID, String.valueOf(dttNotificationData.get_guiID()));
-                                i.setAction("notif");
-                                int idn = 0;
-                                PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(),idn, i, PendingIntent.FLAG_ONE_SHOT);
-                                int icon = R.drawable.ic_alert_black;
-                                long when = System.currentTimeMillis();
-                                Notification tnotification = new Notification.Builder(MyNotification.this)
-                                        .setContentIntent(pendingIntent)
-                                        .setContentTitle("Update Notification")
-                                        .setContentText("Versi Aplikasi Kalcare telah update ke "+txtVersion+" mohon logout sebelum melakukan transaksi")
-                                        .setSmallIcon(icon)
-                                        .setLargeIcon(BitmapFactory.decodeResource(getApplicationContext().getResources(),
-                                                R.drawable.ic_kalcare_v2))
-                                        .setWhen(when)
-                                        .setTicker("Kalcare Mobile")
-                                        .setPriority(Notification.PRIORITY_HIGH)
-                                        .setAutoCancel(true)
-                                        .setDefaults(Notification.DEFAULT_ALL | Notification.FLAG_SHOW_LIGHTS | Notification.PRIORITY_DEFAULT)
-                                        .build();
-                                NotificationManager tnotificationManager=(NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
-                                tnotification.defaults=Notification.DEFAULT_ALL;
-                                tnotificationManager.notify(idn,tnotification);
-                                android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(mainMenuActivity);
-                                builder.setTitle("Update");
-                                builder.setMessage("Aplikasi harus di update ke versi terbaru, silahkan logout dan update aplikasi.");
+                                    i.setAction("notif");
+                                    int idn = 0;
+                                    PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(),idn, i, PendingIntent.FLAG_ONE_SHOT);
+                                    int icon = R.drawable.ic_alert_black;
+                                    long when = System.currentTimeMillis();
+                                    Notification tnotification = new Notification.Builder(MyNotification.this)
+                                            .setContentIntent(pendingIntent)
+                                            .setContentTitle("Update Notification")
+                                            .setContentText("Versi Aplikasi Kalcare telah update ke "+txtVersion+" mohon logout sebelum melakukan transaksi")
+                                            .setSmallIcon(icon)
+                                            .setLargeIcon(BitmapFactory.decodeResource(getApplicationContext().getResources(),
+                                                    R.drawable.ic_kalcare_v2))
+                                            .setWhen(when)
+                                            .setTicker("Kalcare Mobile")
+                                            .setPriority(Notification.PRIORITY_HIGH)
+                                            .setAutoCancel(true)
+                                            .setDefaults(Notification.DEFAULT_ALL | Notification.FLAG_SHOW_LIGHTS | Notification.PRIORITY_DEFAULT)
+                                            .build();
+                                    NotificationManager tnotificationManager=(NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
+                                    tnotification.defaults=Notification.DEFAULT_ALL;
+                                    tnotificationManager.notify(idn,tnotification);
+                                    android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(mainMenuActivity);
+                                    builder.setTitle("Update");
+                                    builder.setMessage("Aplikasi harus di update ke versi terbaru, silahkan logout dan update aplikasi.");
 
-                                builder.setPositiveButton("Logout", new DialogInterface.OnClickListener() {
+                                    builder.setPositiveButton("Logout", new DialogInterface.OnClickListener() {
 
-                                    public void onClick(DialogInterface dialog, int which) {
+                                        public void onClick(DialogInterface dialog, int which) {
                                             Intent intent = new Intent(mainMenuActivity, SplashActivity.class);
                                             DatabaseHelper helper = DatabaseManager.getInstance().getHelper();
                                             helper.clearDataAfterLogout();
                                             startActivity(intent);
+                                        }
+                                    });
+
+                                    builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+
+                                        @Override
+                                        public void onClick(DialogInterface dialog, int which) {
+                                            dialog.dismiss();
+                                        }
+                                    });
+
+                                    android.app.AlertDialog alert = builder.create();
+                                    if (!alert.isShowing()){
+                                        alert.show();
+                                    }else{
+                                        alert.dismiss();
+                                        alert.show();
                                     }
-                                });
-
-                                builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-
-                                    @Override
-                                    public void onClick(DialogInterface dialog, int which) {
-                                        dialog.dismiss();
-                                    }
-                                });
-
-                                android.app.AlertDialog alert = builder.create();
-                                if (!alert.isShowing()){
-                                    alert.show();
-                                }else{
-                                    alert.dismiss();
-                                    alert.show();
                                 }
                             }
                         }
+                    } catch (JSONException e) {
+                        e.printStackTrace();
                     }
-                } catch (JSONException e) {
-                    e.printStackTrace();
                 }
-            }
-        });
+            });
+        }else{
+            Log.d("Token", "Nyangkut");
+        }
+
         return false;
+    }
+
+    @Override
+    public void onDestroy() {
+        _shutdownService();
+        super.onDestroy();
+    }
+    private void _shutdownService() {
+        if (timer != null) timer.cancel();
+        Log.i(getClass().getSimpleName(), "Timer stopped...");
     }
 }

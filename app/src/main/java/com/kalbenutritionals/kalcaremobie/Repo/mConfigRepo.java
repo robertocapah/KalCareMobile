@@ -15,15 +15,26 @@ import java.util.List;
 
 public class mConfigRepo {
     DatabaseHelper helper;
-//    public String API = "http://10.171.10.19:8020/NHD/";
-//    public String APIToken = "http://10.171.10.19:8020/token";
-//    public String strDomain = "10.171.10.13:8020";
-//    public String strDomain = "10.171.10.28:8020";
-    public String strDomain = "appgw.kalbenutritionals.com/api/kalcaremobile";
-    public String API = "http://"+strDomain+"/NHD/";
-    public String APIToken = "http://"+strDomain+"/token";
+    //pc Roberto
+//    public String strDomain = "192.168.137.8/WebAPIKalcare";
+//    public String strDomain = "10.171.13.163/WebAPIKalcare";
+    //pc AAn
+//    public String strDomain = "10.171.14.19:8018";
+    //Testing Internet
+    public String strDomain = "appgwdev.kalbenutritionals.com/api/kalcaremobile";
+    //LIVE
+//    public String strDomain = "appgw.kalbenutritionals.com/api/kalcare";
+
+    //production pakai https jika testing http
 //    public String API = "http://"+strDomain+"/NHD/";
-//    public String APIToken = "http://"+strDomain+"/token/";
+//    public String APIToken = "http://"+strDomain+"/token";
+//
+    //prod
+    public String API = "https://"+strDomain+"/NHD/";
+    public String APIToken = "https://"+strDomain+"/token";
+    //testing
+//    public String API = "http://"+strDomain+"/NHD/";
+//    public String APIToken = "http://"+strDomain+"/token";
 
     public mConfigRepo(Context context) {
         DatabaseManager.init(context);

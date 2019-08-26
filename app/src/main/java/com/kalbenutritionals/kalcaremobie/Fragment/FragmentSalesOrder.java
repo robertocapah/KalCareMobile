@@ -139,6 +139,7 @@ public class FragmentSalesOrder extends Fragment {
             public void onClick(View v) {
                 new clsProductDraftRepo(context).clearAllData();
                 new clsDraftRepo(context).clearAllData();
+//                MainMenu.startUserSession();
                 FragmentAddOrder fragmentAddOrder = new FragmentAddOrder();
                 FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
                 fragmentTransaction.replace(R.id.frame, fragmentAddOrder, "Fragment_AddOrder");
@@ -236,6 +237,8 @@ public class FragmentSalesOrder extends Fragment {
                                 lvSO.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
                                     @Override
                                     public boolean onItemLongClick(AdapterView<?> parent, View view, final int position, long id) {
+                                        //new MainMenu().startTimer();
+                                        getActivity().onUserInteraction();
                                         final String so = contentLibs.get(position).getTxtNoSo();
                                         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
                                         alertDialogBuilder.setMessage("Action for " + so + " ?");
@@ -278,6 +281,8 @@ public class FragmentSalesOrder extends Fragment {
                                         alertD.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
                                             @Override
                                             public void onClick(View v) {
+                                                //new MainMenu().startTimer();
+                                                getActivity().onUserInteraction();
                                                 final JSONObject resJsonDelete = new JSONObject();
                                                 final String strLinkAPIDelete = new clsHardCode().linkDelete;
                                                 try {
@@ -325,6 +330,8 @@ public class FragmentSalesOrder extends Fragment {
                                         alertD.getButton(DialogInterface.BUTTON_NEGATIVE).setOnClickListener(new View.OnClickListener() {
                                             @Override
                                             public void onClick(View v) {
+                                                //new MainMenu().startTimer();
+                                                getActivity().onUserInteraction();
                                                 VMLIstSo itemSelected = null;
                                                 itemSelected = contentLibs.get(position);
                                                 if (!itemSelected.getTxtStatus().equals("DRAFT")) {
@@ -415,6 +422,7 @@ public class FragmentSalesOrder extends Fragment {
                                                                             JSONArray jsn = jsonObject.getJSONArray("ListData");
 
                                                                             JSONObject objData = jsn.getJSONObject(0).getJSONObject("DataSalesOrder");
+                                                                            JSONObject objDataAgent = jsn.getJSONObject(0).getJSONObject("DataAgent");
 
 
                                                                             String txtNewIdSO = objData.getString("txtNewId");
@@ -440,6 +448,7 @@ public class FragmentSalesOrder extends Fragment {
                                                                             String txtKabupatenKotaName = objData.getString("txtKabupatenKotaName");
                                                                             String txtKecamatanID = objData.getString("txtKecamatanID");
                                                                             String txtKecamatanName = objData.getString("txtKecamatanName");
+                                                                            String intWalkIn = objData.getString("intWalkIn");
                                                                             String txtKelurahanID = objData.getString("txtKelurahanID");
                                                                             String txtKelurahanName = objData.getString("txtKelurahanName");
                                                                             String txtKodePos = objData.getString("txtKodePos");
@@ -448,16 +457,24 @@ public class FragmentSalesOrder extends Fragment {
                                                                             String intStatus = objData.getString("intStatus");
                                                                             String txtStatus_code = objData.getString("txtStatus_code");
                                                                             String txtSourceOrderName = objData.getString("txtSourceOrderName");
+                                                                            String txtTeleName = objDataAgent.getString("TeleName");
 
 
                                                                             tvSOSourcePrev.setText(txtSourceOrderName);
                                                                             tvSoDatePrev.setText(dtDate);
                                                                             tvSOStatusPrev.setText(txtStatus_code);
                                                                             tvDeliverySchedulePrev.setText(dtDelivery);
-                                                                            tvAgentNamePrev.setText(txtAgentName);
+                                                                            tvAgentNamePrev.setText(txtTeleName);
                                                                             tvOrderLocationPrev.setText(txtPickUpLocationName);
                                                                             tvRemarksPreview.setText(txtRemarks);
-                                                                            tvDeliveryByPrev.setText(txtDeliveryByName);
+                                                                            if(intPassBy.equals("1")){
+                                                                                tvDeliveryByPrev.setText("Pass-By");
+                                                                            }else if(intWalkIn.equals("1")){
+                                                                                tvDeliveryByPrev.setText("Walk in");
+                                                                            }else{
+                                                                                tvDeliveryByPrev.setText("Delivery Order");
+                                                                            }
+
                                                                             tvCustomerPrev.setText(txtPickUpLocation);
                                                                             tvSoNumberPrev.setText(txtNoSo);
 //                                                                            if (intDeliveryBy.equals("1")) {
@@ -537,7 +554,7 @@ public class FragmentSalesOrder extends Fragment {
                                                                                 String txtGroupKN = obj.getString("txtGroupKN");
                                                                                 int intItemID = obj.getInt("intItemID");
                                                                                 int intQty = obj.getInt("intQty");
-                                                                                double decPrice = obj.getInt("decPrice");
+                                                                                double decPrice = obj.getDouble("decPrice");
 
                                                                                 double decDiscount = obj.getInt("decDiscount");
                                                                                 double decBasePoint = obj.getInt("decBasePoint");
@@ -944,6 +961,16 @@ public class FragmentSalesOrder extends Fragment {
         return view;
     }
 
+    @Override
+    public void onPause() {
+        super.onPause();
+        getActivity().onUserInteraction();
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+    }
 
     /**
      * This interface must be implemented by activities that contain this

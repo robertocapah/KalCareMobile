@@ -50,10 +50,11 @@ public class FragmentInformation extends Fragment {
 
         final clsUserLogin data = new clsUserLoginRepo(context).getDataLogin(context);
         if (data != null){
-            tvUsername.setText(data.getNmUser());
+            tvUsername.setText(data.getTxtTeleName());
             tvNIK.setText(data.getIdUser());
             tvBranchOutlet.setText(data.getTxtNamaInstitusi());
             tvEmail.setText(data.getTxtSumberDataID());
+            tvEmail.setVisibility(View.GONE);
         }
 
 
@@ -74,6 +75,18 @@ public class FragmentInformation extends Fragment {
     public void onDestroyView() {
         super.onDestroyView();
         unbinder.unbind();
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        getActivity().onUserInteraction();
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+
     }
 }
 
